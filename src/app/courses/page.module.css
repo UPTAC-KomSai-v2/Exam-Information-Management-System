@@ -2,9 +2,9 @@
   --background: #dddddd;
   --foreground: #fff;
 
-  --exam-div-background: #f2f2f2; 
-  --exam-text: #7B1113;
-  --exam-text-hover: #9d0f11;
+  --course-div-background: #f2f2f2; 
+  --course-text: #7B1113;
+  --course-text-hover: #9d0f11;
 
   --text-main-menu: #ffffff;
   --text-primary: #171717;
@@ -39,7 +39,7 @@
   padding: 30px;
 }
 
-.examDiv {
+.courseDiv {
   display: flex;
   width: 100%;
   flex-direction: column;
@@ -47,19 +47,19 @@
   text-align: left;
   gap: 5px;
   padding: 20px;
-  background-color: var(--exam-div-background);
+  background-color: var(--course-div-background);
   border-radius: 10px;
   cursor: pointer;
 }
 
-.examDiv p.title {
+.courseDiv p.title {
   font-size: 22px;
   font-weight: 600;
   text-wrap: balance;
-  color: var(--exam-text);
+  color: var(--course-text);
 }
 
-.examDiv p.description {
+.courseDiv p.description {
   font-size: 17px;
   text-wrap: balance;
   color: var(--text-secondary);
@@ -102,7 +102,7 @@
   padding: 0 34px;
   font-weight: 500;
   font-size: 30px;
-  background: var(--exam-div-background);
+  background: var(--course-div-background);
   color: var(--button-text);
   gap: 8px;
 }
@@ -124,7 +124,7 @@
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  background-color: var(--exam-div-background);
+  background-color: var(--course-div-background);
   padding: 25px;
   gap: 10px;
   border-radius: 10px;
@@ -180,7 +180,7 @@ button.exitOverlay {
   }
 
   p.title:hover {
-    color: var(--exam-text-hover);
+    color: var(--course-text-hover);
   }
 
   button.submit:hover {
@@ -193,11 +193,11 @@ button.exitOverlay {
     padding: 48px 24px;
   }
 
-  .examDiv {
+  .courseDiv {
     gap: 16px;
   }
 
-  .examDiv h1 {
+  .courseDiv h1 {
     font-size: 32px;
     line-height: 40px;
     letter-spacing: -1.92px;
@@ -208,8 +208,8 @@ button.exitOverlay {
   .page {
     --background: #242424;
 
-    --exam-div-background: #171717;
-    --exam-text: #f2f2f2;
+    --course-div-background: #171717;
+    --course-text: #f2f2f2;
     --text-main-menu: #ffffff;
 
     --text-primary: #f2f2f2;
