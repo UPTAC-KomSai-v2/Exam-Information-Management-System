@@ -1,6 +1,6 @@
 import Image from "next/image";
 import styles from "./page.module.css";
-import Nav from "./components/nav";
+import Nav from "./components/homepageNav";
 import Link from 'next/link';
 
 let logo = "/images/logo.png";

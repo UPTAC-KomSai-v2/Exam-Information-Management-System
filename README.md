@@ -2,6 +2,6 @@
 Exam Information Management System that supports exam creation, scheduling, announcements, secure file exchange, result publishing, and audit logging for Admin, Faculty, and Students.
 
 # Technology Stack
-Frontend: Next.js, Tailwind.css
+Frontend: Next.js
 Frontend to Backend Communication: tRPC
 Backend: Drizzle, PostgreSQL (database)

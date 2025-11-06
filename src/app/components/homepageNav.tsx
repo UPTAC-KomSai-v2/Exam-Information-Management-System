@@ -1,5 +1,5 @@
 import Image from "next/image";
-import styles from "./nav.module.css";
+import styles from "./homepageNav.module.css";
 
 let logo = "/images/logo.png";
 
@@ -23,19 +23,19 @@ export default function Home() {
           href=""
           rel="noopener noreferrer"
         >
-          Dashboard
+          About Us
         </a>
         <a
           href=""
           rel="noopener noreferrer"
         >
-          Courses
+          Register
         </a>
         <a
           href=""
           rel="noopener noreferrer"
         >
-          Profile
+          Login
         </a>
       </div>
     </header>

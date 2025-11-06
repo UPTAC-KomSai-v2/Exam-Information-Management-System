@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import styles from "./page.module.css";
-import Nav from "./components/nav";
+import Nav from "@/app/components/userNav";
 import { useState } from "react";
 
 let logo = "/images/logo.png";

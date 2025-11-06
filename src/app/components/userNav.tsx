@@ -1,5 +1,5 @@
 import Image from "next/image";
-import styles from "./nav.module.css";
+import styles from "./userNav.module.css";
 
 let logo = "/images/logo.png";
 
@@ -8,7 +8,7 @@ export default function Home() {
     <header className={styles.nav}>
       <a 
           className={styles.logo}
-          href=""
+          href="/"
           rel="noopener noreferrer"
       >
         <Image
@@ -20,22 +20,22 @@ export default function Home() {
       </a>
       <div className={styles.navButtons}>
         <a
-          href=""
+          href="/dashboard"
           rel="noopener noreferrer"
         >
-          About Us
+          Dashboard
         </a>
         <a
-          href=""
+          href="/courses"
           rel="noopener noreferrer"
         >
-          Register
+          Courses
         </a>
         <a
-          href=""
+          href="/profile"
           rel="noopener noreferrer"
         >
-          Login
+          Profile
         </a>
       </div>
     </header>
