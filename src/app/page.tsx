@@ -18,7 +18,7 @@ export default function Home() {
             src={logo}
             alt="Logo"
             width={500}
-            height={104}
+            height={65}
           />
           <h1>{desc1}</h1>
           <p>{desc2}</p>
@@ -27,7 +27,7 @@ export default function Home() {
         <div className={styles.buttons}>
           <a
             className={styles.primary}
-            href="/dashboard"
+            href="/user/dashboard"
             rel="noopener noreferrer"
           >
             Register an Account
@@ -35,7 +35,7 @@ export default function Home() {
 
           <a
             className={styles.primary}
-            href="/dashboard"
+            href="/user/dashboard"
             rel="noopener noreferrer"
           >
             Login to an Account
