@@ -100,8 +100,9 @@ button.primary {
   justify-content: center;
   align-items: center;
   height: 40px;
-  padding: 0 34px;
-  margin: 10px 0px;
+  padding: 0 50px;
+  margin: auto;
+  margin-top: 10px;
   border-radius: 10px;
   border: none;
   transition: 0.2s;
@@ -115,6 +116,8 @@ button.primary {
 a.link {
   font-style: italic;
   font-size: 12px;
+  margin: auto;
+  margin-top: 10px;
 }
 
 /* Enable hover only on non-touch devices */

@@ -1,6 +1,7 @@
 import styles from "./page.module.css";
 import Nav from "@/app/components/homepageNav";
 import Logo from "@/app/components/logo";
+import { LinkButton } from "./components/sharedComponents";
 
 export default function Home() {
   return (
@@ -17,14 +18,7 @@ export default function Home() {
           { button("Professor", "/register/professor") }
           { button("Student", "/register/student") }
           
-          <a
-            className={styles.link}
-            href="/login"
-            rel="noopener noreferrer"
-          >
-            Already have an account? Login here.
-          </a>
-          
+          { LinkButton("Already have an account? Login here.", "/login") }
         </div>
       </main>
     </div>

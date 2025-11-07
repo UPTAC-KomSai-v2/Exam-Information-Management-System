@@ -13,7 +13,6 @@ function openOverlay() {
   console.log("hello world");
 }
 
-
 export default function Home() {
   const [showOverlay, setShowOverlay] = useState(false);
   return (
