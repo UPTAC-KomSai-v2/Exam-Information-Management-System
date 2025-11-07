@@ -1,10 +1,7 @@
-import Image from "next/image";
-import styles from "@/app/register/components/shared.module.css";
+import styles from "../components/shared.module.css";
 import Nav from "@/app/components/homepageNav";
-import Link from 'next/link';
-import { PersonalInformation, CreatePassword } from "@/app/register/components/sharedComponents";
+import { Logo, PersonalInformation, CreatePassword, InputContent, LinkButton } from "../components/sharedComponents";
 
-let logo = "/images/logo.png";
 export default function Home() {
   return (
     <div className={styles.page}>
@@ -12,12 +9,7 @@ export default function Home() {
 
       <main className={styles.main}>
         <div className={styles.overlay}>
-          <Image
-            src={logo}
-            alt="Logo"
-            width={250}
-            height={28}
-          />
+          <Logo />
           <p className={styles.title}>Registering as Student</p>
           <hr />
 
@@ -26,24 +18,12 @@ export default function Home() {
 
           <p className={styles.innerTitle}>University Information</p>
           <div className={styles.container}>
-            <div>
-              <label>Campus</label>
-              <input placeholder="E.g. Tacloban College" type="text"></input>
-            </div>
-            <div>
-              <label>Program</label>
-              <input placeholder="E.g. BS Computer Science" type="text"></input>
-            </div>
+            { InputContent("Campus", "E.g. Tacloban College", "text") }
+            { InputContent("Program", "E.g. BS Computer Science", "text") }
           </div>
           <div className={styles.container}>
-            <div>
-              <label>Student Number</label>
-              <input placeholder="Format: 20XX-XXXXX" type="text"></input>
-            </div>
-            <div>
-              <label>UP Email Address</label>
-              <input placeholder="Format: xxx@up.edu.ph" type="email"></input>
-            </div>
+            { InputContent("Student Number", "Fotmat: 20XX-XXXXX", "text") }
+            { InputContent("UP Email Address", "Format: xxx@up.edu.ph", "email") }
           </div>
           
           <p className={styles.innerTitle}>Password Creation</p>
@@ -52,14 +32,7 @@ export default function Home() {
           <button className={styles.primary}>
             Create Account
           </button>
-         <a
-            className={styles.link}
-            href="/login"
-            rel="noopener noreferrer"
-          >
-            Already have an account? Login here.
-          </a>
-          
+          { LinkButton("Already have an account? Login here.", "/login") }
         </div>
       </main>
     </div>

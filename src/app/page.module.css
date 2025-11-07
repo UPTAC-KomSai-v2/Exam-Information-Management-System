@@ -89,7 +89,6 @@ a.primary {
   gap: 8px;
 }
 
-
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {
   a.primary:hover {
