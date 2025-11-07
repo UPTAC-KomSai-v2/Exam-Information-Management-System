@@ -8,7 +8,7 @@ export default function Home() {
     <header className={styles.nav}>
       <a 
           className={styles.logo}
-          href=""
+          href="/"
           rel="noopener noreferrer"
       >
         <Image
@@ -26,13 +26,13 @@ export default function Home() {
           About Us
         </a>
         <a
-          href=""
+          href="/register"
           rel="noopener noreferrer"
         >
           Register
         </a>
         <a
-          href=""
+          href="/login"
           rel="noopener noreferrer"
         >
           Login

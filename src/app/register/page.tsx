@@ -1,6 +1,6 @@
 import Image from "next/image";
 import styles from "./page.module.css";
-import Nav from "./components/homepageNav";
+import Nav from "@/app/components/homepageNav";
 import Link from 'next/link';
 
 let logo = "/images/logo.png";
@@ -13,33 +13,40 @@ export default function Home() {
       <Nav />
 
       <main className={styles.main}>
-        <div className={styles.intro}>
+        <div className={styles.register}>
           <Image
             src={logo}
             alt="Logo"
-            width={500}
-            height={65}
+            width={250}
+            height={28}
           />
-          <h1>{desc1}</h1>
-          <p>{desc2}</p>
-        </div>
+          <p className={styles.title}>Registering an Account</p>
+          <hr />
 
-        <div className={styles.buttons}>
-          <a
+          <p className={styles.innerTitle}>What are you registering as?</p>
+          
+          <a 
             className={styles.primary}
-            href="/register"
+            href="/register/professor"
             rel="noopener noreferrer"
           >
-            Register an Account
+            Professor
           </a>
-
-          <a
+          <a 
             className={styles.primary}
+            href="/register/student"
+            rel="noopener noreferrer"
+          >
+            Student
+          </a>
+         <a
+            className={styles.link}
             href="/login"
             rel="noopener noreferrer"
           >
-            Login to an Account
+            Already have an account? Login here.
           </a>
+          
         </div>
       </main>
     </div>
