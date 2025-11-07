@@ -1,20 +1,10 @@
-import Image from "next/image";
-import styles from "./homepageNav.module.css";
-import Logo from "./logo";
+import NavigationBar from "./navigationBar"
 
-let logo = "/images/logo.png";
-
-export default function Home() {
+export default function HomepageNav() {
   return (
-    <header className={styles.nav}>
-      <a 
-          className={styles.logo}
-          href="/"
-          rel="noopener noreferrer"
-      >
-        { Logo(217, 26) }
-      </a>
-      <div className={styles.navButtons}>
+    < NavigationBar
+    navButtons = {
+      <>
         <a
           href=""
           rel="noopener noreferrer"
@@ -33,8 +23,9 @@ export default function Home() {
         >
           Login
         </a>
-      </div>
-    </header>
+      </>
+    }
+    />
   );
 }
 

@@ -7,7 +7,7 @@ import { PersonalInformation, CreatePassword, InputContent, LinkButton } from ".
 import Logo from "@/app/components/logo";
 
 
-export default function Home() {
+export default function RegisterAsProfessor() {
   const router = useRouter();
 
   const validateRegistration = () => {

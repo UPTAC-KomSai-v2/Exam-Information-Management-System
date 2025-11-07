@@ -1,21 +1,14 @@
+import NavigationBar from "@/app/components/navigationBar";
 import Image from "next/image";
-import styles from "./userNav.module.css";
-import Logo from "@/app/components/logo";
 
-let notification ="/images/notification_false.png";
-let message = "/images/message_false.png";
-
-export default function Home() {
+export default function UserNavBar() {
+  let notification = "/images/notification_false.png";
+  let message = "/images/message_false.png";
+  
   return (
-    <header className={styles.nav}>
-      <a 
-          className={styles.logo}
-          href="/"
-          rel="noopener noreferrer"
-      >
-        { Logo(217, 26) }
-      </a>
-      <div className={styles.navButtons}>
+    < NavigationBar
+    navButtons = {
+      <>
         <a
           href="/user/dashboard"
           rel="noopener noreferrer"
@@ -56,7 +49,8 @@ export default function Home() {
         >
           Profile
         </a>
-      </div>
-    </header>
+      </>
+    }
+    />
   );
 }

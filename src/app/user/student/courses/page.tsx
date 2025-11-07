@@ -1,21 +1,13 @@
 "use client";
 
-import Image from "next/image";
 import styles from "./page.module.css";
 import Nav from "@/app/user/components/userNav";
 import { useState } from "react";
+import Logo from "@/app/components/logo";
 
-let logo = "/images/logo.png";
-let desc1 = "The premier Examination Information Management System for the University of the Philippines.";
-let desc2 = "Maroon Book can serve as the main platform for managing all of your class examinations.";
-
-function openOverlay() {
-  console.log("hello world");
-}
-
-
-export default function Home() {
+export default function StudentCourses() {
   const [showOverlay, setShowOverlay] = useState(false);
+  
   return (
     <div className={styles.page}>
       <Nav />
@@ -43,12 +35,7 @@ export default function Home() {
         {
           showOverlay && (
           <div className={styles.overlay}>
-            <Image
-              src={logo}
-              alt="Logo"
-              width={217}
-              height={26}
-            />
+            { Logo(217, 26) }
             <p className={styles.overlayTitle}>Enroll a course</p>
             
             <div>

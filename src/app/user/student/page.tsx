@@ -1,21 +1,7 @@
-"use client";
-
-import Image from "next/image";
 import styles from "./page.module.css";
 import Nav from "@/app/user/components/userNav";
-import { useState } from "react";
 
-let logo = "/images/logo.png";
-let desc1 = "The premier Examination Information Management System for the University of the Philippines.";
-let desc2 = "Maroon Book can serve as the main platform for managing all of your class examinations.";
-
-function openOverlay() {
-  console.log("hello world");
-}
-
-
-export default function Home() {
-  const [showOverlay, setShowOverlay] = useState(false);
+export default function StudentDashboard() {
   return (
     <div className={styles.page}>
       <Nav />

@@ -3,7 +3,7 @@ import styles from "./page.module.css";
 import Nav from "@/app/components/homepageNav";
 import Logo from "@/app/components/logo";
 
-export default function Home() {
+export default function Login() {
   return (
     <div className={styles.page}>
       <Nav />

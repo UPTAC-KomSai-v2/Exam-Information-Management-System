@@ -3,7 +3,7 @@ import Nav from "@/app/components/homepageNav";
 import Logo from "@/app/components/logo";
 import { LinkButton } from "./components/sharedComponents";
 
-export default function Home() {
+export default function Register() {
   return (
     <div className={styles.page}>
       <Nav />

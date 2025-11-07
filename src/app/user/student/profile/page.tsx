@@ -13,7 +13,7 @@ function openOverlay() {
 }
 
 
-export default function Home() {
+export default function StudentProfile() {
   const [showOverlay, setShowOverlay] = useState(false);
   return (
     <div className={styles.page}>

@@ -1,9 +1,19 @@
+"use client";
+
 import styles from "../components/shared.module.css";
 import Nav from "@/app/components/homepageNav";
 import { PersonalInformation, CreatePassword, InputContent, LinkButton } from "../components/sharedComponents";
 import Logo from "@/app/components/logo";
+import { useRouter } from "next/navigation";
 
-export default function Home() {
+export default function RegisterAsStudent() {
+  const router = useRouter();
+  
+  const validateRegistration = () => {
+    console.log("bruh");
+    router.push("/user/professor");
+  };
+
   return (
     <div className={styles.page}>
       <Nav />
@@ -31,7 +41,10 @@ export default function Home() {
           <p className={styles.innerTitle}>Password Creation</p>
           <CreatePassword />
 
-          <button className={styles.primary}>
+          <button 
+            className={styles.primary}
+            onClick={validateRegistration}
+          >
             Create Account
           </button>
           { LinkButton("Already have an account? Login here.", "/login") }
