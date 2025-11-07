@@ -1,6 +1,7 @@
 import styles from "../components/shared.module.css";
 import Nav from "@/app/components/homepageNav";
-import { Logo, PersonalInformation, CreatePassword, InputContent, LinkButton } from "../components/sharedComponents";
+import { PersonalInformation, CreatePassword, InputContent, LinkButton } from "../components/sharedComponents";
+import Logo from "@/app/components/logo";
 
 export default function Home() {
   return (
@@ -9,7 +10,8 @@ export default function Home() {
 
       <main className={styles.main}>
         <div className={styles.overlay}>
-          <Logo />
+          { Logo(250, 28) }
+          
           <p className={styles.title}>Registering as Student</p>
           <hr />
 

@@ -1,17 +1,4 @@
 import styles from "./shared.module.css";
-import Image from "next/image";
-
-export function Logo() {
-    let logo = "/images/logo.png";
-    return (
-        <Image
-            src={logo}
-            alt="Logo"
-            width={250}
-            height={28}
-        />
-    );
-}
 
 export function PersonalInformation() {
   return (

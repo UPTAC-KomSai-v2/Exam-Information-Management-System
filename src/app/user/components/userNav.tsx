@@ -1,7 +1,7 @@
 import Image from "next/image";
 import styles from "./userNav.module.css";
+import Logo from "@/app/components/logo";
 
-let logo = "/images/logo.png";
 let notification ="/images/notification_false.png";
 let message = "/images/message_false.png";
 
@@ -13,12 +13,7 @@ export default function Home() {
           href="/"
           rel="noopener noreferrer"
       >
-        <Image
-          src={logo}
-          alt="Logo"
-          width={217}
-          height={26}
-        />
+        { Logo(217, 26) }
       </a>
       <div className={styles.navButtons}>
         <a

@@ -1,6 +1,6 @@
 import styles from "./page.module.css";
 import Nav from "@/app/components/homepageNav";
-import { Logo } from "./components/sharedComponents";
+import Logo from "@/app/components/logo";
 
 export default function Home() {
   return (
@@ -9,7 +9,7 @@ export default function Home() {
 
       <main className={styles.main}>
         <div className={styles.register}>
-          <Logo />
+          { Logo(250, 28) }
           <p className={styles.title}>Registering an Account</p>
           <hr />
 
