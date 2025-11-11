@@ -11,7 +11,7 @@ export default function RegisterAsStudent() {
   
   const validateRegistration = () => {
     console.log("bruh");
-    router.push("/user/professor");
+    router.push("/user/student");
   };
 
   return (

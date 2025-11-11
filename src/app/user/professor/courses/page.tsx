@@ -1,23 +1,35 @@
+"use client";
+
 import styles from "./page.module.css";
 import Nav from "@/app/user/components/userNav";
-import { useState } from "react";
 import Logo from "@/app/components/logo";
+import { ReactElement, useState } from "react";
+
+import { courses } from "@/app/data/data";
 
 export default function ProfessorCourses() {
   const [showOverlay, setShowOverlay] = useState(false);
+
+  // rendering a number of courses lol
+  let coursesArray: Array<ReactElement>;
+  coursesArray = [];
+  courses.forEach((course) => {
+    const fullCourseDescription = course.courseDescription + " | " + course.academicYear + " " + course.semester;
+    const noOfExams = course.examIDs.length;
+    coursesArray.push(addCourseToPage(
+      course.courseID,
+      course.courseTitle,
+      fullCourseDescription,
+      noOfExams
+    ))
+  });
+  
+
   return (
     <div className={styles.page}>
-      <Nav />
+      { Nav("professor") }
       <main className={styles.main}>
-        <div className={styles.courseDiv}>
-          <p className={styles.title}>CMSC 135 - F</p>
-          <p className={styles.description}>Data Communication and Networking | AY 2026 - 2026 First Semester</p>
-          <div className={styles.information}>
-            <p>Total Exams: 2</p>
-            <a>View Course Report</a>
-          </div>
-        </div>
-
+        { coursesArray }
         <button
           className={styles.enrollCourse}
           onClick={() => setShowOverlay(true)}
@@ -54,8 +66,24 @@ export default function ProfessorCourses() {
             >✖</button>
           </div>
         )}
-
       </main>
+    </div>
+  );
+}
+
+function addCourseToPage(courseID: string, courseTitle: string, courseDescription: string, noOfExams: number) {
+  const href = "./courses/viewCourseReport?courseID=" + courseID;
+  return (
+    <div className={styles.courseDiv} key={courseID}>
+      <p className={styles.title}>{courseTitle}</p>
+      <p className={styles.description}>{courseDescription}</p>
+      <div className={styles.information}>
+        <p>Total Exams: {noOfExams}</p>
+        <a 
+          href={href}
+          rel="noopener noreferrer"
+        >View Course Report</a>
+      </div>
     </div>
   );
 }

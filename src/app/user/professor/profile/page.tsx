@@ -4,18 +4,18 @@ import Nav from "@/app/user/components/userNav";
 export default function ProfessorProfile() {
   return (
     <div className={styles.page}>
-      <Nav />
+      { Nav("professor") }
       <main className={styles.main}>
         <div className={styles.leftDiv}>
           <p className={styles.title}>User Details</p>
           <label>Name</label>
-          <p>Nikka Angela E. Naputo</p>
+          <p>Juan Dela Cruz</p>
           <label>Country</label>
           <p>Philippines</p>
-          <label>Degree Program</label>
+          <label>College</label>
           <p>BS Computer Science</p>
           <label>Faculty or Student</label>
-          <p>Student</p>
+          <p>Faculty</p>
         </div>
         <div className={styles.rightDiv}>
           <p className={styles.title}>User Actions</p>

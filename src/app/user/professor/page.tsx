@@ -7,7 +7,7 @@ import { useState } from "react";
 export default function ProfessorDashboard() {
   return (
     <div className={styles.page}>
-      <Nav />
+      { Nav("professor") }
       <main className={styles.main}>
         <div className={styles.examDiv}>
           <p className={styles.title}>Second Long Exam (Lecture)</p>
