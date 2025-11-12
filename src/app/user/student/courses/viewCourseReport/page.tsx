@@ -47,31 +47,10 @@ export default function ViewCourseReport() {
   // main page content
   return (
     <div className={styles.page}>
-      { Nav("professor") }
-
+      { Nav("student") }
       <main className={styles.main}>
         <div className={styles.courseDiv}>
           <p className={styles.title}>{selectedCourse.courseTitle}</p>
-
-          <label>View Report For</label>
-          <select 
-            name="selectedSection" 
-            value={ selectedSection }
-            onChange={ e => setSelectedSection(e.target.value) }
-          >
-            { renderSectionOptions() }
-            <option value="All Sections">All Sections</option>
-          </select>
-          
-          <label>Display</label>
-          <select 
-            name="selectedDisplay" 
-            value={ selectedDisplay }
-            onChange={ e => setSelectedDisplay(e.target.value) }
-          >
-            <option value="Average">Average</option>
-            <option value="All Scores">All Scores</option>
-          </select>
           { renderExamContent(selectedCourse, selectedSection, noOfStudents, noOfExams, selectedDisplay) }
         </div>
       </main>

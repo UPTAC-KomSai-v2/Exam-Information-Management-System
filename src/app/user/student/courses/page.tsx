@@ -5,21 +5,24 @@ import Nav from "@/app/user/components/userNav";
 import Logo from "@/app/components/logo";
 import { ReactElement, useContext, useState } from "react";
 
-import { courses, referenceExams } from "@/app/data/data";
-import { UserContext } from "@/app/UserContext";
+import { courses, referenceExams, Section } from "@/app/data/data";
+import { Student, UserContext } from "@/app/UserContext";
 
-export default function ProfessorCourses() {
+export default function StudentCourses() {
   const [ showOverlay, setShowOverlay]  = useState(false);
   const { currentUser } = useContext(UserContext);
   if(!currentUser) return <p>No user is logged in</p>;
-  if(!("college" in currentUser)) return <p>User logged in is not faculty</p>;
+  if("college" in currentUser) return <p>User logged in is not a student</p>;
 
   // rendering a number of courses lol
   let coursesArray: Array<ReactElement>;
   coursesArray = [];
 
-  const coursesTaught = courses.filter(course => {console.log(course.coursefacultyID + " vs " + currentUser.userID); return course.coursefacultyID === currentUser.userID});
-  coursesTaught.forEach((course) => {
+  const coursesEnrolled = courses.filter(course => { 
+    const enrolledSection = findEnrolledSection(course.sections, currentUser);
+    return (enrolledSection != null);
+  });
+  coursesEnrolled.forEach((course) => {
     const fullCourseDescription = course.courseDescription + " | " + course.academicYear + " " + course.semester;
     const noOfExams = referenceExams.filter(refExam => refExam.courseID === course.courseID).length;
     coursesArray.push(addCourseToPage(
@@ -33,7 +36,7 @@ export default function ProfessorCourses() {
 
   return (
     <div className={styles.page}>
-      { Nav("professor") }
+      { Nav("student") }
       <main className={styles.main}>
         { coursesArray }
         <button
@@ -92,4 +95,10 @@ function addCourseToPage(courseID: string, courseTitle: string, courseDescriptio
       </div>
     </div>
   );
+}
+
+function findEnrolledSection(sections: Section[], currentUser: Student) {
+    return sections.find(section => {
+      return section.studentsEnrolled.some(studentID => studentID === currentUser.userID);
+    });
 }

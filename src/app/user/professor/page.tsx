@@ -1,28 +1,59 @@
 "use client";
 
+import { courses, referenceExams } from "@/app/data/data";
 import styles from "./page.module.css";
 import Nav from "@/app/user/components/userNav";
-import { useState } from "react";
+import { ReactNode, useContext } from "react";
+import { Faculty, UserContext } from "@/app/UserContext";
 
 export default function ProfessorDashboard() {
+  const { currentUser } = useContext(UserContext);
+  if(!currentUser) return <p>No user is logged in</p>;
+  if(!("college" in currentUser)) return <p>User logged in is not faculty</p>;
+
   return (
     <div className={styles.page}>
       { Nav("professor") }
       <main className={styles.main}>
-        <div className={styles.examDiv}>
-          <p className={styles.title}>Second Long Exam (Lecture)</p>
-          <p className={styles.description}>CMSC 135 - F | Data Communication and Networking | AY 2026 - 2026 First Semester</p>
-          <div className={styles.information}>
-            <p>Total Items: 50</p>
-            <p>Grade: N/A</p>
-            <p>Exam Type: Submission</p>
-            <p>Time Allotted: 30 minutes</p>
-            <p>Due Date: November 27, 2025</p>
-            <p>Taken: Not yet</p>
-            <a>Take Exam</a>
-          </div>
-        </div>
+        { renderExamList(currentUser) }
       </main>
     </div>
   );
+}
+
+function renderExamList(currentUser: Faculty) {
+  const indivExamContent = (examID: string, examTitle: string, examDescription: string, sectionNames: string, noOfItems: number, examType: string, timeAllotted: string, dueDate: string) => {
+    return(
+      <div className={styles.examDiv} key={examID}>
+        <p className={styles.title}>{examTitle}</p>
+        <p className={styles.description}>{examDescription}</p>
+        <div className={styles.information}>
+          <p>Sections: {sectionNames}</p>
+          <p>Total Items: {noOfItems}</p>
+          <p>Exam Type: {examType}</p>
+          <p>Time Allotted: {timeAllotted}</p>
+          <p>Due Date: {dueDate}</p>
+        </div>
+      </div>
+    );
+  }
+
+  let examList:Array<ReactNode> = [];
+  const coursesTaught = courses.filter(course => {console.log(course.coursefacultyID + " vs " + currentUser.userID); return course.coursefacultyID === currentUser.userID});
+  coursesTaught.forEach((course) => {
+    console.log("inside of coursesTaught");
+    console.log(course.courseTitle);
+    const refExams = referenceExams.filter(refExam => refExam.courseID === course.courseID);
+    
+    let sectionNames = "";
+    course.sections.forEach(section => sectionNames += `${section.sectionName} , `);
+    sectionNames.slice(0, sectionNames.length-2);
+
+    refExams.forEach((refExam) => {
+      const courseDescription = `${course.courseTitle} | ${course.courseDescription}`
+      examList.push(indivExamContent(refExam.examID, refExam.examTitle, courseDescription, sectionNames, refExam.items, refExam.examType, refExam.timeAllotted, refExam.dueDate));
+    });
+  }); 
+
+  return examList;
 }

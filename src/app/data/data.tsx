@@ -1,83 +1,87 @@
 export const courses = [
     {
-        courseID: "CMSC1351STAY2526",
-        courseTitle: "CMSC 135",
-        courseDescription: "Data Communication and Networking",
-        coursefacultyID: "S5vN1xT4kJ",
-        sections: [ 
-          {
-            sectionName: "L",
-            noOfStudents: 15,
-            courseCode: "EnrollToCMSC135L"
-          },
-          {
-            sectionName: "M",
-            noOfStudents: 18,
-            courseCode: "EnrollToCMSC135M"
-          }
-        ],
-        academicYear: "AY 2025 - 2026",
-        semester: "1st Semester",
-        examIDs: [
-          "EN2B8",
-          "PH4C5",
-          "BI7D1",
-          "CH6E3",
-          "HI9F4",
-          "EC2G7"
-        ]
+      courseID: "CMSC1351STAY2526",
+      courseTitle: "CMSC 135",
+      courseDescription: "Data Communication and Networking",
+      coursefacultyID: "2",
+      sections: [ 
+        {
+          sectionName: "L",
+          courseCode: "EnrollToCMSC135L",
+          studentsEnrolled: [
+            "1",
+            "a9F4kP2qWz",
+            "X7bR3mL0sJ",
+            "pQ8wT6vH1k",
+            "Z5nY2cA9eL",
+            "rK1xM8bF3q"
+          ]
+        },
+        {
+          sectionName: "M",
+          courseCode: "EnrollToCMSC135M",
+          studentsEnrolled: [
+            "V0dJ7uP4sW",
+            "hL6tR9kQ2z",
+            "S3yN5vC0pX",
+            "mF8aH1rD7w",
+            "G2bK4zT6qJ",
+            "N9vD3pL8xK"
+          ]
+        }
+      ],
+      academicYear: "AY 2025 - 2026",
+      semester: "1st Semester",
     },
     {
-        courseID: "SCI101STAY2526",
-        courseTitle: "SCIENCE 10",
-        courseDescription: "Science 10 Description lol",
-        coursefacultyID: "K9bL3pH7qS",
-        sections: [
-          {
-            sectionName: "A",
-            noOfStudents: 30,
-            courseCode: "EnrollToSCI10A"
-          },
-          {
-            sectionName: "B",
-            noOfStudents: 25,
-            courseCode: "EnrollToSCI10B"
-          },
-          {
-            sectionName: "C",
-            noOfStudents: 28,
-            courseCode: "EnrollToSCI10C"
-          }
-        ],
-        academicYear: "AY 2025 - 2026",
-        semester: "1st Semester",
-        examIDs: []
+      courseID: "SCI101STAY2526",
+      courseTitle: "SCIENCE 10",
+      courseDescription: "Science 10 Description lol",
+      coursefacultyID: "K9bL3pH7qS",
+      sections: [
+        {
+          sectionName: "A",
+          courseCode: "EnrollToSCI10A",
+          studentsEnrolled: []
+        },
+        {
+          sectionName: "B",
+          courseCode: "EnrollToSCI10B",
+          studentsEnrolled: []
+        },
+        {
+          sectionName: "C",
+          courseCode: "EnrollToSCI10C",
+          studentsEnrolled: []
+        }
+      ],
+      academicYear: "AY 2025 - 2026",
+      semester: "1st Semester"
     },
     {
-        courseID: "ETHICS11STAY2526",
-        courseTitle: "ETHICS 1",
-        coursefacultyID: "V3dJ9uP6sW",
-        courseDescription: "Ethics and Moral Reasoning in Everyday Life",
-        sections: [
-          {
-            sectionName: "D",
-            noOfStudents: 24,
-            courseCode: "EnrollToETHICS1D"
-          },
-          {
-            sectionName: "F",
-            noOfStudents: 30,
-            courseCode: "EnrollToETHICS1F"
-          },
-          {
-            sectionName: "G",
-            noOfStudents: 32,
-            courseCode: "EnrollToETHICS1G"
-          }
-        ],
-        academicYear: "AY 2025 - 2026",
-        semester: "1st Semester",
-        examIDs: []
+      courseID: "ETHICS11STAY2526",
+      courseTitle: "ETHICS 1",
+      coursefacultyID: "V3dJ9uP6sW",
+      courseDescription: "Ethics and Moral Reasoning in Everyday Life",
+      sections: [
+        {
+          sectionName: "D",
+          courseCode: "EnrollToETHICS1D",
+          studentsEnrolled: []
+        },
+        {
+          sectionName: "F",
+          courseCode: "EnrollToETHICS1F",
+          studentsEnrolled: []
+        },
+        {
+          sectionName: "G",
+          courseCode: "EnrollToETHICS1G",
+          studentsEnrolled: []
+        }
+      ],
+      academicYear: "AY 2025 - 2026",
+      semester: "1st Semester"
     }
 ];
 
@@ -88,14 +92,13 @@ export type Course = {
   coursefacultyID: string,
   sections: Section[],
   academicYear: string,
-  semester: string,
-  examIDs: string[]
+  semester: string
 }
 
 export type Section = {
   sectionName: string,
-  noOfStudents: number,
-  courseCode: string
+  courseCode: string,
+  studentsEnrolled: string[]
 }
 
 export type ReferenceExam = {
@@ -117,10 +120,7 @@ export const students = [
     password: "testPass",
     program: "BS Computer Science",
     campus: "Tacloban College",
-    upMail: "test@gmail.com",
-    enrolledCourses: [
-      "CMSC1351STAY2526"
-    ]
+    upMail: "test@gmail.com"
   },
   {
     userID: "a9F4kP2qWz",
@@ -131,13 +131,7 @@ export const students = [
     password: "1234567890",
     program: "BS Computer Science",
     campus: "Tacloban College",
-    upMail: "jmdelacruz@up.edu.ph",
-    enrolledCourses: [
-      {
-        courseID: "CMSC1351STAY2526",
-        sectionName: "L"
-      }
-    ]
+    upMail: "jmdelacruz@up.edu.ph"
   },
   {
     userID: "X7bR3mL0sJ",
@@ -148,13 +142,7 @@ export const students = [
     password: "1234567890",
     program: "BS Computer Science",
     campus: "Tacloban College",
-    upMail: "mtsantos@up.edu.ph",
-    enrolledCourses: [
-      {
-        courseID: "CMSC1351STAY2526",
-        sectionName: "L"
-      }
-    ]
+    upMail: "mtsantos@up.edu.ph"
   },
   {
     userID: "pQ8wT6vH1k",
@@ -165,13 +153,7 @@ export const students = [
     password: "1234567890",
     program: "BS Computer Science",
     campus: "Tacloban College",
-    upMail: "maramos@up.edu.ph",
-    enrolledCourses: [
-      {
-        courseID: "CMSC1351STAY2526",
-        sectionName: "L"
-      }
-    ]
+    upMail: "maramos@up.edu.ph"
   },
   {
     userID: "Z5nY2cA9eL",
@@ -182,13 +164,7 @@ export const students = [
     password: "1234567890",
     program: "BS Computer Science",
     campus: "Tacloban College",
-    upMail: "acvillanueva@up.edu.ph",
-    enrolledCourses: [
-      {
-        courseID: "CMSC1351STAY2526",
-        sectionName: "L"
-      }
-    ]
+    upMail: "acvillanueva@up.edu.ph"
   },
   {
     userID: "rK1xM8bF3q",
@@ -199,13 +175,7 @@ export const students = [
     password: "1234567890",
     program: "BS Computer Science",
     campus: "Tacloban College",
-    upMail: "jpguzman@up.edu.ph",
-    enrolledCourses: [
-      {
-        courseID: "CMSC1351STAY2526",
-        sectionName: "L"
-      }
-    ]
+    upMail: "jpguzman@up.edu.ph"
   },
   {
     userID: "V0dJ7uP4sW",
@@ -216,13 +186,7 @@ export const students = [
     password: "1234567890",
     program: "BS Computer Science",
     campus: "Tacloban College",
-    upMail: "kmgarcia@up.edu.ph",
-    enrolledCourses: [
-      {
-        courseID: "CMSC1351STAY2526",
-        sectionName: "M"
-      }
-    ]
+    upMail: "kmgarcia@up.edu.ph"
   },
   {
     userID: "hL6tR9kQ2z",
@@ -233,13 +197,7 @@ export const students = [
     password: "1234567890",
     program: "BS Computer Science",
     campus: "Tacloban College",
-    upMail: "rmtorralba@up.edu.ph",
-    enrolledCourses: [
-      {
-        courseID: "CMSC1351STAY2526",
-        sectionName: "M"
-      }
-    ]
+    upMail: "rmtorralba@up.edu.ph"
   },
   {
     userID: "S3yN5vC0pX",
@@ -250,13 +208,7 @@ export const students = [
     password: "1234567890",
     program: "BS Computer Science",
     campus: "Tacloban College",
-    upMail: "ajmagbanua@up.edu.ph",
-    enrolledCourses: [
-      {
-        courseID: "CMSC1351STAY2526",
-        sectionName: "M"
-      }
-    ]
+    upMail: "ajmagbanua@up.edu.ph"
   },
   {
     userID: "mF8aH1rD7w",
@@ -267,13 +219,7 @@ export const students = [
     password: "1234567890",
     program: "BS Computer Science",
     campus: "Tacloban College",
-    upMail: "clbautista@up.edu.ph",
-    enrolledCourses: [
-      {
-        courseID: "CMSC1351STAY2526",
-        sectionName: "M"
-      }
-    ]
+    upMail: "clbautista@up.edu.ph"
   },
   {
     userID: "G2bK4zT6qJ",
@@ -284,13 +230,7 @@ export const students = [
     password: "1234567890",
     program: "BS Computer Science",
     campus: "Tacloban College",
-    upMail: "gfserrano@up.edu.ph",
-    enrolledCourses: [
-      {
-        courseID: "CMSC1351STAY2526",
-        sectionName: "M"
-      }
-    ]
+    upMail: "gfserrano@up.edu.ph"
   },
   {
     userID: "N9vD3pL8xK",
@@ -301,13 +241,7 @@ export const students = [
     password: "1234567890",
     program: "BS Computer Science",
     campus: "Tacloban College",
-    upMail: "jrvillanueva@up.edu.ph",
-    enrolledCourses: [
-      {
-        courseID: "CMSC1351STAY2526",
-        sectionName: "M"
-      }
-    ]
+    upMail: "jrvillanueva@up.edu.ph"
   }
 ];
 
@@ -320,7 +254,7 @@ export const faculty = [
     lastName: "User",
     password: "testPass",
     facultyNo: "2",
-    college: "Division of Humanities",
+    college: "Division Natural Sciences and Mathematics",
     campus: "Tacloban College",
     upMail: "test@up.edu.ph",
   },
@@ -436,7 +370,6 @@ export const faculty = [
   }
 ];
 
-
 export const examScores = [
     // using a specific 
     // Long Exam 1 Lecture
@@ -524,41 +457,59 @@ export const referenceExams = [
         courseID: "CMSC1351STAY2526",
         sections: ["L", "M"],
         examTitle: "Long Exam 1 Lecture",
-        items: 50
+        items: 50,
+        examType: "Google Form",
+        timeAllotted: "30 Minutes",
+        dueDate: "October 10, 2025"
     },
     {
         examID: "PH4C5",
         courseID: "CMSC1351STAY2526",
         sections: ["L", "M"],
         examTitle: "Long Exam 1 Laboratory",
-        items: 60
+        items: 60,
+        examType: "Submission",
+        timeAllotted: "1 Hour 30 Minutes",
+        dueDate: "October 14, 2025"
     },
     {
         examID: "BI7D1",
         courseID: "CMSC1351STAY2526",
         sections: ["L", "M"],
         examTitle: "Long Exam 2 Lecture",
-        items: 50
+        items: 50,
+        examType: "Google Form",
+        timeAllotted: "30 Minutes",
+        dueDate: "October 28, 2025"
     },
     {
         examID: "CH6E3",
         courseID: "CMSC1351STAY2526",
         sections: ["L", "M"],
         examTitle: "Long Exam 2 Laboratory",
-        items: 60
+        items: 60,
+        examType: "Submission",
+        timeAllotted: "1 Hour 30 Minutes",
+        dueDate: "October 31, 2025"
     },
     {
         examID: "HI9F4",
         courseID: "CMSC1351STAY2526",
         sections: ["L", "M"],
         examTitle: "Long Exam 3 Lecture",
-        items: 50
+        items: 50,
+        examType: "Google Form",
+        timeAllotted: "30 minutes",
+        dueDate: "November 10, 2025"
     },
     {
         examID: "EC2G7",
         courseID: "CMSC1351STAY2526",
         sections: ["L", "M"],
         examTitle: "Long Exam 3 Laboratory",
-        items: 60
+        items: 60,
+        examType: "Submission",
+        timeAllotted: "1 Hour 30 minutes",
+        dueDate: "November 14, 2025"
     }
 ]

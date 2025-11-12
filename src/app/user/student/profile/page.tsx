@@ -4,16 +4,16 @@ import styles from "./page.module.css";
 import Nav from "@/app/user/components/userNav";
 import { useContext } from "react";
 
-export default function ProfessorProfile() {
+export default function StudentProfile() {
   const { currentUser } = useContext(UserContext);
   if(!currentUser) return <p>There's no user logged in.</p>;
-  if(!("college" in currentUser)) return <p>User logged in is not faculty</p>;
+  if("college" in currentUser) return <p>User logged in is not a student</p>;
 
   const fullName = currentUser.firstName + " " + currentUser.middleName.charAt(0) + ". " + currentUser.lastName;
 
   return (
     <div className={styles.page}>
-      { Nav("professor") }
+      { Nav("student") }
       <main className={styles.main}>
         <div className={styles.leftDiv}>
           <p className={styles.title}>User Details</p>
@@ -21,10 +21,10 @@ export default function ProfessorProfile() {
           <p>{fullName}</p>
           <label>Country</label>
           <p>Philippines</p>
-          <label>College</label>
-          <p>{currentUser.college}</p>
+          <label>Course</label>
+          <p>{currentUser.program}</p>
           <label>Faculty or Student</label>
-          <p>Faculty</p>
+          <p>Student</p>
         </div>
         <div className={styles.rightDiv}>
           <p className={styles.title}>User Actions</p>

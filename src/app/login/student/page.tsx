@@ -1,19 +1,20 @@
 "use client";
 
-import Image from "next/image";
 import styles from "./page.module.css";
 import Nav from "@/app/components/homepageNav";
 import Logo from "@/app/components/logo";
-import { Ref, useRef, useState } from "react";
+import { Ref, useContext, useRef } from "react";
 
 // temporary data
 import { students } from "@/app/data/data";
 import { useRouter } from "next/navigation";
+import { UserContext } from "@/app/UserContext";
 
 export default function Login() {
   const router = useRouter();
   const studentNumberRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+  const { setCurrentUser } = useContext(UserContext);
 
   const validateUser = () => {
     //MAKE THIS INTO ACTUAL UI STUFF
@@ -37,6 +38,7 @@ export default function Login() {
     students.forEach((user) => {
       if(user.studentNo === studentNumber) {
         if(user.password === password){
+          setCurrentUser(user);
           router.push("/user/student");
           return;
         }
