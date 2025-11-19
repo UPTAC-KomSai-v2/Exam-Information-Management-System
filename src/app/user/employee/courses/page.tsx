@@ -1,6 +1,7 @@
 "use client";
 
 import styles from "./page.module.css";
+import sharedStyles from "@/app/user/components/shared.module.css";
 import Nav from "@/app/user/components/userNav";
 import Logo from "@/app/components/logo";
 import { ReactElement, useContext, useState } from "react";
@@ -32,9 +33,10 @@ export default function ProfessorCourses() {
   
 
   return (
-    <div className={styles.page}>
+    <div className={`${sharedStyles.page} ${styles.page}`}>
       { Nav("professor") }
-      <main className={styles.main}>
+      <main className={sharedStyles.main}>
+        <p className={sharedStyles.title}>Courses</p>
         { coursesArray }
         <button
           className={styles.enrollCourse}
@@ -81,9 +83,9 @@ function addCourseToPage(courseID: string, courseTitle: string, courseDescriptio
   const href = "./courses/viewCourseReport?courseID=" + courseID;
   return (
     <div className={styles.courseDiv} key={courseID}>
-      <p className={styles.title}>{courseTitle}</p>
+      <p className={sharedStyles.title}>{courseTitle}</p>
       <p className={styles.description}>{courseDescription}</p>
-      <div className={styles.information}>
+      <div className={sharedStyles.information}>
         <p>Total Exams: {noOfExams}</p>
         <a 
           href={href}

@@ -2,6 +2,7 @@
 
 import { courses, referenceExams } from "@/app/data/data";
 import styles from "./page.module.css";
+import sharedStyles from "@/app/user/components/shared.module.css";
 import Nav from "@/app/user/components/userNav";
 import { ReactNode, useContext } from "react";
 import { Faculty, UserContext } from "@/app/UserContext";
@@ -12,9 +13,10 @@ export default function ProfessorDashboard() {
   if(!("college" in currentUser)) return <p>User logged in is not faculty</p>;
 
   return (
-    <div className={styles.page}>
+    <div className={`${sharedStyles.page} ${styles.page}`}>
       { Nav("professor") }
-      <main className={styles.main}>
+      <main className={sharedStyles.main}>
+        <p className={sharedStyles.title}>Dashboard</p>
         { renderExamList(currentUser) }
       </main>
     </div>
@@ -25,14 +27,17 @@ function renderExamList(currentUser: Faculty) {
   const indivExamContent = (examID: string, examTitle: string, examDescription: string, sectionNames: string, noOfItems: number, examType: string, timeAllotted: string, dueDate: string) => {
     return(
       <div className={styles.examDiv} key={examID}>
-        <p className={styles.title}>{examTitle}</p>
+        <p className={sharedStyles.title}>{examTitle}</p>
         <p className={styles.description}>{examDescription}</p>
-        <div className={styles.information}>
+        <div className={sharedStyles.information}>
           <p>Sections: {sectionNames}</p>
           <p>Total Items: {noOfItems}</p>
           <p>Exam Type: {examType}</p>
           <p>Time Allotted: {timeAllotted}</p>
           <p>Due Date: {dueDate}</p>
+          <a>Publish Exam</a>
+          <a>Hide Exam</a>
+          <a>View Exam</a>
         </div>
       </div>
     );

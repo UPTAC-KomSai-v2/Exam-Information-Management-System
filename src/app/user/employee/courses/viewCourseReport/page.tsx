@@ -52,26 +52,29 @@ export default function ViewCourseReport() {
       <main className={styles.main}>
         <div className={styles.courseDiv}>
           <p className={styles.title}>{selectedCourse.courseTitle}</p>
-
-          <label>View Report For</label>
-          <select 
-            name="selectedSection" 
-            value={ selectedSection }
-            onChange={ e => setSelectedSection(e.target.value) }
-          >
-            { renderSectionOptions() }
-            <option value="All Sections">All Sections</option>
-          </select>
-          
-          <label>Display</label>
-          <select 
-            name="selectedDisplay" 
-            value={ selectedDisplay }
-            onChange={ e => setSelectedDisplay(e.target.value) }
-          >
-            <option value="Average">Average</option>
-            <option value="All Scores">All Scores</option>
-          </select>
+          <div className={styles.selectDiv}>
+            <label>View Report For:</label>
+            <select 
+              name="selectedSection" 
+              value={ selectedSection }
+              onChange={ e => setSelectedSection(e.target.value) }
+            >
+              { renderSectionOptions() }
+              <option value="All Sections">All Sections</option>
+            </select>
+          </div>
+          <div className={styles.selectDiv}>
+            <label>Display:</label>
+            <select 
+              name="selectedDisplay" 
+              value={ selectedDisplay }
+              onChange={ e => setSelectedDisplay(e.target.value) }
+            >
+              <option value="Average">Average</option>
+              <option value="All Scores">All Scores</option>
+            </select>
+          </div>
+          <hr/>
           { renderExamContent(selectedCourse, selectedSection, noOfStudents, noOfExams, selectedDisplay) }
         </div>
       </main>
@@ -103,17 +106,15 @@ function getUpdatedInformation(selectedCourse: Course|null, selectedSectionName:
 function renderExamContent(selectedCourse: Course|null, sectionName: string, noOfStudents: number, noOfExams: number, selectedDisplay: string) {
   console.log(selectedDisplay);
   return (
-    <div className={styles.courseDiv}>
-      <p>Section:</p>
-      <p className={styles.title}>{sectionName}</p>
-
-      <p>Course Information</p>
+    <div className={styles.examReportDiv}>
+      <p className={styles.subheading}>Course Information</p>
       <div className={styles.information}>
+        <p>Section: {sectionName}</p>
         <p>Total number of students: {noOfStudents}</p>
         <p>Total number of exams: {noOfExams}</p>
       </div>
 
-      <p>Exam Report</p>
+      <p className={styles.subheading}>Exam Report</p>
       { (selectedDisplay === "Average") ? renderAverageScores(selectedCourse, sectionName) : renderAllScores(selectedCourse, sectionName) }
     </div>
   );
@@ -131,11 +132,11 @@ function renderAverageScores(selectedCourse: Course|null, sectionName: string) {
     .map(refExam => {
       const { averageScores, noOfTakers } = getAVGScoresAndNoOfTakers(refExam.examID, sectionName);
         examScoreContent.push(
-          <div className={styles.examDetails} key={refExam.examID}>
+          <div className={styles.examDetailsAVG} key={refExam.examID}>
             <p>{counter++}</p>
             <p>{refExam.examTitle}</p>
             <p>{refExam.items}</p>
-            <p>{averageScores.toFixed(2)}</p>
+            <p>{averageScores.toFixed(2)}%</p>
             <p>{noOfTakers}</p>
           </div>
         );
@@ -145,7 +146,7 @@ function renderAverageScores(selectedCourse: Course|null, sectionName: string) {
 
   return (
     <div>
-      <div className={styles.examDetails}>
+      <div className={styles.examDetailsAVG}>
         <p>Exam No.</p>
         <p>Exam Title</p>
         <p>No. of Items</p>
@@ -202,10 +203,10 @@ function renderAllScores(selectedCourse: Course|null, sectionName: string) {
         const scoreWithItems = score + "/" + noOfItems;
         
         individualExamScore.push(
-          <div className={styles.examDetails} key={studentNo}>
+          <div className={styles.examDetailsAll} key={studentNo}>
             <p>{studentNo}</p>
             <p>{scoreWithItems}</p>
-            <p>{grade}</p>
+            <p>{grade}%</p>
           </div>
         )
       });
@@ -217,9 +218,16 @@ function renderAllScores(selectedCourse: Course|null, sectionName: string) {
     .filter(refExam => refExam.courseID === selectedCourse.courseID)
     .map((refExam) => {
       fullExamScoreContent.push(
-        <div key={refExam.examID}>
-          <p>Exam No.:{counter++}</p>
-          <p>Title:{refExam.examTitle}</p>
+        <div className={styles.examReportDiv} key={refExam.examID}>
+          <div className={styles.examHeading}>
+            <p>Exam No.: {counter++}</p>
+            <p>Title: {refExam.examTitle}</p>
+          </div>
+          <div className={styles.examDetailsAll}>
+            <p>Student No.</p>
+            <p>Score</p>
+            <p>Grade</p>
+          </div>
           { studentExamScores(refExam) }
         </div>
       );

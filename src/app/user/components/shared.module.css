@@ -1,0 +1,66 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 20px 30px;
+}
+
+/* Information grid (common layout for info rows) */
+.information {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+}
+
+.information p,
+.information a {
+  display: inline;
+  font-size: 12px;
+  font-style: italic;
+  text-wrap: balance;
+  color: var(--text-secondary);
+  text-align: left;
+  padding-top: 5px;
+}
+
+.information a {
+  color: blue;
+  text-align: right;
+  cursor: pointer;
+  font-style: normal;
+}
+
+/* Hover effects (applies to both) */
+@media (hover: hover) and (pointer: fine) {
+  .enrollCourse:hover {
+    background: var(--button-hover);
+    border-color: transparent;
+  }
+
+  .information a:hover {
+    text-decoration: underline;
+  }
+
+  button.submit:hover {
+    background-color: var(--button-secondary-hover);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .main {
+    padding: 48px 24px;
+  }
+}
+
+/* Dark theme variables */
+@media (prefers-color-scheme: dark) {
+  .page {
+    --background: #242424;
+    --text-main-menu: #ffffff;
+    --text-primary: #f2f2f2;
+    --button-primary: #7B1113;
+    --button-text: #f2f2f2;
+    --button-primary-hover: #581718;
+  }
+}

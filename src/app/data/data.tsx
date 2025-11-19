@@ -3,7 +3,7 @@ export const courses = [
       courseID: "CMSC1351STAY2526",
       courseTitle: "CMSC 135",
       courseDescription: "Data Communication and Networking",
-      coursefacultyID: "2",
+      courseemployeeID: "2",
       sections: [ 
         {
           sectionName: "L",
@@ -37,7 +37,7 @@ export const courses = [
       courseID: "SCI101STAY2526",
       courseTitle: "SCIENCE 10",
       courseDescription: "Science 10 Description lol",
-      coursefacultyID: "K9bL3pH7qS",
+      courseemployeeID: "K9bL3pH7qS",
       sections: [
         {
           sectionName: "A",
@@ -61,7 +61,7 @@ export const courses = [
     {
       courseID: "ETHICS11STAY2526",
       courseTitle: "ETHICS 1",
-      coursefacultyID: "V3dJ9uP6sW",
+      courseemployeeID: "V3dJ9uP6sW",
       courseDescription: "Ethics and Moral Reasoning in Everyday Life",
       sections: [
         {
@@ -89,7 +89,7 @@ export type Course = {
   courseID: string,
   courseTitle: string,
   courseDescription: string,
-  coursefacultyID: string,
+  courseemployeeID: string,
   sections: Section[],
   academicYear: string,
   semester: string
@@ -245,15 +245,15 @@ export const students = [
   }
 ];
 
-export const faculty = [
-  // facultyessors
+export const employees = [
+  // employeeessors
   {
     userID: "2",
     firstName: "Test",
-    middleName: "facultyessor",
+    middleName: "Employeees",
     lastName: "User",
     password: "testPass",
-    facultyNo: "2",
+    employeeNo: "2",
     college: "Division Natural Sciences and Mathematics",
     campus: "Tacloban College",
     upMail: "test@up.edu.ph",
@@ -264,7 +264,7 @@ export const faculty = [
     middleName: "Santos",
     lastName: "Reyes",
     password: "1234567890",
-    facultyNo: "2023-27949",
+    employeeNo: "2023-27949",
     college: "Division of Humanities",
     campus: "Tacloban College",
     upMail: "mlsantos@up.edu.ph"
@@ -275,7 +275,7 @@ export const faculty = [
     middleName: "Torralba",
     lastName: "Villanueva",
     password: "1234567890",
-    facultyNo: "2023-27950",
+    employeeNo: "2023-27950",
     college: "Division of Social Sciences",
     campus: "Tacloban College",
     upMail: "jctorralba@up.edu.ph"
@@ -286,7 +286,7 @@ export const faculty = [
     middleName: "Garcia",
     lastName: "Lopez",
     password: "1234567890",
-    facultyNo: "2023-27951",
+    employeeNo: "2023-27951",
     college: "Department of Natural Sciences and Mathematics",
     campus: "Tacloban College",
     upMail: "amgarcia@up.edu.ph"
@@ -297,7 +297,7 @@ export const faculty = [
     middleName: "Bautista",
     lastName: "Cruz",
     password: "1234567890",
-    facultyNo: "2023-27952",
+    employeeNo: "2023-27952",
     college: "Division of Management",
     campus: "Tacloban College",
     upMail: "clbautista@up.edu.ph"
@@ -308,7 +308,7 @@ export const faculty = [
     middleName: "Caranzo",
     lastName: "Almaden",
     password: "1234567890",
-    facultyNo: "2023-27953",
+    employeeNo: "2023-27953",
     college: "Department of Natural Sciences and Mathematics",
     campus: "Tacloban College",
     upMail: "rcalmaden@up.edu.ph"
@@ -319,7 +319,7 @@ export const faculty = [
     middleName: "Magbanua",
     lastName: "Flores",
     password: "1234567890",
-    facultyNo: "2023-27954",
+    employeeNo: "2023-27954",
     college: "Division of Humanities",
     campus: "Tacloban College",
     upMail: "kmmagbanua@up.edu.ph"
@@ -330,7 +330,7 @@ export const faculty = [
     middleName: "Serrano",
     lastName: "Cruz",
     password: "1234567890",
-    facultyNo: "2023-27955",
+    employeeNo: "2023-27955",
     college: "Division of Social Sciences",
     campus: "Tacloban College",
     upMail: "jryanserrano@up.edu.ph"
@@ -341,7 +341,7 @@ export const faculty = [
     middleName: "Torres",
     lastName: "Santiago",
     password: "1234567890",
-    facultyNo: "2023-27956",
+    employeeNo: "2023-27956",
     college: "Division of Management",
     campus: "Tacloban College",
     upMail: "gftorres@up.edu.ph"
@@ -352,7 +352,7 @@ export const faculty = [
     middleName: "Ramos",
     lastName: "Reyes",
     password: "1234567890",
-    facultyNo: "2023-27957",
+    employeeNo: "2023-27957",
     college: "Department of Natural Sciences and Mathematics",
     campus: "Tacloban College",
     upMail: "maramos@up.edu.ph"
@@ -363,7 +363,7 @@ export const faculty = [
     middleName: "Villanueva",
     lastName: "Torres",
     password: "1234567890",
-    facultyNo: "2023-27958",
+    employeeNo: "2023-27958",
     college: "Division of Humanities",
     campus: "Tacloban College",
     upMail: "ajvillanueva@up.edu.ph"

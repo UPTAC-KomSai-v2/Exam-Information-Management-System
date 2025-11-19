@@ -15,7 +15,7 @@ export default function NavigationBar({ navButtons } : navBarType) {
           href="/"
           rel="noopener noreferrer"
       >
-        { Logo(217, 26) }
+        <Logo width={217} height={26}/>
       </a>
       <div className={styles.navButtons}>
         { navButtons }

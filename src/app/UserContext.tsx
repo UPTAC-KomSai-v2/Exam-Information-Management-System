@@ -13,28 +13,28 @@ export interface Student {
   upMail: string
 };
 
-export interface Faculty {
+export interface Employee {
   userID: string,
   firstName: string,
   middleName: string,
   lastName: string,
   password: string,
-  facultyNo: string,
+  employeeNo: string,
   college: string,
   campus: string,
   upMail: string
 }
 
 export const UserContext = createContext<{
-  currentUser: Student | Faculty | null;
-  setCurrentUser: (user : Student | null | Faculty) => void;
+  currentUser: Student | Employee | null;
+  setCurrentUser: (user : Student | null | Employee) => void;
 }>({
   currentUser: null,
   setCurrentUser: () => {}
 });
 
 export function UserProvider({ children }: { children: ReactNode }) {
-  const [currentUser, setCurrentUser] = useState<Student|Faculty|null>(null);
+  const [currentUser, setCurrentUser] = useState<Student|Employee|null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("currentUser");

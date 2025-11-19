@@ -31,7 +31,7 @@
 .main {
   width: 100%;
   min-height: 90vh;
-  max-width: 100%;
+  max-width: 900px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -52,6 +52,25 @@
   cursor: pointer;
 }
 
+.selectDiv {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.courseDiv select {
+  width: 120px;
+  padding: 2px;
+  border-radius: 5px;
+}
+
+.courseDiv hr {
+  background-color: #171717;
+  width: 100%;
+  height: 2px;
+  margin-top: 10px;
+}
+
 .courseDiv p.title {
   font-size: 22px;
   font-weight: 600;
@@ -59,21 +78,47 @@
   color: var(--course-text);
 }
 
-.courseDiv p.description {
-  font-size: 17px;
-  text-wrap: balance;
-  color: var(--text-secondary);
+.examReportDiv {
+  display: block;
+  width: 100%;
 }
 
-.examDetails {
+p.subheading {
+  font-weight: 600;
+  color: var(--course-text);
+}
+
+.information {
   display: flex;
-  flex-direction: row;
-  gap: 30px;
+  padding: 10px;
+  flex-direction: column;
+  gap: 5px;
 }
 
-.examDetails p {
-  width: 120px;
+.examHeading {
+  font-weight: 600;
+  margin: 15px 0px 5px;
 }
+
+.examDetailsAVG {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr 1fr 1fr;
+  width: 100%;
+}
+
+.examDetailsAVG p,
+.examDetailsAll p {
+  text-align: center;
+  border: 1px solid #171717;
+  padding: 5px;
+}
+
+.examDetailsAll {
+  display: grid;
+  grid-template-columns: 3fr 2fr 3fr;
+  width: 100%;
+}
+
 
 
 /* Enable hover only on non-touch devices */
