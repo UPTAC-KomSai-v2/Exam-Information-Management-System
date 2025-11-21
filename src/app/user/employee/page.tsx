@@ -12,9 +12,6 @@ export default function EmployeeDashboard() {
   if(!currentUser) return <p>No user is logged in</p>;
   if(!("college" in currentUser)) return <p>User logged in is not faculty</p>;
 
-  console.log(`CurrentUser: ${currentUser.firstName}`); 
-  console.log(`CurrentUser UserID: ${currentUser.userID}`); 
-
   return (
     <div className={styles.page}>
       <Nav dir="employee" />
@@ -47,14 +44,9 @@ function RenderExamList({currentUser}:{currentUser: Employee}) {
   }
 
   let examList:Array<ReactNode> = [];
-  const coursesTaught = courses.filter(course => {
-    console.log(course.courseEmployeeID + " vs " + currentUser.userID); 
-    return course.courseEmployeeID === currentUser.userID
-  });
+  const coursesTaught = courses.filter(course => course.courseEmployeeID === currentUser.userID);
 
   coursesTaught.forEach((course) => {
-    console.log("inside of coursesTaught");
-    console.log(course.courseTitle);
     const refExams = referenceExams.filter(refExam => refExam.courseID === course.courseID);
     
     let sectionNames = "";
@@ -62,7 +54,6 @@ function RenderExamList({currentUser}:{currentUser: Employee}) {
     sectionNames.slice(0, sectionNames.length-2);
 
     refExams.forEach((refExam) => {
-      console.log("ENTERED REFEXAMS.FOREACH")
       const courseDescription = `${course.courseTitle} | ${course.courseDescription}`
       examList.push(indivExamContent(refExam.examID, refExam.examTitle, courseDescription, sectionNames, refExam.items, refExam.examType, refExam.timeAllotted, refExam.dueDate));
     });
