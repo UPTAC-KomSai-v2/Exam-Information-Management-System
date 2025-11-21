@@ -43,20 +43,17 @@ export default function Login() {
     }
 
     // user verification and identification
-    console.log(userNumber);
-    console.log(password);
-    
     const users = userRole === "Student" ? students : employees;
 
     users.forEach((user) => {
       let userNo:unknown = "";
-      if("studentNo" in users) {
-        userNo = users.studentNo;
-      } else if("employeeNo" in users) {
-        userNo = users.employeeNo;
+      if("studentNo" in user) {
+        userNo = user.studentNo;
+      } else if("employeeNo" in user) {
+        userNo = user.employeeNo;
       }
 
-      if(userNo === userNumber) {
+      if(userNo !== userNumber) {
         console.log("Incorrect username or password.");
         return;
       }

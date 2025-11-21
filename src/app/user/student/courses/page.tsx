@@ -1,5 +1,6 @@
 "use client";
 
+import sharedStyles from "@/app/user/components/shared.module.css";
 import styles from "./page.module.css";
 import Nav from "@/app/user/components/userNav";
 import Logo from "@/app/components/logo";
@@ -7,27 +8,27 @@ import { ReactElement, useContext, useState } from "react";
 
 import { courses, referenceExams, Section } from "@/app/data/data";
 import { Student, UserContext } from "@/app/UserContext";
+import { getEnrolledCourses, getEnrolledSection, isEnrolledInCourse } from "../page";
 
 export default function StudentCourses() {
   const [ showOverlay, setShowOverlay]  = useState(false);
   const { currentUser } = useContext(UserContext);
   if(!currentUser) return <p>No user is logged in</p>;
-  if("college" in currentUser) return <p>User logged in is not a student</p>;
+  if(("college" in currentUser)) return <p>User logged in is not a student</p>;
 
   // rendering a number of courses lol
   let coursesArray: Array<ReactElement>;
   coursesArray = [];
 
-  const coursesEnrolled = courses.filter(course => { 
-    const enrolledSection = findEnrolledSection(course.sections, currentUser);
-    return (enrolledSection != null);
-  });
+  const coursesEnrolled = getEnrolledCourses(currentUser);
   coursesEnrolled.forEach((course) => {
-    const fullCourseDescription = course.courseDescription + " | " + course.academicYear + " " + course.semester;
-    const noOfExams = referenceExams.filter(refExam => refExam.courseID === course.courseID).length;
+    const enrolledSection = getEnrolledSection(course, currentUser);
+    const fullCourseTitle = `${course.courseTitle} - ${enrolledSection?.sectionName}`;
+    const fullCourseDescription = `${course.courseDescription} | ${course.academicYear} ${course.semester}`;
+    const noOfExams = getNoOfExamsPerSection(enrolledSection, currentUser);
     coursesArray.push(addCourseToPage(
       course.courseID,
-      course.courseTitle,
+      fullCourseTitle,
       fullCourseDescription,
       noOfExams
     ))
@@ -35,16 +36,16 @@ export default function StudentCourses() {
   
 
   return (
-    <div className={styles.page}>
-      { Nav("student") }
-      <main className={styles.main}>
+    <div className={`${sharedStyles.page} ${styles.page}`}>
+      <Nav dir="student" />
+      <main className={`${sharedStyles.main} ${styles.main} main`}>
+        <p className="title22px">Courses</p>
         { coursesArray }
+
         <button
           className={styles.enrollCourse}
           onClick={() => setShowOverlay(true)}
-        >
-          +
-        </button>
+        >+</button>
 
         { showOverlay && (
           <div className={styles.filter}>
@@ -53,7 +54,7 @@ export default function StudentCourses() {
         {
           showOverlay && (
           <div className={styles.overlay}>
-            { Logo(217, 26) }
+            <Logo width={217} height={26} />
             <p className={styles.overlayTitle}>Enroll a course</p>
             
             <div>
@@ -66,7 +67,7 @@ export default function StudentCourses() {
               <input type="text" name="courseCode" className={styles.courseCode}/>
             </div>
             <button 
-              className={styles.submit}
+              className="primaryButton"
               onClick={() => setShowOverlay(false)}
             >Submit</button>
             <button 
@@ -83,10 +84,10 @@ export default function StudentCourses() {
 function addCourseToPage(courseID: string, courseTitle: string, courseDescription: string, noOfExams: number) {
   const href = "./courses/viewCourseReport?courseID=" + courseID;
   return (
-    <div className={styles.courseDiv} key={courseID}>
-      <p className={styles.title}>{courseTitle}</p>
-      <p className={styles.description}>{courseDescription}</p>
-      <div className={styles.information}>
+    <div className={sharedStyles.examCourseDiv} key={courseID}>
+      <p className="title22px">{courseTitle}</p>
+      <p className={sharedStyles.description}>{courseDescription}</p>
+      <div className={sharedStyles.information}>
         <p>Total Exams: {noOfExams}</p>
         <a 
           href={href}
@@ -97,8 +98,7 @@ function addCourseToPage(courseID: string, courseTitle: string, courseDescriptio
   );
 }
 
-function findEnrolledSection(sections: Section[], currentUser: Student) {
-    return sections.find(section => {
-      return section.studentsEnrolled.some(studentID => studentID === currentUser.userID);
-    });
+export function getNoOfExamsPerSection(enrolledSection: Section|undefined, urrentUser: Student) {
+  if(enrolledSection === undefined) return 0;
+  return referenceExams.filter(refExam => refExam.sections.some(section => section === enrolledSection.sectionName)).length;
 }

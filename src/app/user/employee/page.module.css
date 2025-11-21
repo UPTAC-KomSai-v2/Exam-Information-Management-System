@@ -1,14 +1,3 @@
-.page {
-  --exam-div-background: #f2f2f2;
-  --exam-text: #7B1113;
-  --exam-text-hover: #9d0f11;
+.main {
+  flex-direction: column;
 }
-
-.examDiv { 
-  display: flexbox; 
-  width: 100%; 
-  padding: 20px; 
-  background-color: var(--exam-div-background); 
-  border-radius: 10px; 
-}
-

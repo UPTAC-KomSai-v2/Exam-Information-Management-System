@@ -1,126 +1,72 @@
-.page {
-  --background: #dddddd;
-  --foreground: #fff;
-
-  --course-div-background: #f2f2f2; 
-  --course-text: #7B1113;
-  --course-text-hover: #9d0f11;
-
-  --text-main-menu: #ffffff;
-  --text-primary: #171717;
-
-  --button-text: #656565;
-  --button-hover: #bebebe;
-
-  --button-secondary: #7B1113;
-  --button-secondary-text: #ffffff;
-  --button-secondary-hover: #581718;
-
-  display: flex;
-  min-height: 100vh;
-  align-items: center;
-  flex-direction: column;
-  justify-content: flex-start;
-  font-family: var(--font-geist-sans);
-  background-color: var(--background);
-  background-repeat: no-repeat;
-  background-size: cover;
-}
-
 /* main part of the html */
 .main {
-  width: 100%;
-  min-height: 90vh;
-  max-width: 100%;
-  display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 30px;
 }
 
-.courseDiv {
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  gap: 5px;
-  padding: 20px;
-  background-color: var(--course-div-background);
-  border-radius: 10px;
-  cursor: pointer;
+.bold {
+  font-weight: bold;
 }
 
-.courseDiv p.title {
-  font-size: 22px;
-  font-weight: 600;
-  text-wrap: balance;
-  color: var(--course-text);
-}
-
-.courseDiv p.description {
-  font-size: 17px;
-  text-wrap: balance;
-  color: var(--text-secondary);
-}
-
-.examDetails {
+.selectDiv {
   display: flex;
   flex-direction: row;
-  gap: 30px;
+  gap: 10px;
+  margin: 5 0px;
 }
 
-.examDetails p {
+.examCourseDiv select {
   width: 120px;
+  padding: 2px;
+  border-radius: 5px;
 }
 
-
-/* Enable hover only on non-touch devices */
-@media (hover: hover) and (pointer: fine) {
-  .enrollCourse:hover {
-    background: var(--button-hover);
-    border-color: transparent;
-  }
-
-  p.title:hover {
-    color: var(--course-text-hover);
-  }
-
-  button.submit:hover {
-    background-color: var(--button-secondary-hover);
-  }
+.examCourseDiv hr {
+  background-color: #171717;
+  width: 100%;
+  height: 2px;
+  margin-top: 15px;
 }
 
-@media (max-width: 600px) {
-  .main {
-    padding: 48px 24px;
-  }
-
-  .courseDiv {
-    gap: 16px;
-  }
-
-  .courseDiv h1 {
-    font-size: 32px;
-    line-height: 40px;
-    letter-spacing: -1.92px;
-  }
+.examReportDiv {
+  display: block;
+  width: 100%;
+  padding: 15px;
 }
 
-@media (prefers-color-scheme: dark) {
-  .page {
-    --background: #242424;
+p.subheading {
+  font-weight: 600;
+  font-size: 17px;
+  color: var(--title-text);
+}
 
-    --course-div-background: #171717;
-    --course-text: #f2f2f2;
-    --text-main-menu: #ffffff;
+.information {
+  display: flex;
+  padding: 5px;
+  flex-direction: column;
+}
 
-    --text-primary: #f2f2f2;
+.examHeading {
+  font-weight: 600;
+  margin-bottom: 5px;
+}
 
-    --button-primary: #7B1113;
-    --button-text: #f2f2f2;
+.examDetailsAVG p,
+.examDetailsAll p {
+  text-align: center;
+  border: 1px solid #171717;
+  padding: 5px;
+}
 
-    --button-primary-hover: #581718;
-  }
+.examDetailsAVG,
+.examDetailsAll {
+  display: grid;
+  width: 100%;
+}
+
+.examDetailsAVG {
+  grid-template-columns: 1fr 2fr 1fr 1fr 1fr;
+}
+
+.examDetailsAll {
+  grid-template-columns: 3fr 2fr 3fr;
 }

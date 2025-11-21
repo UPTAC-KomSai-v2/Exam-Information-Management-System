@@ -1,5 +1,6 @@
 :root {
   --background: #f2f2f2;
+  --gray-background: rgb(193, 193, 193);
   --foreground: #171717;
   --inner-background: #ffffff;
 
@@ -66,7 +67,7 @@ a {
   font-size: 22px;
   font-weight: 600;
   text-wrap: balance;
-  color: var(--button-secondary);
+  color: var(--title-text);
 }
 
 .title17px {
@@ -74,7 +75,7 @@ a {
   font-size: 17px;
   font-weight: 600;
   text-wrap: balance;
-  color: var(--button-secondary);
+  color: var(--foreground);
 }
 
 .innerTitle {

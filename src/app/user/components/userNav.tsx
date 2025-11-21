@@ -1,7 +1,7 @@
 import NavigationBar from "@/app/components/navigationBar";
 import Image from "next/image";
 
-export default function UserNavBar(dir: string) {
+export default function UserNavBar({dir}:{dir: string}) {
   let notification = "/images/notification_false.png";
   let message = "/images/message_false.png";
 

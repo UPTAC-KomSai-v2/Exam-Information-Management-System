@@ -1,35 +1,38 @@
 "use client";
 
 import { courses, referenceExams } from "@/app/data/data";
-import styles from "./page.module.css";
-import sharedStyles from "@/app/user/components/shared.module.css";
+import mainStyle from "./page.module.css";
+import styles from "@/app/user/components/shared.module.css";
 import Nav from "@/app/user/components/userNav";
 import { ReactNode, useContext } from "react";
-import { Faculty, UserContext } from "@/app/UserContext";
+import { Employee, UserContext } from "@/app/UserContext";
 
-export default function ProfessorDashboard() {
+export default function EmployeeDashboard() {
   const { currentUser } = useContext(UserContext);
   if(!currentUser) return <p>No user is logged in</p>;
   if(!("college" in currentUser)) return <p>User logged in is not faculty</p>;
 
+  console.log(`CurrentUser: ${currentUser.firstName}`); 
+  console.log(`CurrentUser UserID: ${currentUser.userID}`); 
+
   return (
-    <div className={`${sharedStyles.page} ${styles.page}`}>
-      { Nav("professor") }
-      <main className={sharedStyles.main}>
-        <p className={sharedStyles.title}>Dashboard</p>
-        { renderExamList(currentUser) }
+    <div className={styles.page}>
+      <Nav dir="employee" />
+      <main className={`${styles.main} ${mainStyle.main} main `}>
+        <p className="title22px">Dashboard</p>
+        <RenderExamList currentUser={currentUser} />
       </main>
     </div>
   );
 }
 
-function renderExamList(currentUser: Faculty) {
+function RenderExamList({currentUser}:{currentUser: Employee}) {
   const indivExamContent = (examID: string, examTitle: string, examDescription: string, sectionNames: string, noOfItems: number, examType: string, timeAllotted: string, dueDate: string) => {
-    return(
-      <div className={styles.examDiv} key={examID}>
-        <p className={sharedStyles.title}>{examTitle}</p>
+  return(
+      <div className={styles.examCourseDiv} key={examID}>
+        <p className="title22px">{examTitle}</p>
         <p className={styles.description}>{examDescription}</p>
-        <div className={sharedStyles.information}>
+        <div className={styles.information}>
           <p>Sections: {sectionNames}</p>
           <p>Total Items: {noOfItems}</p>
           <p>Exam Type: {examType}</p>
@@ -44,7 +47,11 @@ function renderExamList(currentUser: Faculty) {
   }
 
   let examList:Array<ReactNode> = [];
-  const coursesTaught = courses.filter(course => {console.log(course.coursefacultyID + " vs " + currentUser.userID); return course.coursefacultyID === currentUser.userID});
+  const coursesTaught = courses.filter(course => {
+    console.log(course.courseEmployeeID + " vs " + currentUser.userID); 
+    return course.courseEmployeeID === currentUser.userID
+  });
+
   coursesTaught.forEach((course) => {
     console.log("inside of coursesTaught");
     console.log(course.courseTitle);
@@ -55,6 +62,7 @@ function renderExamList(currentUser: Faculty) {
     sectionNames.slice(0, sectionNames.length-2);
 
     refExams.forEach((refExam) => {
+      console.log("ENTERED REFEXAMS.FOREACH")
       const courseDescription = `${course.courseTitle} | ${course.courseDescription}`
       examList.push(indivExamContent(refExam.examID, refExam.examTitle, courseDescription, sectionNames, refExam.items, refExam.examType, refExam.timeAllotted, refExam.dueDate));
     });

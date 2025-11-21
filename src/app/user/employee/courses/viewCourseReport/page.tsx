@@ -1,5 +1,6 @@
 "use client";
 
+import sharedStyles from "@/app/user/components/shared.module.css";
 import styles from "./page.module.css";
 import Nav from "@/app/user/components/userNav";
 import { ReactElement, useEffect, useState } from "react";
@@ -29,7 +30,7 @@ export default function ViewCourseReport() {
   }, [selectedCourse]);
 
   // rendering the section options
-  const renderSectionOptions = () => {
+  const RenderSectionOptions = () => {
     let sectionOptions: Array<ReactElement>;
     sectionOptions = [];
     if(!sections) return sectionOptions;
@@ -46,12 +47,12 @@ export default function ViewCourseReport() {
 
   // main page content
   return (
-    <div className={styles.page}>
-      { Nav("professor") }
+    <div className="page">
+      <Nav dir="employee" />
 
-      <main className={styles.main}>
-        <div className={styles.courseDiv}>
-          <p className={styles.title}>{selectedCourse.courseTitle}</p>
+      <main className={`${styles.main} ${sharedStyles.main} main`}>
+        <div className={`${styles.examCourseDiv} ${sharedStyles.examCourseDiv}`}>
+          <p className="title22px">{selectedCourse.courseTitle}</p>
           <div className={styles.selectDiv}>
             <label>View Report For:</label>
             <select 
@@ -59,7 +60,7 @@ export default function ViewCourseReport() {
               value={ selectedSection }
               onChange={ e => setSelectedSection(e.target.value) }
             >
-              { renderSectionOptions() }
+              <RenderSectionOptions />
               <option value="All Sections">All Sections</option>
             </select>
           </div>
@@ -75,7 +76,12 @@ export default function ViewCourseReport() {
             </select>
           </div>
           <hr/>
-          { renderExamContent(selectedCourse, selectedSection, noOfStudents, noOfExams, selectedDisplay) }
+          <RenderExamContent 
+            selectedCourse={selectedCourse} 
+            sectionName={selectedSection} 
+            noOfStudents={noOfStudents}
+            noOfExams={noOfExams}
+            selectedDisplay={selectedDisplay} />
         </div>
       </main>
     </div>
@@ -103,10 +109,10 @@ function getUpdatedInformation(selectedCourse: Course|null, selectedSectionName:
   return { noOfStudents, noOfExams };
 }
 
-function renderExamContent(selectedCourse: Course|null, sectionName: string, noOfStudents: number, noOfExams: number, selectedDisplay: string) {
+function RenderExamContent({selectedCourse, sectionName, noOfStudents, noOfExams, selectedDisplay}:{selectedCourse: Course|null, sectionName: string, noOfStudents: number, noOfExams: number, selectedDisplay: string}) {
   console.log(selectedDisplay);
   return (
-    <div className={styles.examReportDiv}>
+    <div className={`${styles.examReportDiv}`}>
       <p className={styles.subheading}>Course Information</p>
       <div className={styles.information}>
         <p>Section: {sectionName}</p>
@@ -115,13 +121,16 @@ function renderExamContent(selectedCourse: Course|null, sectionName: string, noO
       </div>
 
       <p className={styles.subheading}>Exam Report</p>
-      { (selectedDisplay === "Average") ? renderAverageScores(selectedCourse, sectionName) : renderAllScores(selectedCourse, sectionName) }
+      { (selectedDisplay === "Average") ? 
+        <RenderAverageScores selectedCourse={selectedCourse} sectionName={sectionName} /> : 
+        <RenderAllScores selectedCourse={selectedCourse} sectionName={sectionName} /> 
+      }
     </div>
   );
 }
 
-function renderAverageScores(selectedCourse: Course|null, sectionName: string) {
-  const getScoreContent = () => {
+function RenderAverageScores({selectedCourse, sectionName}:{selectedCourse: Course|null, sectionName: string}) {
+  const GetScoreContent = () => {
     let examScoreContent: Array<ReactElement>;
     examScoreContent = [];
     if(!selectedCourse) return null;
@@ -147,13 +156,13 @@ function renderAverageScores(selectedCourse: Course|null, sectionName: string) {
   return (
     <div>
       <div className={styles.examDetailsAVG}>
-        <p>Exam No.</p>
-        <p>Exam Title</p>
-        <p>No. of Items</p>
-        <p>Average Score</p>
-        <p>No. of Takers</p>
+        <p className={styles.bold}>Exam No.</p>
+        <p className={styles.bold}>Exam Title</p>
+        <p className={styles.bold}>No. of Items</p>
+        <p className={styles.bold}>Average Score</p>
+        <p className={styles.bold}>No. of Takers</p>
       </div>
-      { getScoreContent() }
+      <GetScoreContent />
     </div>
   );
 }
@@ -176,14 +185,14 @@ function getAVGScoresAndNoOfTakers(referencedExamID: string, sectionName: string
 }
 
 // rendering for all scores
-function renderAllScores(selectedCourse: Course|null, sectionName: string) {
-  const getScoreContent = () => {
+function RenderAllScores({selectedCourse, sectionName}:{selectedCourse: Course|null, sectionName: string}) {
+  const GetScoreContent = () => {
     let fullExamScoreContent: Array<ReactElement>;
     fullExamScoreContent = [];
 
     if(!selectedCourse) return fullExamScoreContent;
 
-    const studentExamScores = (referenceExam: ReferenceExam) => {
+    const StudentExamScores = ({referenceExam}:{referenceExam: ReferenceExam}) => {
       let individualExamScore: Array<ReactElement>;
       individualExamScore = [];
 
@@ -224,11 +233,11 @@ function renderAllScores(selectedCourse: Course|null, sectionName: string) {
             <p>Title: {refExam.examTitle}</p>
           </div>
           <div className={styles.examDetailsAll}>
-            <p>Student No.</p>
-            <p>Score</p>
-            <p>Grade</p>
+            <p className={styles.bold}>Student No.</p>
+            <p className={styles.bold}>Score</p>
+            <p className={styles.bold}>Grade</p>
           </div>
-          { studentExamScores(refExam) }
+          <StudentExamScores referenceExam={refExam} />
         </div>
       );
     });
@@ -236,9 +245,7 @@ function renderAllScores(selectedCourse: Course|null, sectionName: string) {
   }
 
   return (
-    <div>
-      { getScoreContent() }
-    </div>
+    <GetScoreContent />
   );
 }
 

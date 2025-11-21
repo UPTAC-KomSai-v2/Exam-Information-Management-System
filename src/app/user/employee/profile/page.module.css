@@ -1,42 +1,6 @@
-.page {
-  --background: #dddddd;
-  --foreground: #fff;
-
-  --inner-div-background: #f2f2f2; 
-  --inner-text: #7B1113;
-  --inner-text-hover: #9d0f11;
-
-  --text-main-menu: #ffffff;
-  --text-primary: #171717;
-
-  --button-text: #656565;
-  --button-hover: #bebebe;
-
-  --button-secondary: #7B1113;
-  --button-secondary-text: #ffffff;
-  --button-secondary-hover: #581718;
-
-  display: flex;
-  min-height: 100vh;
-  align-items: center;
-  flex-direction: column;
-  justify-content: flex-start;
-  font-family: var(--font-geist-sans);
-  background-color: var(--background);
-  background-repeat: no-repeat;
-  background-size: cover;
-}
-
 /* main part of the html */
 .main {
-  width: 100%;
-  min-height: 90vh;
-  max-width: 100%;
-  display: flex;
   flex-direction: row;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 30px;
 }
 
 .leftDiv, 
@@ -48,7 +12,7 @@
   text-align: left;
   gap: 5px;
   padding: 20px;
-  background-color: var(--inner-div-background);
+  background-color: var(--inner-background);
   border-radius: 10px;
   text-wrap: balance;
   font-size: 15px;
@@ -76,7 +40,6 @@
   cursor: pointer;
   margin-top: 10px;
 }
-
 
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {

@@ -1,25 +1,5 @@
-.page {
-  --course-div-background: #f2f2f2;
-  --course-text-hover: #9d0f11;
-}
-
-.courseDiv {
-  display: flex;
-  width: 100%;
+.main {
   flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  gap: 5px;
-  padding: 20px;
-  background-color: var(--course-div-background);
-  border-radius: 10px;
-  cursor: pointer;
-}
-
-.courseDiv p.description {
-  font-size: 17px;
-  text-wrap: balance;
-  color: var(--text-secondary);
 }
 
 .buttons {
@@ -44,7 +24,7 @@
   padding: 0 34px;
   font-weight: 500;
   font-size: 30px;
-  background: var(--course-div-background);
+  background: var(--inner-background);
   color: var(--button-text);
   gap: 8px;
 }
@@ -66,7 +46,7 @@
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  background-color: var(--course-div-background);
+  background-color: var(--inner-background);
   padding: 25px;
   gap: 10px;
   border-radius: 10px;
@@ -93,21 +73,10 @@ input.courseCode {
   width: 200px;
 }
 
-.overlay button {
-  border: none;
-  cursor: pointer;
-}
-
-button.submit {
-  background: var(--button-secondary);
-  color: var(--button-secondary-text);
-  padding: 7px 34px;
-  border-radius: 8px;
-  font-weight: 600;
-  gap: 8px;
-}
-
 button.exitOverlay {
+  cursor: pointer;
+  border: none;
+  background: none;
   position: absolute;
   top: 5px;
   right: 10px;

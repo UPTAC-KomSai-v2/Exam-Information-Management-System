@@ -1,78 +1,92 @@
 "use client";
 
-import { courses, examScores, ReferenceExam, referenceExams, Section } from "@/app/data/data";
-import styles from "./page.module.css";
+import { Course, courses, referenceExams, Section } from "@/app/data/data";
+import mainStyle from "./page.module.css";
+import styles from "@/app/user/components/shared.module.css";
 import Nav from "@/app/user/components/userNav";
 import { ReactNode, useContext } from "react";
 import { Student, UserContext } from "@/app/UserContext";
 
 export default function StudentDashboard() {
   const { currentUser } = useContext(UserContext);
-  console.log(!currentUser);
   if(!currentUser) return <p>No user is logged in</p>;
-  if(("college" in currentUser)) return <p>User logged in is not student</p>;
+  if(("college" in currentUser)) return <p>User logged in is not a student</p>;
 
   return (
     <div className={styles.page}>
-      { Nav("student") }
-      <main className={styles.main}>
-        { renderExamList(currentUser) }
+      <Nav dir="student" />
+      <main className={`${styles.main} ${mainStyle.main} main `}>
+        <p className="title22px">Dashboard</p>
+        <RenderExamList currentUser={currentUser} />
       </main>
     </div>
   );
 }
 
-function renderExamList(currentUser: Student) {
-  const indivExamContent = (examID: string, examTitle: string, examDescription: string, score: string, examType: string, timeAllotted: string, dueDate: string, examTaken: string) => {
+function RenderExamList({currentUser}:{currentUser: Student}) {
+  const indivExamContent = (examID: string, examTitle: string, examDescription: string, noOfItems: number, examType: string, timeAllotted: string, dueDate: string) => {
     return(
-      <div className={styles.examDiv} key={examID}>
-        <p className={styles.title}>{examTitle}</p>
+      <div className={styles.examCourseDiv} key={examID}>
+        <p className="title22px">{examTitle}</p>
         <p className={styles.description}>{examDescription}</p>
         <div className={styles.information}>
-          <p>Score: {score}</p>
+          <p>Total Items: {noOfItems}</p>
           <p>Exam Type: {examType}</p>
           <p>Time Allotted: {timeAllotted}</p>
           <p>Due Date: {dueDate}</p>
-          <p>Exam Taken: {examTaken}</p>
-          <p>View Exam</p>
+          <p>Taken Exam: Yes</p>
+          <a>Hide Exam</a>
+          <a>View Exam</a>
         </div>
       </div>
     );
   }
 
   let examList:Array<ReactNode> = [];
-  const coursesEnrolled = courses.filter(course => (findEnrolledSection(course.sections, currentUser) != null));
+  const coursesEnrolled = getEnrolledCourses(currentUser);
 
   coursesEnrolled.forEach((course) => {
-    console.log("inside of courseEnrolled");
+    console.log("inside of coursesEnrolled");
     console.log(course.courseTitle);
     const refExams = referenceExams.filter(refExam => refExam.courseID === course.courseID);
     
-    refExams.forEach((refExam) => {
-      const enrolledSection = findEnrolledSection(course.sections, currentUser);
-      const enrolledSectionName = enrolledSection ? enrolledSection.sectionName : "N/A";
+    let section = getEnrolledSection(course, currentUser);
+    if(section === undefined)
+      return;
 
-      const courseDescription = `${course.courseTitle} - ${enrolledSectionName} | ${course.courseDescription}`;
-      const { hasTakenExam, score } = examResults(currentUser);
-      const examTaken = hasTakenExam ? "Yes" : "Not yet";
-      examList.push(indivExamContent(refExam.examID, refExam.examTitle, courseDescription, `${score}/${refExam.items}`, refExam.examType, refExam.timeAllotted, refExam.dueDate, examTaken));
+    refExams.forEach((refExam) => {
+      const courseDescription = `${course.courseTitle} - ${section.sectionName} | ${course.courseDescription}`
+      examList.push(indivExamContent(refExam.examID, refExam.examTitle, courseDescription, refExam.items, refExam.examType, refExam.timeAllotted, refExam.dueDate));
     });
   }); 
 
   return examList;
 }
 
-function findEnrolledSection(sections: Section[], currentUser: Student) {
-    return sections.find(section => {
-      return section.studentsEnrolled.some(studentID => studentID === currentUser.userID);
-    });
+export function getEnrolledCourses(currentUser: Student){
+  return courses.filter(course => {
+    console.log(`isEnrolledInCourse(${course.courseTitle}, ${currentUser.firstName}) = ${isEnrolledInCourse(course, currentUser)}`);
+    return isEnrolledInCourse(course, currentUser);
+  });
 }
 
-function examResults(currentUser: Student) {
-  const hasTakenExam = examScores.some(examScore => examScore.studentID === currentUser.userID);
-  const examResult = examScores.find(examScore => examScore.studentID === currentUser.userID);
-  const score = examResult ? examResult.score : "N/A";
-  return { hasTakenExam, score };
+export function isEnrolledInCourse(course: Course, currentUser: Student) {
+  if(!currentUser) return undefined;
+  return course.sections.some(section => isEnrolledInSection(section, currentUser));
 }
 
+export function getEnrolledSection(course: Course, currentUser: Student|null) {
+  if(!currentUser) return undefined;
+  const enrolledSection = course.sections.find(section => isEnrolledInSection(section, currentUser));
+  console.log("ENROLLED SECTION = " + enrolledSection?.sectionName);
+  return enrolledSection;
+}
 
+export function isEnrolledInSection(section: Section, currentUser: Student) {
+  const found = section.studentsEnrolled.some(studentID => {
+    console.log(`${studentID} === ${currentUser.userID} = ${studentID === currentUser.userID}`);
+    return studentID === currentUser.userID;
+  }); 
+  console.log(`Found?? = ${found}`);
+  return found;
+}

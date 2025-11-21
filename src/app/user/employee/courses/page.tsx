@@ -1,7 +1,7 @@
 "use client";
 
-import styles from "./page.module.css";
 import sharedStyles from "@/app/user/components/shared.module.css";
+import styles from "./page.module.css";
 import Nav from "@/app/user/components/userNav";
 import Logo from "@/app/components/logo";
 import { ReactElement, useContext, useState } from "react";
@@ -9,7 +9,7 @@ import { ReactElement, useContext, useState } from "react";
 import { courses, referenceExams } from "@/app/data/data";
 import { UserContext } from "@/app/UserContext";
 
-export default function ProfessorCourses() {
+export default function EmployeeCourses() {
   const [ showOverlay, setShowOverlay]  = useState(false);
   const { currentUser } = useContext(UserContext);
   if(!currentUser) return <p>No user is logged in</p>;
@@ -19,7 +19,7 @@ export default function ProfessorCourses() {
   let coursesArray: Array<ReactElement>;
   coursesArray = [];
 
-  const coursesTaught = courses.filter(course => {console.log(course.coursefacultyID + " vs " + currentUser.userID); return course.coursefacultyID === currentUser.userID});
+  const coursesTaught = courses.filter(course => {console.log(course.courseEmployeeID + " vs " + currentUser.userID); return course.courseEmployeeID === currentUser.userID});
   coursesTaught.forEach((course) => {
     const fullCourseDescription = course.courseDescription + " | " + course.academicYear + " " + course.semester;
     const noOfExams = referenceExams.filter(refExam => refExam.courseID === course.courseID).length;
@@ -34,16 +34,15 @@ export default function ProfessorCourses() {
 
   return (
     <div className={`${sharedStyles.page} ${styles.page}`}>
-      { Nav("professor") }
-      <main className={sharedStyles.main}>
-        <p className={sharedStyles.title}>Courses</p>
+      <Nav dir="employee" />
+      <main className={`${sharedStyles.main} ${styles.main} main`}>
+        <p className="title22px">Courses</p>
         { coursesArray }
+
         <button
           className={styles.enrollCourse}
           onClick={() => setShowOverlay(true)}
-        >
-          +
-        </button>
+        >+</button>
 
         { showOverlay && (
           <div className={styles.filter}>
@@ -52,7 +51,7 @@ export default function ProfessorCourses() {
         {
           showOverlay && (
           <div className={styles.overlay}>
-            { Logo(217, 26) }
+            <Logo width={217} height={26} />
             <p className={styles.overlayTitle}>Enroll a course</p>
             
             <div>
@@ -65,7 +64,7 @@ export default function ProfessorCourses() {
               <input type="text" name="courseCode" className={styles.courseCode}/>
             </div>
             <button 
-              className={styles.submit}
+              className="primaryButton"
               onClick={() => setShowOverlay(false)}
             >Submit</button>
             <button 
@@ -82,9 +81,9 @@ export default function ProfessorCourses() {
 function addCourseToPage(courseID: string, courseTitle: string, courseDescription: string, noOfExams: number) {
   const href = "./courses/viewCourseReport?courseID=" + courseID;
   return (
-    <div className={styles.courseDiv} key={courseID}>
-      <p className={sharedStyles.title}>{courseTitle}</p>
-      <p className={styles.description}>{courseDescription}</p>
+    <div className={sharedStyles.examCourseDiv} key={courseID}>
+      <p className="title22px">{courseTitle}</p>
+      <p className={sharedStyles.description}>{courseDescription}</p>
       <div className={sharedStyles.information}>
         <p>Total Exams: {noOfExams}</p>
         <a 
