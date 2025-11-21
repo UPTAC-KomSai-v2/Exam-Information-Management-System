@@ -1,6 +1,6 @@
 "use client";
 
-import { Course, courses, referenceExams, Section } from "@/app/data/data";
+import { Course, courses, examScores, ReferenceExam, referenceExams, Section } from "@/app/data/data";
 import mainStyle from "./page.module.css";
 import styles from "@/app/user/components/shared.module.css";
 import Nav from "@/app/user/components/userNav";
@@ -24,23 +24,29 @@ export default function StudentDashboard() {
 }
 
 function RenderExamList({currentUser}:{currentUser: Student}) {
-  const indivExamContent = (examID: string, examTitle: string, examDescription: string, noOfItems: number, examType: string, timeAllotted: string, dueDate: string) => {
+  const indivExamContent = (examID: string, examTitle: string, examDescription: string, noOfItems: number, examType: string, timeAllotted: string, dueDate: string, tookExam: string) => {
+  const pastDueDate = new Date() <= new Date(dueDate);
     return(
-      <div className={styles.examCourseDiv} key={examID}>
-        <p className="title22px">{examTitle}</p>
-        <p className={styles.description}>{examDescription}</p>
-        <div className={styles.information}>
-          <p>Total Items: {noOfItems}</p>
-          <p>Exam Type: {examType}</p>
-          <p>Time Allotted: {timeAllotted}</p>
-          <p>Due Date: {dueDate}</p>
-          <p>Taken Exam: Yes</p>
-          <a>Hide Exam</a>
-          <a>View Exam</a>
-        </div>
+    <div className={styles.examCourseDiv} key={examID}>
+      <p className="title22px">{examTitle}</p>
+      <p className={styles.description}>{examDescription}</p>
+      <div className={styles.information}>
+        <p>Total Items: {noOfItems}</p>
+        <p>Exam Type: {examType}</p>
+        <p>Time Allotted: {timeAllotted}</p>
+        <p>Due Date: {dueDate}</p>
+        <p>Taken Exam: {tookExam}</p>
+        <a>Hide Exam</a>
+        { (tookExam === "No") && (pastDueDate) && (
+        <a>Take Exam</a>) }
+
+        { (tookExam === "Yes") && (
+        <a>View Exam</a>) }
+
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   let examList:Array<ReactNode> = [];
   const coursesEnrolled = getEnrolledCourses(currentUser);
@@ -55,8 +61,9 @@ function RenderExamList({currentUser}:{currentUser: Student}) {
       return;
 
     refExams.forEach((refExam) => {
-      const courseDescription = `${course.courseTitle} - ${section.sectionName} | ${course.courseDescription}`
-      examList.push(indivExamContent(refExam.examID, refExam.examTitle, courseDescription, refExam.items, refExam.examType, refExam.timeAllotted, refExam.dueDate));
+      const courseDescription = `${course.courseTitle} - ${section.sectionName} | ${course.courseDescription}`;
+      const tookExam = tookTheExam(refExam.examID, currentUser.userID) ? "Yes" : "No";
+      examList.push(indivExamContent(refExam.examID, refExam.examTitle, courseDescription, refExam.items, refExam.examType, refExam.timeAllotted, refExam.dueDate, tookExam));
     });
   }); 
 
@@ -89,4 +96,10 @@ export function isEnrolledInSection(section: Section, currentUser: Student) {
   }); 
   console.log(`Found?? = ${found}`);
   return found;
+}
+
+export function tookTheExam(refExamID: string, studentID: string){
+  return examScores.some(examScore => {
+    return examScore.referencedExamID === refExamID && examScore.studentID === studentID;
+  });
 }

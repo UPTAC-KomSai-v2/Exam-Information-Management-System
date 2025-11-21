@@ -512,6 +512,6 @@ export const referenceExams = [
         items: 60,
         examType: "Submission",
         timeAllotted: "1 Hour 30 minutes",
-        dueDate: "November 14, 2025"
+        dueDate: "November 29, 2025"
     }
 ]
