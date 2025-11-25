@@ -33,10 +33,3 @@
     color: var(--button-primary) ;
     cursor: pointer;
 }
-
-@media (prefers-color-scheme: dark) {
-    .nav {
-        --background: #171717;
-        --text-main-menu: #ffffff;
-    }
-}

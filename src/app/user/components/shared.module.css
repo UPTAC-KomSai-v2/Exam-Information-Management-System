@@ -50,15 +50,3 @@
         padding: 48px 24px;
     }
 }
-
-/* Dark theme variables */
-@media (prefers-color-scheme: dark) {
-    .page {
-        --background: #242424;
-        --text-main-menu: #ffffff;
-        --text-primary: #f2f2f2;
-        --button-primary: #7B1113;
-        --button-text: #f2f2f2;
-        --button-primary-hover: #581718;
-    }
-}
