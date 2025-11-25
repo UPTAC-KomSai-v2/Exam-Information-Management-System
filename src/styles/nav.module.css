@@ -1,7 +1,8 @@
 /*nav part of the html*/
 .nav {
     --background: #f2f2f2;
-    --button-primary: #7B1113;
+    --button: #000000;
+    --button-hover: #7B1113;
     
     display: flex;
     flex-direction: row;
@@ -26,17 +27,11 @@
 }
 
 .navButtons a {
+    color: var(--button);
     cursor: pointer;
 }
 
 .navButtons a:hover {
-    color: var(--button-primary) ;
+    color: var(--button-hover) ;
     cursor: pointer;
-}
-
-@media (prefers-color-scheme: dark) {
-    .nav {
-        --background: #171717;
-        --text-main-menu: #ffffff;
-    }
 }

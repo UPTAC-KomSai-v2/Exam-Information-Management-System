@@ -9,15 +9,15 @@ type UserNavBarProps = {
 export default function UserNavBar({ scope }: UserNavBarProps) {
   return (
     <NavigationBar>
-      <LinkButton href={`/user/${scope}/`}>
+      <LinkButton href={`/user/${scope}/`} className="">
         Dashboard
       </LinkButton>
 
-      <LinkButton href={`/user/${scope}/courses`}>
+      <LinkButton href={`/user/${scope}/courses`} className="">
         Courses
       </LinkButton>
 
-      <LinkButton href={`/user/${scope}/notifications`}>
+      <LinkButton href={`/user/${scope}/notifications`} className="">
         <Image
           src="/images/notification_false.png"
           alt="notification"
@@ -26,7 +26,7 @@ export default function UserNavBar({ scope }: UserNavBarProps) {
         />
       </LinkButton>
 
-      <LinkButton href={`/user/${scope}/messages`}>
+      <LinkButton href={`/user/${scope}/messages`} className="">
         <Image
           src="/images/message_false.png"
           alt="message"
@@ -35,7 +35,7 @@ export default function UserNavBar({ scope }: UserNavBarProps) {
         />
       </LinkButton>
 
-      <LinkButton href={`/user/${scope}/profile`}>
+      <LinkButton href={`/user/${scope}/profile`} className="">
         Profile
       </LinkButton>
     </NavigationBar>

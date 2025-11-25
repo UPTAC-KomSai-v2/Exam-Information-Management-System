@@ -49,18 +49,20 @@ export default function Login() {
         const users = userRole === "Student" ? students : employees;
 
         users.forEach((user) => {
-            let userNo:unknown = "";
-            if("studentNo" in user) {
+            let userNo = "";
+
+            if (user.type === "student") {
                 userNo = user.studentNo;
-            } else if("employeeNo" in user) {
+            } else if (user.type === "employee") {
                 userNo = user.employeeNo;
             }
 
-            if(userNo !== userNumber) {
+            if (userNo !== userNumber) {
                 console.log("Incorrect username or password.");
                 return;
             }
-            if(user.password === password){
+
+            if (user.password === password){
                 setCurrentUser(user);
                 router.push(userRole === "Employee" ? "/user/employee" : "/user/student");
             }
