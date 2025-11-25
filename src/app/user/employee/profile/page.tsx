@@ -19,7 +19,7 @@ export default function EmployeeProfile() {
         <div className="page">
             <Nav scope="employee" />
 
-            <main className={`${sharedStyles.main} ${styles.main}`}>
+            <main className={`${sharedStyles.main} main`}>
                 <div className={styles.leftDiv}>
                     <p className="title22px">User Details</p>
 

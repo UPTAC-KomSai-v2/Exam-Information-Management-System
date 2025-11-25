@@ -18,7 +18,7 @@ export default function StudentProfile() {
         <div className="page">
             <Nav scope="student" />
 
-            <main className={`${sharedStyles.main} ${styles.main}`}>
+            <main className={`${sharedStyles.main} main`}>
                 <div className={styles.leftDiv}>
                     <p className="title22px">User Details</p>
 
