@@ -1,6 +1,6 @@
 import type { Employee, Student } from "../UserContext";
 
-export const courses = [
+export const courses: Course[] = [
     {
         courseID: "CMSC1351STAY2526",
         courseTitle: "CMSC 135",
@@ -97,21 +97,24 @@ export type Course = {
     sections: Section[],
     academicYear: string,
     semester: string
-}
+};
 
 export type Section = {
     sectionName: string,
     courseCode: string,
     studentsEnrolled: string[]
-}
+};
 
 export type ReferenceExam = {
     examID: string,
     courseID: string,
     sections: string[],
     examTitle: string,
-    items: number
-}
+    items: number,
+    examType: string,
+    timeAllotted: string,
+    dueDate: string,
+};
 
 export const students: Student[] = [
     {
@@ -474,9 +477,9 @@ export const examScores = [
     { examScoreID: "H9I0J", referencedExamID: "EC2G7", studentID: "mF8aH1rD7w", score: 52 },
     { examScoreID: "K1L2M", referencedExamID: "EC2G7", studentID: "G2bK4zT6qJ", score: 53 },
     { examScoreID: "N3O4P", referencedExamID: "EC2G7", studentID: "N9vD3pL8xK", score: 56 }
-]
+];
 
-export const referenceExams = [
+export const referenceExams: ReferenceExam[] = [
     {
         examID: "EN2B8",
         courseID: "CMSC1351STAY2526",
@@ -537,4 +540,4 @@ export const referenceExams = [
         timeAllotted: "1 Hour 30 minutes",
         dueDate: "November 29, 2025"
     }
-]
+];

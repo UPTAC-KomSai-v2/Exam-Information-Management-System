@@ -8,79 +8,71 @@ import { type ReactNode, useContext } from "react";
 import { type Student, UserContext } from "~/app/UserContext";
 
 export default function StudentDashboard() {
-  const { currentUser } = useContext(UserContext);
+    const { currentUser } = useContext(UserContext);
 
-  if (!currentUser) {
-      return (
-          <p>No user is logged in</p>
-      );
-  };
-
-  if ("college" in currentUser) {
-      return (
-          <p>User logged in is not a student</p>
-      );
-  };
-
-  return (
-      <div className={styles.page}>
-          <Nav scope="student" />
-          <main className={`${styles.main} ${mainStyle.main} main `}>
-              <p className="title22px">Dashboard</p>
-              <RenderExamList currentUser={currentUser} />
-          </main>
-      </div>
-  );
-}
-
-function RenderExamList({currentUser}:{currentUser: Student}) {
-    const indivExamContent = (examID: string, examTitle: string, examDescription: string, noOfItems: number, examType: string, timeAllotted: string, dueDate: string, tookExam: string) => {
-    const pastDueDate = new Date() <= new Date(dueDate);
+    if (!currentUser) return <p>No user is logged in</p>;
+    if (currentUser.type !== "student") return <p>User logged in is not a student</p>;
 
     return (
-        <div className={styles.examCourseDiv} key={examID}>
-            <p className="title22px">{examTitle}</p>
-            <p className={styles.description}>{examDescription}</p>
-            <div className={styles.information}>
-                <p>Total Items: {noOfItems}</p>
-                <p>Exam Type: {examType}</p>
-                <p>Time Allotted: {timeAllotted}</p>
-                <p>Due Date: {dueDate}</p>
-                <p>Taken Exam: {tookExam}</p>
-                <a>Hide Exam</a>
-
-                {tookExam === "No" && pastDueDate && (
-                    <a>Take Exam</a>
-                )}
-
-                {tookExam === "Yes" && (
-                    <a>View Exam</a>
-                )}
-            </div>
+        <div className={styles.page}>
+            <Nav scope="student" />
+            <main className={`${styles.main} ${mainStyle.main} main `}>
+                <p className="title22px">Dashboard</p>
+                <RenderExamList currentUser={currentUser} />
+            </main>
         </div>
     );
 }
 
-  const examList: ReactNode[] = [];
-  const coursesEnrolled = getEnrolledCourses(currentUser);
+function RenderExamList({currentUser}:{currentUser: Student}) {
+    const indivExamContent = (examID: string, examTitle: string, examDescription: string, noOfItems: number, examType: string, timeAllotted: string, dueDate: string, tookExam: string) => {
+        const pastDueDate = new Date() <= new Date(dueDate);
 
-  coursesEnrolled.forEach((course) => {
-      console.log("inside of coursesEnrolled");
-      console.log(course.courseTitle);
-      const refExams = referenceExams.filter(refExam => refExam.courseID === course.courseID);
-      
-      const section = getEnrolledSection(course, currentUser);
-      if(section === undefined)
-          return;
+        return (
+            <div className={styles.examCourseDiv} key={examID}>
+                <p className="title22px">{examTitle}</p>
+                <p className={styles.description}>{examDescription}</p>
+                <div className={styles.information}>
+                    <p>Total Items: {noOfItems}</p>
+                    <p>Exam Type: {examType}</p>
+                    <p>Time Allotted: {timeAllotted}</p>
+                    <p>Due Date: {dueDate}</p>
+                    <p>Taken Exam: {tookExam}</p>
+                    <a>Hide Exam</a>
 
-      refExams.forEach((refExam) => {
-          const courseDescription = `${course.courseTitle} - ${section.sectionName} | ${course.courseDescription}`;
-          const tookExam = tookTheExam(refExam.examID, currentUser.userID) ? "Yes" : "No";
-          examList.push(indivExamContent(refExam.examID, refExam.examTitle, courseDescription, refExam.items, refExam.examType, refExam.timeAllotted, refExam.dueDate, tookExam));
-      });
-  }); 
+                    {tookExam === "No" && pastDueDate && (
+                        <a>Take Exam</a>
+                    )}
 
-  return examList;
+                    {tookExam === "Yes" && (
+                        <a>View Exam</a>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    const examList: ReactNode[] = [];
+    const coursesEnrolled = getEnrolledCourses(currentUser);
+
+    coursesEnrolled.forEach((course) => {
+        console.log("inside of coursesEnrolled");
+        console.log(course.courseTitle);
+        const refExams = referenceExams.filter(refExam => refExam.courseID === course.courseID);
+        
+        const section = getEnrolledSection(course, currentUser);
+
+        if(section === undefined)
+            return;
+
+        refExams.forEach((refExam) => {
+            const courseDescription = `${course.courseTitle} - ${section.sectionName} | ${course.courseDescription}`;
+            const tookExam = tookTheExam(refExam.examID, currentUser.userID) ? "Yes" : "No";
+            examList.push(indivExamContent(refExam.examID, refExam.examTitle, courseDescription, refExam.items, refExam.examType, refExam.timeAllotted, refExam.dueDate, tookExam));
+        });
+    }); 
+
+    return examList;
 }
 
 export function getEnrolledCourses(currentUser: Student){

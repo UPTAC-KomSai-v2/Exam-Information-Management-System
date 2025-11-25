@@ -8,8 +8,8 @@ export type Student = {
     firstName: string,
     middleName: string,
     lastName: string,
-    studentNo: string,
     password: string,
+    studentNo: string,
     program: string,
     campus: string,
     upMail: string

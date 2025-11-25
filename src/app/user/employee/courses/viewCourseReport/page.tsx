@@ -1,11 +1,11 @@
 "use client";
 
-import sharedStyles from "@/app/user/components/shared.module.css";
+import sharedStyles from "~/app/user/components/shared.module.css";
 import styles from "./page.module.css";
-import Nav from "@/app/user/components/userNav";
-import { ReactElement, useEffect, useState } from "react";
+import Nav from "~/app/user/components/userNav";
+import { type ReactElement, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { courses, referenceExams, examScores, Course, Section, students, ReferenceExam } from "@/app/data/data";
+import { courses, referenceExams, examScores, type Course, type Section, students, type ReferenceExam } from "~/app/data/data";
 
 export default function ViewCourseReport() {
   const [ selectedSection, setSelectedSection ] = useState<string>("All Sections");
@@ -21,7 +21,7 @@ export default function ViewCourseReport() {
     if(!courseID) return;
 
     const found = courses.find(course => course.courseID === courseID)
-    setSelectedCourse(found || null);
+    setSelectedCourse(found ?? null);
   }, [searchParams]);
   
   useEffect(() => {
@@ -31,8 +31,7 @@ export default function ViewCourseReport() {
 
   // rendering the section options
   const RenderSectionOptions = () => {
-    let sectionOptions: Array<ReactElement>;
-    sectionOptions = [];
+    const sectionOptions: ReactElement[] = [];
     if(!sections) return sectionOptions;
 
     sections.forEach((section) => {
@@ -48,7 +47,7 @@ export default function ViewCourseReport() {
   // main page content
   return (
     <div className="page">
-      <Nav dir="employee" />
+      <Nav scope="employee" />
 
       <main className={`${styles.main} ${sharedStyles.main} main`}>
         <div className={`${styles.examCourseDiv} ${sharedStyles.examCourseDiv}`}>
@@ -100,7 +99,7 @@ function getUpdatedInformation(selectedCourse: Course|null, selectedSectionName:
   if(selectedSectionName === "All Sections"){
     sections.forEach(section => noOfStudents += section.studentsEnrolled.length);
   } else {
-    let selectedSection = sections.find(section => section.sectionName === selectedSectionName);
+    const selectedSection = sections.find(section => section.sectionName === selectedSectionName);
     if(!selectedSection) return { noOfStudents, noOfExams };
 
     noOfStudents = selectedSection.studentsEnrolled.length;
@@ -131,8 +130,7 @@ function RenderExamContent({selectedCourse, sectionName, noOfStudents, noOfExams
 
 function RenderAverageScores({selectedCourse, sectionName}:{selectedCourse: Course|null, sectionName: string}) {
   const GetScoreContent = () => {
-    let examScoreContent: Array<ReactElement>;
-    examScoreContent = [];
+    const examScoreContent: ReactElement[] = [];
     if(!selectedCourse) return null;
 
     let counter = 1;
@@ -187,14 +185,12 @@ function getAVGScoresAndNoOfTakers(referencedExamID: string, sectionName: string
 // rendering for all scores
 function RenderAllScores({selectedCourse, sectionName}:{selectedCourse: Course|null, sectionName: string}) {
   const GetScoreContent = () => {
-    let fullExamScoreContent: Array<ReactElement>;
-    fullExamScoreContent = [];
+    const fullExamScoreContent: ReactElement[] = [];
 
     if(!selectedCourse) return fullExamScoreContent;
 
     const StudentExamScores = ({referenceExam}:{referenceExam: ReferenceExam}) => {
-      let individualExamScore: Array<ReactElement>;
-      individualExamScore = [];
+      const individualExamScore: ReactElement[] = [];
 
       examScores
       .filter((examScore) => {
