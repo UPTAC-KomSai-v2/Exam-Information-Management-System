@@ -39,11 +39,11 @@ export default function StudentProfile() {
                     <p className="title22px">User Actions</p>
 
                     <LinkButton href="/" className="">
-                      Log Out
+                        Log Out
                     </LinkButton>
 
-                    <LinkButton href="#">
-                      Edit Profile
+                    <LinkButton href="#" className="">
+                        Edit Profile
                     </LinkButton>
                 </div>
             </main>
