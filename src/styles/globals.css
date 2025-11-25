@@ -118,8 +118,12 @@ hr {
   }
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
   }
+} */
+
+body {
+    min-height: 100dvh;
 }
