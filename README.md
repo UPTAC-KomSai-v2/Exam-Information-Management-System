@@ -5,3 +5,6 @@ Exam Information Management System that supports exam creation, scheduling, anno
 Frontend: Next.js
 Frontend to Backend Communication: tRPC
 Backend: Drizzle, PostgreSQL (database)
+
+# Source
+This project was scaffolded using the create t3-app script

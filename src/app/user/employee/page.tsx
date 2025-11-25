@@ -1,11 +1,11 @@
 "use client";
 
-import { courses, referenceExams } from "@/app/data/data";
+import { courses, referenceExams } from "~/app/data/data";
 import mainStyle from "./page.module.css";
 import styles from "@/app/user/components/shared.module.css";
-import Nav from "@/app/user/components/userNav";
-import { ReactNode, useContext } from "react";
-import { Employee, UserContext } from "@/app/UserContext";
+import Nav from "~/app/user/components/userNav";
+import { type ReactNode, useContext } from "react";
+import { type Employee, UserContext } from "~/app/UserContext";
 
 export default function EmployeeDashboard() {
   const { currentUser } = useContext(UserContext);
@@ -14,7 +14,8 @@ export default function EmployeeDashboard() {
 
   return (
     <div className={styles.page}>
-      <Nav dir="employee" />
+      <Nav scope="employee" />
+
       <main className={`${styles.main} ${mainStyle.main} main `}>
         <p className="title22px">Dashboard</p>
         <RenderExamList currentUser={currentUser} />
@@ -43,7 +44,7 @@ function RenderExamList({currentUser}:{currentUser: Employee}) {
     );
   }
 
-  let examList:Array<ReactNode> = [];
+  const examList: Array<ReactNode> = [];
   const coursesTaught = courses.filter(course => course.courseEmployeeID === currentUser.userID);
 
   coursesTaught.forEach((course) => {

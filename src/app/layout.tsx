@@ -1,7 +1,9 @@
-import type { Metadata } from "next";
+import "~/styles/globals.css";
+
+import { type Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { UserProvider } from "./UserContext";
+
+import { TRPCReactProvider } from "~/trpc/react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,15 +22,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <UserProvider>
-          {children}
-        </UserProvider>
+        <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>
     </html>
   );

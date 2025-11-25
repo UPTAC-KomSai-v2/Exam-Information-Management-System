@@ -1,56 +1,43 @@
-import NavigationBar from "@/app/components/navigationBar";
+import NavigationBar from "~/app/_components/navigationBar";
 import Image from "next/image";
+import { LinkButton } from "~/app/_components/links";
 
-export default function UserNavBar({dir}:{dir: string}) {
-  let notification = "/images/notification_false.png";
-  let message = "/images/message_false.png";
+type UserNavBarProps = {
+  scope: "student" | "employee";
+};
 
-  let defaultDir = "/user/" + dir;
-
-  let dashboardDir =  defaultDir;
-  let coursesDir = defaultDir + "/courses";
-  let messagesDir = defaultDir + "/messages";
-  let notificationDir = defaultDir + "/notifications";
-  let profileDir = defaultDir + "/profile";
-  
+export default function UserNavBar({ scope }: UserNavBarProps) {
   return (
-    < NavigationBar
-    navButtons = {
-      <>
-        { linkButton("Dashboard", dashboardDir) }
-        { linkButton("Courses", coursesDir)} 
-        { linkButtonImage(notificationDir, notification, "notification", 20, 20) }
-        { linkButtonImage(messagesDir, message, "message", 20, 20) }
-        { linkButton("Profile", profileDir) }
-      </>
-    }
-    />
-  );
-}
+    <NavigationBar>
+      <LinkButton href={`/user/${scope}/`}>
+        Dashboard
+      </LinkButton>
 
-function linkButton(str: string, dir: string) {
-  return(
-    <a
-      href={dir}
-      rel="noopener noreferrer"
-    >
-      {str}
-    </a>
-  );
-}
+      <LinkButton href={`/user/${scope}/courses`}>
+        Courses
+      </LinkButton>
 
-function linkButtonImage(dir: string, imgSrc: string, alt: string, width: number, height: number) {
-  return(
-    <a
-      href={dir}
-      rel="noopener noreferrer"
-    >
-      <Image
-        src={imgSrc}
-        alt={alt}
-        width={width}
-        height={height}
-      />
-    </a>
+      <LinkButton href={`/user/${scope}/notifications`}>
+        <Image
+          src="/images/notification_false.png"
+          alt="notification"
+          width={20}
+          height={20}
+        />
+      </LinkButton>
+
+      <LinkButton href={`/user/${scope}/messages`}>
+        <Image
+          src="/images/message_false.png"
+          alt="message"
+          width={20}
+          height={20}
+        />
+      </LinkButton>
+
+      <LinkButton href={`/user/${scope}/profile`}>
+        Profile
+      </LinkButton>
+    </NavigationBar>
   );
 }

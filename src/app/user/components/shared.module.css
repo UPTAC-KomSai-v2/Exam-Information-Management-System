@@ -1,64 +1,64 @@
 .main {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 20px 30px;
-  background-color: var(--gray-background);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 20px 30px;
+    background-color: var(--gray-background);
 }
 
 .examCourseDiv { 
-  width: 100%; 
-  padding: 20px; 
-  background-color: var(--inner-background); 
-  border-radius: 10px; 
+    width: 100%; 
+    padding: 20px; 
+    background-color: var(--inner-background); 
+    border-radius: 10px; 
 }
 
 /* Information grid (common layout for info rows) */
 .information {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
 }
 
 .information p,
 .information a {
-  display: inline;
-  font-size: 12px;
-  font-style: italic;
-  text-wrap: balance;
-  color: var(--text-secondary);
-  text-align: left;
-  padding-top: 5px;
+    display: inline;
+    font-size: 12px;
+    font-style: italic;
+    text-wrap: balance;
+    color: var(--text-secondary);
+    text-align: left;
+    padding-top: 5px;
 }
 
 .information a {
-  color: blue;
-  text-align: right;
-  cursor: pointer;
-  font-style: normal;
+    color: blue;
+    text-align: right;
+    cursor: pointer;
+    font-style: normal;
 }
 
 /* Hover effects (applies to both) */
 @media (hover: hover) and (pointer: fine) {
-  .information a:hover {
-    text-decoration: underline;
-  }
+    .information a:hover {
+        text-decoration: underline;
+    }
 }
 
 /* Responsive adjustments */
 @media (max-width: 600px) {
-  .main {
-    padding: 48px 24px;
-  }
+    .main {
+        padding: 48px 24px;
+    }
 }
 
 /* Dark theme variables */
 @media (prefers-color-scheme: dark) {
-  .page {
-    --background: #242424;
-    --text-main-menu: #ffffff;
-    --text-primary: #f2f2f2;
-    --button-primary: #7B1113;
-    --button-text: #f2f2f2;
-    --button-primary-hover: #581718;
-  }
+    .page {
+        --background: #242424;
+        --text-main-menu: #ffffff;
+        --text-primary: #f2f2f2;
+        --button-primary: #7B1113;
+        --button-text: #f2f2f2;
+        --button-primary-hover: #581718;
+    }
 }
