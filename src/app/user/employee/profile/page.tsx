@@ -11,7 +11,7 @@ export default function EmployeeProfile() {
     const { currentUser } = useContext(UserContext);
 
     if (!currentUser) return <p>There&apos;s no user logged in.</p>;
-    if (currentUser.type !== "employee") return <p>User logged in is not faculty</p>;
+    if (currentUser.type !== "employee") return <p>User logged in is not employee</p>;
 
     const fullName = currentUser.firstName + " " + currentUser.middleName.charAt(0) + ". " + currentUser.lastName;
 
@@ -39,11 +39,11 @@ export default function EmployeeProfile() {
                 <div className={styles.rightDiv}>
                     <p className="title22px">User Actions</p>
 
-                    <LinkButton href="/" className="">
+                    <LinkButton href="/" className={sharedStyles.profileLink}>
                         Log Out
                     </LinkButton>
 
-                    <LinkButton href="#" className="">
+                    <LinkButton href="#" className={sharedStyles.profileLink}>
                         Edit Profile
                     </LinkButton>
                 </div>

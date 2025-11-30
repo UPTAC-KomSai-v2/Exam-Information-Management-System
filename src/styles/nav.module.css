@@ -26,12 +26,12 @@
     margin-right: 10px;
 }
 
-.navButtons a {
+.navLink {
     color: var(--button);
     cursor: pointer;
 }
 
-.navButtons a:hover {
+.navLink:hover {
     color: var(--button-hover) ;
     cursor: pointer;
 }

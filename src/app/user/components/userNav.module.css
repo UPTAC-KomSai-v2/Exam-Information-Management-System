@@ -24,12 +24,3 @@
     margin: auto;
     margin-right: 10px;
 }
-
-.navButtons a {
-    cursor: pointer;
-}
-
-.navButtons a:hover {
-    color: var(--button-primary) ;
-    cursor: pointer;
-}

@@ -33,17 +33,9 @@
     margin-top: 10px;
 }
 
-.rightDiv a {
-    display: flex;
-    flex-direction: row;
-    font-size: 17px;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {
-    .rightDiv a:hover {
+    .rightDiv Link:hover {
         color: var(--inner-text);
         border-color: transparent;
     }
