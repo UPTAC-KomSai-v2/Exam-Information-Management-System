@@ -17,29 +17,37 @@
 .information {
     display: grid;
     grid-template-columns: repeat(8, 1fr);
+
+    p, Link {
+        display: inline;
+        font-size: 12px;
+        font-style: italic;
+        text-wrap: balance;
+        color: var(--text-secondary);
+        text-align: left;
+        padding-top: 5px;
+    }
+
+    Link {
+        color: blue;
+        text-align: right;
+        cursor: pointer;
+        font-style: normal;
+    }
 }
 
-.information p,
-.information a {
-    display: inline;
-    font-size: 12px;
-    font-style: italic;
-    text-wrap: balance;
-    color: var(--text-secondary);
-    text-align: left;
-    padding-top: 5px;
-}
-
-.information a {
-    color: blue;
-    text-align: right;
-    cursor: pointer;
-    font-style: normal;
+.upperDiv {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+    justify-content: space-between;
+    width: 100%;
 }
 
 /* Hover effects (applies to both) */
 @media (hover: hover) and (pointer: fine) {
-    .information a:hover {
+    .information Link:hover {
         text-decoration: underline;
     }
 }
