@@ -2,23 +2,29 @@
 
 import { courses, referenceExams, type ReferenceExam } from "~/app/data/data";
 import mainStyle from "./page.module.css";
-import styles from "~/styles/shared.module.css";
+import styles from "~/app/user/components/shared.module.css";
 import Nav from "~/app/user/components/userNav";
 import { type ReactNode, useContext } from "react";
 import { type Employee, UserContext } from "~/app/UserContext";
+import { LinkButton } from "~/app/_components/links";
 
 export default function EmployeeDashboard() {
     const { currentUser } = useContext(UserContext);
 
     if (!currentUser) return <p>No user is logged in</p>;
-    if (currentUser.type !== "employee") return <p>User logged in is not faculty</p>;
+    if (currentUser.type !== "employee") return <p>User logged in is not employee</p>;
 
     return (
         <div className={styles.page}>
             <Nav scope="employee" />
 
             <main className={`${styles.main} ${mainStyle.main} main `}>
-                <p className="title22px">Dashboard</p>
+                <div className={styles.upperDiv}>
+                    <p className="title22px">Dashboard</p>
+                    <LinkButton href="/createExam" className="primaryButton">
+                        Create New Exam
+                    </LinkButton>
+                </div>
                 <RenderExamList currentUser={currentUser} />
             </main>
         </div>
@@ -39,7 +45,7 @@ function RenderExamList({ currentUser }: { currentUser: Employee }) {
                     <p>Due Date: {refExam.dueDate}</p>
                     <a>Publish Exam</a>
                     <a>Hide Exam</a>
-                    <a>View Exam</a>
+                    <LinkButton href="#" className="">View Exam</LinkButton>
                 </div>
             </div>
         );

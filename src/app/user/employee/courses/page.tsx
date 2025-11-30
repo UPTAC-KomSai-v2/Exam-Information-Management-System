@@ -15,7 +15,7 @@ export default function EmployeeCourses() {
     const { currentUser } = useContext(UserContext);
 
     if (!currentUser) return <p>No user is logged in</p>;
-    if (currentUser.type !== "employee") return <p>User logged in is not faculty</p>;
+    if (currentUser.type !== "employee") return <p>User logged in is not employee</p>;
 
     // rendering a number of courses lol
     const coursesArray: ReactElement[] = [];

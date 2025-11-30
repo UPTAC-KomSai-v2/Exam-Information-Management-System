@@ -29,12 +29,12 @@ export default async function Home() {
                         </p>
                     </div>
 
-                    <div className={styles.buttons}>
-                        <LinkButton href="/register" className="primaryButton">
+                    <div className={styles.buttonsDiv}>
+                        <LinkButton href="/register" className={`primaryButton ${styles.homeButton}`}>
                             Register an Account
                         </LinkButton>
 
-                        <LinkButton href="/login" className="primaryButton">
+                        <LinkButton href="/login" className={`primaryButton ${styles.homeButton}`}>
                             Login to an Account
                         </LinkButton>
                     </div>

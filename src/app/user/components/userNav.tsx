@@ -1,3 +1,5 @@
+import navStyles from "~/styles/nav.module.css";
+
 import NavigationBar from "~/app/_components/navigationBar";
 import Image from "next/image";
 import { LinkButton } from "~/app/_components/links";
@@ -9,15 +11,15 @@ type UserNavBarProps = {
 export default function UserNavBar({ scope }: UserNavBarProps) {
   return (
     <NavigationBar>
-      <LinkButton href={`/user/${scope}/`} className="">
+      <LinkButton href={`/user/${scope}/`} className={navStyles.navLink}>
         Dashboard
       </LinkButton>
 
-      <LinkButton href={`/user/${scope}/courses`} className="">
+      <LinkButton href={`/user/${scope}/courses`} className={navStyles.navLink}>
         Courses
       </LinkButton>
 
-      <LinkButton href={`/user/${scope}/notifications`} className="">
+      <LinkButton href={`/user/${scope}/notifications`} className={navStyles.navLink}>
         <Image
           src="/images/notification_false.png"
           alt="notification"
@@ -26,7 +28,7 @@ export default function UserNavBar({ scope }: UserNavBarProps) {
         />
       </LinkButton>
 
-      <LinkButton href={`/user/${scope}/messages`} className="">
+      <LinkButton href={`/user/${scope}/messages`} className={navStyles.navLink}>
         <Image
           src="/images/message_false.png"
           alt="message"
@@ -35,7 +37,7 @@ export default function UserNavBar({ scope }: UserNavBarProps) {
         />
       </LinkButton>
 
-      <LinkButton href={`/user/${scope}/profile`} className="">
+      <LinkButton href={`/user/${scope}/profile`} className={navStyles.navLink}>
         Profile
       </LinkButton>
     </NavigationBar>
