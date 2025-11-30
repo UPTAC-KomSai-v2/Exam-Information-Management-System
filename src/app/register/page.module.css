@@ -18,12 +18,12 @@
 
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {
-    a.primary:hover {
+    Link.primary:hover {
         background: var(--button-background-hover);
         border-color: transparent;
     }
     
-    a.link:hover {
+    Link.link:hover {
         color: var(--button-background);
     }
 }

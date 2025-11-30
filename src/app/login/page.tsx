@@ -20,7 +20,7 @@ export default function Login() {
     const [ userPlaceholder, setUserPlaceholder ] = useState<string>("");
     
     useEffect(() => {
-        const newUserNumberType = (userRole) === "Student" ? "Student Number" : "Employee Number";
+        const newUserNumberType = (userRole) === "Student" ? "Student No." : "Employee No.";
         setUserNumberType(newUserNumberType);
         setUserPlaceholder(`Enter your ${newUserNumberType}`);
     }, [userRole]);
@@ -85,7 +85,7 @@ export default function Login() {
                             <UserRoleToggle userRole="Student" setUseStates={ {setShow, setShowUserRole, setUserRole }}/>
                         </div>
                         
-                        <LinkButton href="/register">
+                        <LinkButton href="/register" className={sharedStyles.registerLoginLink}>
                             Don&apos;t have an account yet? Register here.
                         </LinkButton>
                     </div>
@@ -97,7 +97,7 @@ export default function Login() {
                         <hr />
                         
                         <div className={styles.container}>
-                            <InputContent str={userNumberType} placeholder={userPlaceholder} type="name" ref={numberRef} />
+                            <InputContent str={userNumberType} placeholder={userPlaceholder} type="text" ref={numberRef} />
                             <InputContent str="Password" placeholder="Enter your password" type="password" ref={passwordRef} />
                         </div>
                         <div className={sharedStyles.rowButtons}>
@@ -118,7 +118,7 @@ export default function Login() {
                             </button>
                         </div>
                         
-                        <LinkButton href="/register">
+                        <LinkButton href="/register" className={sharedStyles.registerLoginLink}>
                             Don&apos;t have an account yet? Register here.
                         </LinkButton>
                     </div>

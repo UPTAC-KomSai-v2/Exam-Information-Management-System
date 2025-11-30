@@ -27,9 +27,7 @@
 
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {
-    a.link:hover {
-        color: var(--button-primary-background);
-    }
+
 }
 
 /* gonna fix this later lol -Nikka */

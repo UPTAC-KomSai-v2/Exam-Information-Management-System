@@ -19,7 +19,7 @@
     gap: 5px;
 }
 
-a.link {
+.registerLoginLink {
     font-style: italic;
     font-size: 11px;
     margin: auto;
@@ -44,7 +44,7 @@ a.link {
 
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {
-    a.link:hover {
+    .registerLoginLink:hover {
         color: var(--button-primary-background);
     }
 }

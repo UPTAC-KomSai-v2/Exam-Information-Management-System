@@ -36,7 +36,7 @@ export default function Register() {
                             <UserRoleToggle userRole="Student" setUseStates={{ setShow, setShowUserRole, setUserRole }}/>
                         </div>
 
-                        <LinkButton href="/login">
+                        <LinkButton href="/login" className={sharedStyles.registerLoginLink}>
                             Already have an account? Login here.
                         </LinkButton>
                     </div>
@@ -74,7 +74,7 @@ export default function Register() {
                             </button>
                         </div>
                         
-                        <LinkButton href="/login">
+                        <LinkButton href="/login" className={sharedStyles.registerLoginLink}>
                             Already have an account? Login here.
                         </LinkButton>
                     </div>
