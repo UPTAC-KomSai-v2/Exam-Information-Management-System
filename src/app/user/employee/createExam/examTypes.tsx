@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type MouseEvent } from "react";
-import { RenderFileSubmissionQuestion, RenderInputQuestion, RenderOptionQuestion, } from "./customExam";
+import { RenderDescription, RenderFileSubmissionQuestion, RenderInputQuestion, RenderOptionQuestion, } from "./customExam";
 import { LinkButton } from "~/app/_components/links";
 
 export function RenderFileSubmission() {
@@ -39,6 +39,7 @@ export function RenderCustomExam() {
     const [ questions, setQuestions ] = useState<Question[][]>([
         [{ type: "short-answer", id: crypto.randomUUID() }]
     ]);
+    const [ descriptions, setDescriptions ] = useState<string[]>(["Enter description."]);
     const [ isStartDisabled, setIsStartDisabled ] = useState(true);
     const [ isEndDisabled, setIsEndDisabled ] = useState(true);
 
@@ -105,6 +106,10 @@ export function RenderCustomExam() {
         setCurrentPage(currentPage+1);
         setPreviousPageCount(pages);
         setPages(pages+1);
+        setDescriptions(prev => [
+            ...prev,
+            "Enter description."
+        ])
         console.log(`currentPage = ${currentPage+1}`);
         console.log(`no of pages = ${pages+1}`);
     }
@@ -138,6 +143,12 @@ export function RenderCustomExam() {
             return newQuestions;
         });
     }
+
+    const updateDescription = (value: string) => {
+        let newDescriptions = [...descriptions];
+        newDescriptions[currentPage] = value;
+        setDescriptions(newDescriptions);
+    } 
 
     return (
         <>
@@ -182,7 +193,8 @@ export function RenderCustomExam() {
             <label style={{ display: "flex", flexDirection: "column"}}>
                 Page Description
                 <textarea 
-                    placeholder="Enter a page description here." 
+                    value={descriptions[currentPage]}
+                    onChange={(e) => updateDescription(e.target.value)}
                     style={{ height: "100px"}}
                 />
             </label>
