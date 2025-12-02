@@ -12,7 +12,9 @@
     --button-primary-background-hover: #581718;
     
     --button-secondary-text: #656565;
+    --button-secondary-background: #494949;
     --button-secondary-background-hover: #bebebe;
+    
 }
 
 html,
@@ -97,6 +99,23 @@ a {
     gap: 8px;
 }
 
+.secondaryButton {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* optional, only if you need centering */
+    width: fit-content;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid transparent;
+    transition: 0.2s;
+    cursor: pointer;
+    background: var(--button-secondary-background);
+    color: var(--button-primary-text);
+    gap: 8px;
+}
+
 hr {
     background-color: var(--foreground);
     width: 100%;
@@ -106,6 +125,11 @@ hr {
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {
     .primaryButton:hover {
+        background: var(--button-primary-background-hover);
+        border-color: transparent;
+    }
+
+    .secondaryButton:hover {
         background: var(--button-primary-background-hover);
         border-color: transparent;
     }

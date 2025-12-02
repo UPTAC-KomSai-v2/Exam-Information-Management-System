@@ -21,7 +21,7 @@ export default function EmployeeDashboard() {
             <main className={`${styles.main} ${mainStyle.main} main `}>
                 <div className={styles.upperDiv}>
                     <p className="title22px">Dashboard</p>
-                    <LinkButton href="/createExam" className="primaryButton">
+                    <LinkButton href="/user/employee/createExam" className="primaryButton">
                         Create New Exam
                     </LinkButton>
                 </div>
