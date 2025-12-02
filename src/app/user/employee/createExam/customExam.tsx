@@ -1,13 +1,62 @@
 import { type ReactNode, useEffect, useState } from "react";
 import styles from "./page.module.css";
+import { custom } from "zod";
 
-export function RenderOptionQuestion({option}:{option : string}) {
+export type InputQuestion = {
+    type: string|null;
+    id: string|null;
+    question: string;
+    wordLimit: number|null;
+};
+
+type OptionQuestion = {
+    type: string|null;
+    id: string;
+    question: string;
+    options: string[];
+};
+
+export type FileSubmissionQuestion = {
+    type: string|null;
+    id: string;
+    question: string;
+    maxNoOfSubmissions: number;
+    maxFileSize: string;
+    fileSubmissionTypes: {
+        value: string;
+        label: string;
+    }[];
+};
+
+export type Question = InputQuestion | OptionQuestion | FileSubmissionQuestion;
+
+type QuestionProps = {
+    questionType:string|null;
+    setQuestions:Function|null;
+    currentPage:number;
+}
+
+export function RenderOptionQuestion({questionType, setQuestions, currentPage}:QuestionProps) {
     const [ options, setOptions ] = useState<string[]>([]);
     const [ count, setCount ] = useState(1);
-    const optionType = (option === "multiple-choice") ? "𖧋" : 
-                (option === "checkbox") ? "☐" : "";
+    const [ question, setQuestion ] = useState<OptionQuestion>({
+        type: questionType,
+        id: crypto.randomUUID(),
+        question: "Enter a question",
+        options: options
+    });
 
-    console.log(option);
+    if(!setQuestions) return <p>setQuestions Function is null</p>;
+
+    setQuestions((prev:Question[]) => {
+        const newQuestions = [...prev];
+        const item = question; 
+        newQuestions.splice(currentPage, 0, item);
+        return newQuestions;
+    });
+
+    const optionType = (questionObj.type === "multiple-choice") ? "𖧋" : 
+                (questionObj.type === "checkbox") ? "☐" : "";
 
     const addNewOption = () => {
         setOptions(prev => [
@@ -28,18 +77,21 @@ export function RenderOptionQuestion({option}:{option : string}) {
 
     return (
         <>
-            <p className="title17px">{option.toUpperCase().replace("-", " ")}</p>
+            {(questionObj.type != null) && (<p className="title17px">{questionObj.type.toUpperCase().replace("-", " ")}</p>)}
             
             <label style={{ display: "flex", flexDirection: "column", margin: "10px 0px"}}>
                 Description/Question
-                <textarea style={{height: "50px"}}/>
+                <textarea 
+                    style={{height: "50px"}}
+                    value={questionObj.question}
+                />
             </label>
 
             <div className={styles.options}>
                 <p>Options</p>
                 { options.map((opt, i) => (
                     <label key={i} style={{display: "flex", width: "100%", gap: "5px"}}>
-                        {(option === "dropdown") ? `${i+1}) ` : `${optionType} `} 
+                        {(questionObj.type === "dropdown") ? `${i+1}) ` : `${optionType} `} 
                         <input 
                             type="text" 
                             placeholder={`Option ${i+1}`}
@@ -67,20 +119,53 @@ export function RenderOptionQuestion({option}:{option : string}) {
         </>
     );
 }
+export function RenderInputQuestion({questionType, setQuestions, currentPage}:QuestionProps) {
+    const [ wordLimit, setWordLimit ] = useState(300);
+    const [ question, setQuestion ] = useState<string>("Enter a question");
+    const [ questionObj, setQuestionObj ] = useState<InputQuestion>({
+        type: questionType,
+        id: crypto.randomUUID(),
+        question: question,
+        wordLimit: wordLimit
+    });
 
-export function RenderInputQuestion({inputType}:{inputType: string}) {
+    useEffect(() => {
+        setQuestionObj({
+            ...questionObj,
+            question,
+            wordLimit
+        });
+    }, [question, wordLimit]);
+
+    useEffect(() => {
+        if (setQuestions) {
+            setQuestions((prev: Question[]) => {
+                const newQuestions = [...prev];
+                newQuestions.splice(currentPage, 0, questionObj);
+                return newQuestions;
+            });
+        }
+    }, [questionObj]);
+
     return(
         <>
-            <p className="title17px">{inputType.toUpperCase().replace("-", " ")}</p>
+            { (questionObj.type) && (<p className="title17px">{questionObj.type.toUpperCase().replace("-", " ")}</p>) }
             <label style={{display: "flex", flexDirection: "column", margin: "10px 0px"}}>
                 Description/Question
-                <textarea />
+                <textarea 
+                    value={questionObj.question}
+                    onChange={e => setQuestion(e.target.value)}
+                    />
             </label>
 
-            { (inputType === "paragraph") && (
+            { (questionObj.type === "paragraph") && (
                 <label style={{display: "flex", flexDirection: "row", gap: "10px"}}>
                     Set Word Limit
-                    <input type="number"/>
+                    <input 
+                        type="number"
+                        value={`${questionObj.wordLimit}`}
+                        onChange={(e) => setWordLimit(Number(e.target.value))}
+                    />
                 </label>
             )}
             
@@ -88,11 +173,11 @@ export function RenderInputQuestion({inputType}:{inputType: string}) {
     );
 }
 
-export function RenderFileSubmissionQuestion() {
-    const [  maxNoFileSubmission,  setMaxNoFileSubmission ] = useState("1");
-    const [ maxFileSubmission, setMaxFileSubmission ] = useState("100-MB");
-    const [ fileSubmissionType, setFileSubmissionType ] = useState("all-files");
-
+export function RenderFileSubmissionQuestion({questionType, setQuestions, currentPage}:QuestionProps) {
+    const [ maxNoOfSubmissions,  setMaxNoOfSubmissions ] = useState(3);
+    const [ maxFileSize, setMaxFileSize ] = useState("100-MB");
+    const [ customFile, setCustomFile ] = useState<string>("");
+    
     const fileOptions = [
         { value: "all-files", label: "All File Types" },
         { value: "documents", label: "Documents (.pdf, .doc, .docx, .txt, .rtf, .odt)" },
@@ -103,40 +188,86 @@ export function RenderFileSubmissionQuestion() {
         { value: "audio-files", label: "Audio Files (.mp3, .wav, .m4a, .ogg)" },
         { value: "code-files", label: "Code Files (.java, .py, .cpp, .c, .js, .ts, .html, .css, .php, .xml, .json, .ipynb, .sql)" },
         { value: "compressed-archives", label: "Compressed Archives (.zip, .rar, .7z, .tar.gz)" },
-        { value: "custom-file", label: "Custom File" },
+        { value: customFile, label: "Custom File" },
     ];
+    
+    const [ fileSubmissionTypes, setFileSubmissionTypes ] = useState(fileOptions);
+    const [ question, setQuestion ] = useState<string>("Enter a question");
+    const [ questionObj, setQuestionObj ] = useState<FileSubmissionQuestion>({
+        type: questionType,
+        id: crypto.randomUUID(),
+        question,
+        maxNoOfSubmissions,
+        maxFileSize,
+        fileSubmissionTypes,
+    });
 
-    const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
+    useEffect(() => {
+        setQuestionObj({
+            ...questionObj,
+            question,
+            maxNoOfSubmissions,
+            maxFileSize,
+            fileSubmissionTypes,
+        });
+    }, [question, maxNoOfSubmissions, maxFileSize, fileSubmissionTypes]);
 
-    const handleCheck = (value: string) => {
-        setSelectedFiles(prev =>
-        prev.includes(value)
-            ? prev.filter(v => v !== value) // uncheck
-            : [...prev, value]              // check
-        );
+    useEffect(() => {
+        if (setQuestions) {
+            setQuestions((prev: Question[]) => {
+                const newQuestions = [...prev];
+                newQuestions.splice(currentPage, 0, questionObj);
+                return newQuestions;
+            });
+        }
+    }, [questionObj]);
+
+    const handleCheck = (value: string, label: string) => {
+    setFileSubmissionTypes(prev => {
+            // check if already exists
+            const exists = prev.some(item => item.label === label);
+
+            if (exists) {
+                return prev.filter(item => item.value !== value);
+            }
+
+            if (value === "all-files") {
+                return [{ value, label }];
+            }
+            
+            const filtered = prev.filter(item => item.value !== "all-files");
+            return [...filtered, { value, label }];
+        });
     };
 
+    const [ isChecked, setIsChecked ] = useState(false);
+    useEffect(() => {
+        setIsChecked(fileSubmissionTypes.some(item => item.label === "Custom File" || item.value === "all-files") );
+    }, [fileSubmissionTypes]);
+
     const RenderFileTypes = () => {
+        const checkedAllFiles = fileSubmissionTypes.some(type => type.value === "all-files");
         return (
         <div>
             {fileOptions.map(opt => {
-                const selectedAllFiles = (selectedFiles.includes("all-files") && opt.value !== "all-files") ? false : selectedFiles.includes(opt.value);
-
                 return (
                 <label key={opt.value} style={{ display: "block", marginBottom: "5px" }}>
                 <input
                     type="checkbox"
-                    checked={selectedAllFiles}
-                    onChange={() => handleCheck(opt.value)}
+                    checked={fileSubmissionTypes.some(type => type.label === opt.label) || checkedAllFiles}
+                    onChange={() => handleCheck(opt.value, opt.label)}
                 />
                 {opt.label}
                 </label>
             )})}
             
-            {selectedFiles.includes("custom-file") && (
+            { isChecked  && (
                 <label>
                 Custom File Type:
-                <input type="text" />
+                <input 
+                    type="text" 
+                    onChange={e => setCustomFile(e.target.value)}
+                />
                 </label>
             )}
             </div>
@@ -148,14 +279,18 @@ export function RenderFileSubmissionQuestion() {
             <p className="title17px">FILE SUBMISSION</p>
             <label>
                 Description/Question
-                <textarea />
+                <textarea 
+                    value={question}
+                    onChange={e => setQuestion(e.target.value)}
+                    style={{height: "75px", width: "100%"}}
+                />
             </label>
 
-            <label>
+            <label style={{display: "block", margin: "5px 0px"}}>
                 Maximum number of files
                 <select
-                    value={ maxNoFileSubmission }
-                    onChange={e =>  setMaxNoFileSubmission(e.target.value)}
+                    value={ maxNoOfSubmissions }
+                    onChange={e =>  setMaxNoOfSubmissions(Number(e.target.value))}
                 >
                     <option value="1">1</option>
                     <option value="3">3</option>
@@ -164,11 +299,11 @@ export function RenderFileSubmissionQuestion() {
                 </select>
             </label>
 
-            <label>
+            <label style={{display: "block", margin: "5px 0px"}}>
                 Maximum file size
                 <select
-                    value={ maxFileSubmission }
-                    onChange={e =>  setMaxFileSubmission(e.target.value)}
+                    value={ maxFileSize }
+                    onChange={e =>  setMaxFileSize(e.target.value)}
                 >
                     <option value="1-MB">1 MB</option>
                     <option value="10-MB">10 MB</option>
@@ -180,14 +315,32 @@ export function RenderFileSubmissionQuestion() {
 
             <p>File Types</p>
             <RenderFileTypes />
-
-            {   fileSubmissionType === "custom-file" && (
-                <label>
-                    Custom File type
-                    <input type="text"/>
-                </label>
-            )}
         </>
     )
+}
+
+type DescProps = {
+descriptions:string[];
+setDescriptions:Function;
+currentPage:number;
+}
+
+export function RenderDescription({descriptions, setDescriptions, currentPage}: DescProps) {
+    const updateDescription = (value: string) => {
+        let newDescriptions = [...descriptions];
+        newDescriptions[currentPage] = value;
+        setDescriptions(newDescriptions);
+    } 
+
+    return (
+        <label style={{ display: "flex", flexDirection: "column"}}>
+            Page Description
+            <textarea 
+                value={descriptions[currentPage]}
+                onChange={(e) => updateDescription(e.target.value)}
+                style={{ height: "100px"}}
+            />
+        </label>
+    );
 }
 

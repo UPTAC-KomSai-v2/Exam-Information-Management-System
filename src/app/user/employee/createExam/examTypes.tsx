@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState, type MouseEvent } from "react";
-import { RenderDescription, RenderFileSubmissionQuestion, RenderInputQuestion, RenderOptionQuestion, } from "./customExam";
+import { RenderDescription, RenderFileSubmissionQuestion, RenderInputQuestion, RenderOptionQuestion, type InputQuestion, type Question, } from "./customExam";
 import { LinkButton } from "~/app/_components/links";
 
 export function RenderFileSubmission() {
     return (
         <>
             <p className="title22px">File Submission</p>
-            <RenderFileSubmissionQuestion />
+            <RenderFileSubmissionQuestion questionType={null} setQuestions={null} currentPage={0} />
             <button className="primaryButton">
                 Create Exam
             </button>
@@ -14,11 +14,13 @@ export function RenderFileSubmission() {
     );
 }
 
+
+
 export function RenderEssay() {
     return (
         <>
             <p className="title22px">File Submission</p>
-            <RenderInputQuestion inputType="paragraph" />
+            <RenderInputQuestion questionType="paragraph" setQuestions={null} currentPage={0} />
             
             <button className="primaryButton">
                 Create Exam
@@ -27,19 +29,19 @@ export function RenderEssay() {
     );
 }
 
-type Question = {
-    type: string;
-    id: string;
-};
-
 export function RenderCustomExam() {
     const [ currentPage, setCurrentPage ] = useState(0);
     const [ pages, setPages ] = useState(1);
     const [ previousPageCount, setPreviousPageCount ] = useState(0);
     const [ questions, setQuestions ] = useState<Question[][]>([
-        [{ type: "short-answer", id: crypto.randomUUID() }]
+        [{ 
+            type: "short-answer", 
+            id: crypto.randomUUID(),
+            question: "Enter a question.",
+            wordLimit: null 
+        }]
     ]);
-    const [ descriptions, setDescriptions ] = useState<string[]>(["Enter description."]);
+    const [ descriptions, setDescriptions ] = useState<string[]>(["Enter a description."]);
     const [ isStartDisabled, setIsStartDisabled ] = useState(true);
     const [ isEndDisabled, setIsEndDisabled ] = useState(true);
 
@@ -51,7 +53,12 @@ export function RenderCustomExam() {
             if(pages > previousPageCount) {
                 // insert the new page into the array
                 const newQuestions = [...prev];
-                const item:Question = { type: "short-answer", id: crypto.randomUUID() };
+                const item:Question = { 
+                    type: "short-answer", 
+                    id: crypto.randomUUID(),
+                    question: "Enter a question.",
+                    wordLimit: null  
+                };
                 newQuestions.splice(currentPage, 0, [item]);
                 return newQuestions;
             } 
@@ -70,7 +77,12 @@ export function RenderCustomExam() {
             const newPages = [...prev];
             newPages[currentPage] = [
                 ...newPages[currentPage] ?? [],
-                { type: "short-answer", id: crypto.randomUUID() }
+                { 
+                    type: "short-answer", 
+                    id: crypto.randomUUID(),
+                    question: "Enter a question.",
+                    wordLimit: null 
+                }
             ]
             return newPages;
         });
@@ -79,7 +91,31 @@ export function RenderCustomExam() {
     const updateQuestionType = (value: string, id: string, index: number) => {
         const updated = [...questions];
         if(updated[currentPage] === undefined) return;
-        updated[currentPage][index] = { type: value, id: id};
+
+        if(value === "short-answer" || value === "paragraph") {
+            updated[currentPage][index] = { 
+                type: value, 
+                id: id,
+                question: "Enter a question.",
+                wordLimit: (value === "short-answer") ? null : 300 
+            };
+        } else if(value === "multiple-choice" || value === "checkbox" || value === "dropbox") {
+            updated[currentPage][index] = { 
+                type: value, 
+                id: id,
+                question: "Enter a question.",
+                options: []
+            };
+        } else {
+            updated[currentPage][index] = { 
+                type: value, 
+                id: id,
+                question: "Enter a question.",
+                maxNoOfSubmissions: 5,
+                maxFileSize: "100-MB",
+                fileSubmissionTypes: ["all-files"]
+            };
+        }
         setQuestions(updated);
     }
 
@@ -144,12 +180,6 @@ export function RenderCustomExam() {
         });
     }
 
-    const updateDescription = (value: string) => {
-        let newDescriptions = [...descriptions];
-        newDescriptions[currentPage] = value;
-        setDescriptions(newDescriptions);
-    } 
-
     return (
         <>
             <p className="title22px">Custom Exam</p>
@@ -190,14 +220,7 @@ export function RenderCustomExam() {
                 >Move Page Down</button>
             </div>
 
-            <label style={{ display: "flex", flexDirection: "column"}}>
-                Page Description
-                <textarea 
-                    value={descriptions[currentPage]}
-                    onChange={(e) => updateDescription(e.target.value)}
-                    style={{ height: "100px"}}
-                />
-            </label>
+            <RenderDescription descriptions={descriptions} setDescriptions={setDescriptions} currentPage={currentPage} />
 
             <div style={{width: "100%"}}>
                 <button
@@ -210,9 +233,14 @@ export function RenderCustomExam() {
             <p className="title17px" style={{textAlign: "center"}}>QUESTIONS</p>
 
             <div>
-            { questions[currentPage]?.map((question, index) => (
+            { questions[currentPage]?.map((question, index) => {
+                const questionType = question.type;
+                const questionId = question.id;
+                if(!questionType || !questionId) return (<p>Question type is null</p>);
+
+                return (
                 <div 
-                    key={question.id} 
+                    key={questionId} 
                     style={{ 
                         margin: "10px 0px", 
                         border: "1px solid black", 
@@ -221,7 +249,6 @@ export function RenderCustomExam() {
                     }}
                 >
                     <div 
-                    
                         style={{ width: "100%", display: "grid", gridTemplateColumns: "1fr 1fr 7fr 1fr 1fr", marginBottom: "10px", textAlign: "right"}}>
                         <button
                             className="secondaryButton" 
@@ -238,8 +265,8 @@ export function RenderCustomExam() {
                         <label>                        
                             Question Type
                             <select
-                                value={question.type}
-                                onChange={e => updateQuestionType(e.target.value, question.id, index) }
+                                value={questionType}
+                                onChange={e => updateQuestionType(e.target.value, questionId, index) }
                             >
                                 <option value="short-answer">Short Answer</option>
                                 <option value="paragraph">Paragraph</option>
@@ -257,13 +284,16 @@ export function RenderCustomExam() {
                         </button>
                     </div>
                             
-                    { (questions[currentPage] !== undefined) && (questions[currentPage][index]?.type === "short-answer" || questions[currentPage][index]?.type === "paragraph") && (<RenderInputQuestion inputType={questions[currentPage][index].type} />) }
-                    { (questions[currentPage] !== undefined) && (questions[currentPage][index]?.type === "multiple-choice" || 
-                        questions[currentPage][index]?.type === "checkbox" || 
-                        questions[currentPage][index]?.type === "dropdown") && (<RenderOptionQuestion option={questions[currentPage][index].type} />) }
-                    { (questions[currentPage] !== undefined) && (questions[currentPage][index]?.type === "file-submission") && (<RenderFileSubmissionQuestion />) }
+                    { (questionType === "short-answer" || questionType === "paragraph") && 
+                        (<RenderInputQuestion questionType={questionType} setQuestions={setQuestions} currentPage={currentPage}/>) }
+
+                    { (questionType === "multiple-choice" || questionType === "checkbox" || questionType === "dropdown") && 
+                        (<RenderOptionQuestion questionType={questionType} setQuestions={setQuestions} currentPage={currentPage} />) }
+
+                    { (questionType === "file-submission") && 
+                        (<RenderFileSubmissionQuestion questionType={null} setQuestions={setQuestions} currentPage={currentPage}/>) }
                 </div>
-            )) }
+            )}) }
                 <LinkButton href="" className="primaryButton">
                     Create Exam
                 </LinkButton>
