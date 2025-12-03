@@ -63,7 +63,7 @@ export function RenderEssay() {
             
             <button 
                 className="primaryButton"
-                onClick={() => createExam()}
+                onClick={() => createExam(questionObjs)}
             >
                 Create Exam
             </button>
@@ -123,7 +123,7 @@ export function RenderCustomExam() {
         });
     };
 
-    const updateQuestionType = (value: string, id: string, index: number) => {
+    const updateQuestionType = (value: string, oldId: string, index: number) => {
         const updated = [...questionObjs];
         if(updated[currentPage] === undefined) return;
 
@@ -135,25 +135,25 @@ export function RenderCustomExam() {
         if(!oldQuestion) return;
 
         let newQuestion: Question;
-
+        const questionId = crypto.randomUUID();
         if(value === "short-answer" || value === "paragraph") {;
             newQuestion = { 
                 type: value, 
-                id: id,
+                id: questionId,
                 question: "",
                 wordLimit: (value === "short-answer") ? null : 300 
             };
         } else if(value === "multiple-choice" || value === "checkbox" || value === "dropbox") {
             newQuestion = { 
                 type: value, 
-                id: id,
+                id: questionId,
                 question: "",
                 options: []
             };
         } else {
             newQuestion = { 
                 type: value, 
-                id: id,
+                id: questionId,
                 question: "",
                 maxNoOfSubmissions: 3,
                 maxFileSize: "",
@@ -165,10 +165,21 @@ export function RenderCustomExam() {
                 ]
             };
         }
-        console.log(newQuestion);
-        pageQuestions[index] = newQuestion;
-        updated[currentPage] = pageQuestions;
-        setQuestionObjs(updated);
+
+        setQuestionObjs((prev) => {
+            const newQuestionObjs = [...prev];
+            const pageQuestions = [...(prev[currentPage] ?? [])];
+            pageQuestions.forEach((p) => {
+                console.log("pageQuestions IDs " + p.id);
+            })
+
+            const index = pageQuestions.findIndex(q => q.id === oldId);
+            console.log("Index: " + index);
+
+            pageQuestions[index] = newQuestion;
+            newQuestionObjs[currentPage] = pageQuestions;
+            return newQuestionObjs;
+        });     
     }
 
     const removeQuestion = (index: number) => {
@@ -302,7 +313,13 @@ export function RenderCustomExam() {
                             }}
                         >
                             <div 
-                                style={{ width: "100%", display: "grid", gridTemplateColumns: "1fr 1fr 7fr 1fr 1fr", marginBottom: "10px", textAlign: "right"}}>
+                                style={{ 
+                                    width: "100%", 
+                                    display: "grid", 
+                                    gridTemplateColumns: "1fr 1fr 7fr 1fr 1fr", 
+                                    marginBottom: "10px", 
+                                    textAlign: "right"
+                                }}>
                                 <button
                                     className="secondaryButton" 
                                     onClick={() => moveQuestion(-1, index)}>
@@ -319,7 +336,7 @@ export function RenderCustomExam() {
                                     Question Type
                                     <select
                                         value={questionType}
-                                        onChange={e => updateQuestionType(e.target.value, crypto.randomUUID(), index) }
+                                        onChange={e => updateQuestionType(e.target.value, questionId, index) }
                                     >
                                         <option value="short-answer">Short Answer</option>
                                         <option value="paragraph">Paragraph</option>
@@ -366,7 +383,7 @@ export function RenderCustomExam() {
                 )}
                 <button 
                     className="primaryButton"
-                    onClick={() => createExam()}
+                    onClick={() => createExam(questionObjs)}
                 >
                     Create Exam
                 </button>
