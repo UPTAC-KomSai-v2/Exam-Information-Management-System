@@ -6,7 +6,7 @@ export function RenderFileSubmission() {
     return (
         <>
             <p className="title22px">File Submission</p>
-            <RenderFileSubmissionQuestion questionType={null} setQuestions={null} currentPage={0} />
+            <RenderFileSubmissionQuestion questionType={"file-submission"} questionId={crypto.randomUUID()}  setQuestionObjs={undefined} currentPage={0} />
             <button className="primaryButton">
                 Create Exam
             </button>
@@ -14,13 +14,11 @@ export function RenderFileSubmission() {
     );
 }
 
-
-
 export function RenderEssay() {
     return (
         <>
             <p className="title22px">File Submission</p>
-            <RenderInputQuestion questionType="paragraph" setQuestions={null} currentPage={0} />
+            <RenderInputQuestion questionType={"paragraph"} questionId={crypto.randomUUID()} setQuestionObjs={undefined} currentPage={0} />
             
             <button className="primaryButton">
                 Create Exam
@@ -33,25 +31,17 @@ export function RenderCustomExam() {
     const [ currentPage, setCurrentPage ] = useState(0);
     const [ pages, setPages ] = useState(1);
     const [ previousPageCount, setPreviousPageCount ] = useState(0);
-    const [ questions, setQuestions ] = useState<Question[][]>([
-        [{ 
-            type: "short-answer", 
-            id: crypto.randomUUID(),
-            question: "Enter a question.",
-            wordLimit: null 
-        }]
-    ]);
+    const [ questionObjs, setQuestionObjs ] = useState<Question[][]>([]);
+
     const [ descriptions, setDescriptions ] = useState<string[]>(["Enter a description."]);
     const [ isStartDisabled, setIsStartDisabled ] = useState(true);
     const [ isEndDisabled, setIsEndDisabled ] = useState(true);
 
     useEffect(() => {
-        setQuestions(prev => {
+        setQuestionObjs(prev => {
             const newPages = [...prev];
-            // pages were added
 
             if(pages > previousPageCount) {
-                // insert the new page into the array
                 const newQuestions = [...prev];
                 const item:Question = { 
                     type: "short-answer", 
@@ -73,14 +63,15 @@ export function RenderCustomExam() {
     }, [pages, currentPage])
 
     const addQuestion = () => {
-        setQuestions(prev => {
+        console.log("Adding new question to page " + currentPage+1)
+        setQuestionObjs(prev => {
             const newPages = [...prev];
             newPages[currentPage] = [
                 ...newPages[currentPage] ?? [],
                 { 
                     type: "short-answer", 
                     id: crypto.randomUUID(),
-                    question: "Enter a question.",
+                    question: "",
                     wordLimit: null 
                 }
             ]
@@ -89,52 +80,69 @@ export function RenderCustomExam() {
     };
 
     const updateQuestionType = (value: string, id: string, index: number) => {
-        const updated = [...questions];
+        const updated = [...questionObjs];
         if(updated[currentPage] === undefined) return;
 
-        if(value === "short-answer" || value === "paragraph") {
-            updated[currentPage][index] = { 
+        console.log("Updating question type");
+
+        const pageQuestions = [...updated[currentPage]];
+        const oldQuestion = pageQuestions[index];
+
+        if(!oldQuestion) return;
+
+        let newQuestion: Question;
+
+        if(value === "short-answer" || value === "paragraph") {;
+            newQuestion = { 
                 type: value, 
                 id: id,
-                question: "Enter a question.",
+                question: "",
                 wordLimit: (value === "short-answer") ? null : 300 
             };
         } else if(value === "multiple-choice" || value === "checkbox" || value === "dropbox") {
-            updated[currentPage][index] = { 
+            newQuestion = { 
                 type: value, 
                 id: id,
-                question: "Enter a question.",
+                question: "",
                 options: []
             };
         } else {
-            updated[currentPage][index] = { 
+            newQuestion = { 
                 type: value, 
                 id: id,
-                question: "Enter a question.",
-                maxNoOfSubmissions: 5,
-                maxFileSize: "100-MB",
-                fileSubmissionTypes: ["all-files"]
+                question: "",
+                maxNoOfSubmissions: 3,
+                maxFileSize: "",
+                fileSubmissionTypes: [
+                    {
+                        value: "all-files",
+                        label: "All Files"
+                    }
+                ]
             };
         }
-        setQuestions(updated);
+        console.log(newQuestion);
+        pageQuestions[index] = newQuestion;
+        updated[currentPage] = pageQuestions;
+        setQuestionObjs(updated);
     }
 
     const removeQuestion = (index: number) => {
-        setQuestions(prev => prev.filter((_, i) => i !== index));
+        setQuestionObjs(prev => prev.filter((_, i) => i !== index));
     };
 
     const moveQuestion = (direction: number, index: number) => {
-        const newQuestions = [...questions];
-        if(newQuestions[currentPage] === undefined) return; 
+        const newquestionObjs = [...questionObjs];
+        if(newquestionObjs[currentPage] === undefined) return; 
 
         const toIndex = index + direction;
-        if(toIndex < 0 || toIndex >= newQuestions.length) return;
-        const [movedItem] = newQuestions[currentPage].splice(index, 1);
+        if(toIndex < 0 || toIndex >= newquestionObjs.length) return;
+        const [movedItem] = newquestionObjs[currentPage].splice(index, 1);
 
         console.log(movedItem);
         if(movedItem === undefined) return;
-        newQuestions[currentPage].splice(toIndex, 0, movedItem);
-        setQuestions(newQuestions);
+        newquestionObjs[currentPage].splice(toIndex, 0, movedItem);
+        setQuestionObjs(newquestionObjs);
     };
 
     const addNewPage = () => {
@@ -151,11 +159,11 @@ export function RenderCustomExam() {
     }
 
     const removePage = () => {
-        const newQuestions = [...questions];
+        const newquestionObjs = [...questionObjs];
 
         console.log("Removing a page: ");
-        if(newQuestions[currentPage] !== undefined) 
-            setQuestions(newQuestions.filter((_, i) => i !== currentPage));
+        if(newquestionObjs[currentPage] !== undefined) 
+            setQuestionObjs(newquestionObjs.filter((_, i) => i !== currentPage));
         setCurrentPage((pages-1 > currentPage || currentPage === 0) ? currentPage : currentPage-1);
         setPreviousPageCount(pages);
         setPages(pages-1);
@@ -170,13 +178,13 @@ export function RenderCustomExam() {
     }   
 
     const movePage = (direction: number) => {
-        setQuestions(prev => {
-            const newQuestions = [...prev];
-            const [item] = newQuestions.splice(currentPage, 1);
-            if(item === undefined) return questions;
-            newQuestions.splice(currentPage+direction, 0, item);
+        setQuestionObjs(prev => {
+            const newquestionObjs = [...prev];
+            const [item] = newquestionObjs.splice(currentPage, 1);
+            if(item === undefined) return questionObjs;
+            newquestionObjs.splice(currentPage+direction, 0, item);
             setCurrentPage(currentPage+direction);
-            return newQuestions;
+            return newquestionObjs;
         });
     }
 
@@ -230,70 +238,88 @@ export function RenderCustomExam() {
                 >Add Question</button>
             </div>
 
-            <p className="title17px" style={{textAlign: "center"}}>QUESTIONS</p>
+            <p className="title17px" style={{textAlign: "center"}}>QUESTION</p>
 
             <div>
-            { questions[currentPage]?.map((question, index) => {
-                const questionType = question.type;
-                const questionId = question.id;
-                if(!questionType || !questionId) return (<p>Question type is null</p>);
+                { questionObjs[currentPage]?.map((questionObj, index) => {
+                    const questionType = questionObj.type;
+                    const questionId = questionObj.id;
+                    if(!questionType || !questionId) return (<p>Question type is null</p>);
+                    
+                    console.log(`${questionType}, ${index}`);
+                    return (
+                        <div 
+                            key={questionId} 
+                            style={{ 
+                                margin: "10px 0px", 
+                                border: "1px solid black", 
+                                borderRadius: "10px", 
+                                padding: "15px"
+                            }}
+                        >
+                            <div 
+                                style={{ width: "100%", display: "grid", gridTemplateColumns: "1fr 1fr 7fr 1fr 1fr", marginBottom: "10px", textAlign: "right"}}>
+                                <button
+                                    className="secondaryButton" 
+                                    onClick={() => moveQuestion(-1, index)}>
+                                    Move Up
+                                </button>
 
-                return (
-                <div 
-                    key={questionId} 
-                    style={{ 
-                        margin: "10px 0px", 
-                        border: "1px solid black", 
-                        borderRadius: "10px", 
-                        padding: "15px"
-                    }}
-                >
-                    <div 
-                        style={{ width: "100%", display: "grid", gridTemplateColumns: "1fr 1fr 7fr 1fr 1fr", marginBottom: "10px", textAlign: "right"}}>
-                        <button
-                            className="secondaryButton" 
-                            onClick={() => moveQuestion(-1, index)}>
-                            Move Up
-                        </button>
+                                <button
+                                    className="secondaryButton" 
+                                    onClick={() => moveQuestion(1, index)}>
+                                    Move Down
+                                </button>
 
-                        <button
-                            className="secondaryButton" 
-                            onClick={() => moveQuestion(1, index)}>
-                            Move Down
-                        </button>
+                                <label>                        
+                                    Question Type
+                                    <select
+                                        value={questionType}
+                                        onChange={e => updateQuestionType(e.target.value, crypto.randomUUID(), index) }
+                                    >
+                                        <option value="short-answer">Short Answer</option>
+                                        <option value="paragraph">Paragraph</option>
+                                        <option value="multiple-choice">Multiple Choice</option>
+                                        <option value="checkbox">Checkbox</option>
+                                        <option value="dropdown">Dropdown</option>
+                                        <option value="file-submission">File Submission</option>
+                                    </select>
+                                </label>
+                                <p></p>
+                                <button
+                                    className="secondaryButton" 
+                                    onClick={() => removeQuestion(index)}>
+                                    Remove Question
+                                </button>
+                            </div>
+                                    
+                            { (questionType === "short-answer" || questionType === "paragraph") && 
+                                (<RenderInputQuestion 
+                                    questionType={questionType}
+                                    questionId={questionId}
+                                    setQuestionObjs={setQuestionObjs} 
+                                    currentPage={currentPage}
+                                />) }
 
-                        <label>                        
-                            Question Type
-                            <select
-                                value={questionType}
-                                onChange={e => updateQuestionType(e.target.value, questionId, index) }
-                            >
-                                <option value="short-answer">Short Answer</option>
-                                <option value="paragraph">Paragraph</option>
-                                <option value="multiple-choice">Multiple Choice</option>
-                                <option value="checkbox">Checkbox</option>
-                                <option value="dropdown">Dropdown</option>
-                                <option value="file-submission">File Submission</option>
-                            </select>
-                        </label>
-                        <p></p>
-                        <button
-                            className="secondaryButton" 
-                            onClick={() => removeQuestion(index)}>
-                            Remove Question
-                        </button>
-                    </div>
-                            
-                    { (questionType === "short-answer" || questionType === "paragraph") && 
-                        (<RenderInputQuestion questionType={questionType} setQuestions={setQuestions} currentPage={currentPage}/>) }
+                            { (questionType === "multiple-choice" || questionType === "checkbox" || questionType === "dropdown") && 
+                                (<RenderOptionQuestion 
+                                    questionType={questionType}
+                                    questionId={questionId}
+                                    setQuestionObjs={setQuestionObjs} 
+                                    currentPage={currentPage} 
+                                />) }
 
-                    { (questionType === "multiple-choice" || questionType === "checkbox" || questionType === "dropdown") && 
-                        (<RenderOptionQuestion questionType={questionType} setQuestions={setQuestions} currentPage={currentPage} />) }
-
-                    { (questionType === "file-submission") && 
-                        (<RenderFileSubmissionQuestion questionType={null} setQuestions={setQuestions} currentPage={currentPage}/>) }
-                </div>
-            )}) }
+                            { (questionType === "file-submission") && 
+                                (<RenderFileSubmissionQuestion 
+                                    questionType={questionType}
+                                    questionId={questionId}
+                                    setQuestionObjs={setQuestionObjs} 
+                                    currentPage={currentPage}
+                                />) }
+                        </div>
+                    );
+                }
+                )}
                 <LinkButton href="" className="primaryButton">
                     Create Exam
                 </LinkButton>
