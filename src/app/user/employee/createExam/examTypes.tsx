@@ -2,12 +2,43 @@ import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { RenderDescription, RenderFileSubmissionQuestion, RenderInputQuestion, RenderOptionQuestion, type InputQuestion, type Question, } from "./customExam";
 import { LinkButton } from "~/app/_components/links";
 
+type createExamProps = {
+    questionObjs: Question[][];
+}
+
+function createExam(questionObjs:Question[][]) {
+    const jsonText = JSON.stringify(questionObjs);
+    console.log(jsonText);
+}
+
 export function RenderFileSubmission() {
+    const [questionId] = useState(() => crypto.randomUUID());
+    const questionObj = {
+        type: "file-submission",
+        id: questionId,
+        question: "EGGNOG",
+        maxNoOfSubmissions: 3,
+        maxFileSize: "100-MB",
+        fileSubmissionTypes: [{
+            value: "all-files",
+            label: "All Files",
+        }]
+    };
+
+    for(let i = 0; i < 5; i++) {
+        console.log("BEFORE: " + questionObj.id);
+    }
+    
+    const [ questionObjs, setQuestionObjs ] = useState<Question[][]>([[questionObj]]);
+
     return (
         <>
             <p className="title22px">File Submission</p>
-            <RenderFileSubmissionQuestion questionType={"file-submission"} questionId={crypto.randomUUID()}  setQuestionObjs={undefined} currentPage={0} />
-            <button className="primaryButton">
+            <RenderFileSubmissionQuestion questionType={"file-submission"} questionId={questionObj.id} setQuestionObjs={setQuestionObjs} currentPage={0} />
+            <button 
+                className="primaryButton"
+                onClick={() => createExam(questionObjs)}
+            >
                 Create Exam
             </button>
         </>
@@ -15,12 +46,25 @@ export function RenderFileSubmission() {
 }
 
 export function RenderEssay() {
+    const [questionId] = useState(() => crypto.randomUUID());
+    const questionObj = {
+        type: "paragraph",
+        id: questionId,
+        question: "",
+        wordLimit: 300
+    }
+
+    const [ questionObjs, setQuestionObjs ] = useState<Question[][]>([[]]);
+
     return (
         <>
             <p className="title22px">File Submission</p>
-            <RenderInputQuestion questionType={"paragraph"} questionId={crypto.randomUUID()} setQuestionObjs={undefined} currentPage={0} />
+            <RenderInputQuestion questionType={"paragraph"} questionId={questionObj.id} setQuestionObjs={setQuestionObjs} currentPage={0} />
             
-            <button className="primaryButton">
+            <button 
+                className="primaryButton"
+                onClick={() => createExam()}
+            >
                 Create Exam
             </button>
         </>
@@ -320,13 +364,13 @@ export function RenderCustomExam() {
                     );
                 }
                 )}
-                <LinkButton href="" className="primaryButton">
+                <button 
+                    className="primaryButton"
+                    onClick={() => createExam()}
+                >
                     Create Exam
-                </LinkButton>
+                </button>
             </div>
         </>
-        // Finish this function such that 
-        // the user is able to add questions per page.
-        // Also, try to make sure that new pages are added/add-able?
     )
 }

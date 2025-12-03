@@ -1,6 +1,5 @@
 import { type ReactNode, useEffect, useState } from "react";
 import styles from "./page.module.css";
-import { custom } from "zod";
 
 export type InputQuestion = {
     type: string|null;
@@ -206,6 +205,8 @@ export function RenderInputQuestion({questionType, questionId,  setQuestionObjs,
 }
 
 export function RenderFileSubmissionQuestion({questionType, questionId, setQuestionObjs, currentPage}:QuestionProps) {
+    console.log("INSIDE OF RENDERFILESUBMISSION: " + questionId);
+    
     const [ maxNoOfSubmissions,  setMaxNoOfSubmissions ] = useState(3);
     const [ maxFileSize, setMaxFileSize ] = useState("100-MB");
     const [ customFile, setCustomFile ] = useState<string>("");
@@ -237,9 +238,12 @@ export function RenderFileSubmissionQuestion({questionType, questionId, setQuest
         }]
     });
 
+    console.log("QuestionID: " + questionId);
+
     useEffect(() => {
         setQuestionObj({
-            ...questionObj,
+            type: questionType,
+            id: questionId,
             question,
             maxNoOfSubmissions,
             maxFileSize,
@@ -253,8 +257,12 @@ export function RenderFileSubmissionQuestion({questionType, questionId, setQuest
         setQuestionObjs((prev) => {
             const newQuestionObjs = [...prev];
             const pageQuestions = [...(prev[currentPage] ?? [])];
-            
+            pageQuestions.forEach((p) => {
+                console.log("pageQuestions IDs " + p.id);
+            })
+
             const index = pageQuestions.findIndex(q => q.id === questionObj.id);
+            console.log("Index: " + index);
 
             if (index === -1) pageQuestions.push(questionObj);
             else pageQuestions[index] = questionObj;
