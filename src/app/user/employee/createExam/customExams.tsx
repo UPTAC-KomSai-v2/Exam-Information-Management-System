@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./page.module.css";
 
 export type InputQuestion = {
@@ -8,7 +8,7 @@ export type InputQuestion = {
     wordLimit: number|null;
 };
 
-type OptionQuestion = {
+export type OptionQuestion = {
     type: string|null;
     id: string|null;
     question: string;
@@ -75,7 +75,7 @@ export function RenderOptionQuestion({questionType, questionId, setQuestionObjs,
         });        
     }, [ questionObj ]);
 
-    const optionType = (questionObj.type === "multiple-choice") ? "𖧋" : 
+    const optionType = (questionObj.type === "Multiple Choice") ? "𖧋" : 
         (questionObj.type === "checkbox") ? "☐" : "";
 
     const addNewOption = () => {
@@ -112,7 +112,7 @@ export function RenderOptionQuestion({questionType, questionId, setQuestionObjs,
                 <p>Options</p>
                 { options.map((opt, i) => (
                     <label key={i} style={{display: "flex", width: "100%", gap: "5px"}}>
-                        {(questionObj.type === "dropdown") ? `${i+1}) ` : `${optionType} `} 
+                        {`${optionType} `} 
                         <input 
                             type="text" 
                             placeholder={`Option ${i+1}`}
@@ -205,7 +205,7 @@ export function RenderInputQuestion({questionType, questionId,  setQuestionObjs,
 
 export function RenderFileSubmissionQuestion({questionType, questionId, setQuestionObjs, currentPage}:QuestionProps) {    
     const [ maxNoOfSubmissions,  setMaxNoOfSubmissions ] = useState(3);
-    const [ maxFileSize, setMaxFileSize ] = useState("100-MB");
+    const [ maxFileSize, setMaxFileSize ] = useState("100 MB");
     const [ customFile, setCustomFile ] = useState<string>("");
     
     const fileOptions = [

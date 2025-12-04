@@ -1,4 +1,4 @@
-import type { Question } from "../user/employee/createExam/customExam";
+import type { Question } from "../user/employee/createExam/customExams";
 import type { Employee, Student } from "../UserContext";
 
 export const courses: Course[] = [

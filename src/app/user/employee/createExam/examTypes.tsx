@@ -1,10 +1,14 @@
 "use client"
-import { useEffect, useState, type Dispatch, type MouseEvent, type SetStateAction } from "react";
-import { RenderDescription, RenderFileSubmissionQuestion, RenderInputQuestion, RenderOptionQuestion, type InputQuestion, type Question, } from "./customExam";
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { RenderDescription, RenderFileSubmissionQuestion, RenderInputQuestion, RenderOptionQuestion, type InputQuestion, type Question, } from "./customExams";
 import { useRouter } from "next/navigation";
-import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
-export function RenderFileSubmission({questionObjs, setQuestionObjs}:{questionObjs:Question[][], setQuestionObjs:Dispatch<SetStateAction<Question[][]>>}) {
+type GeneralExamProps = {
+    questionObjs:Question[][];
+    setQuestionObjs:Dispatch<SetStateAction<Question[][]>>;
+}
+
+export function RenderFileSubmission({questionObjs, setQuestionObjs}: GeneralExamProps) {
     const [questionId] = useState(() => crypto.randomUUID());
 
     const questionObj = {
@@ -27,7 +31,7 @@ export function RenderFileSubmission({questionObjs, setQuestionObjs}:{questionOb
     );
 }
 
-export function RenderEssay({questionObjs, setQuestionObjs}:{questionObjs:Question[][], setQuestionObjs:Dispatch<SetStateAction<Question[][]>>}) {
+export function RenderEssay({questionObjs, setQuestionObjs}: GeneralExamProps) {
     const [questionId] = useState(() => crypto.randomUUID());
     const router = useRouter();
 
@@ -46,12 +50,17 @@ export function RenderEssay({questionObjs, setQuestionObjs}:{questionObjs:Questi
     );
 }
 
-export function RenderCustomExam({questionObjs, setQuestionObjs}:{questionObjs:Question[][], setQuestionObjs:Dispatch<SetStateAction<Question[][]>>}) {
+type CustomExamProps = {
+    pageDescriptions: string[];
+    setPageDescriptions:Dispatch<SetStateAction<string[]>>;
+    questionObjs:Question[][];
+    setQuestionObjs:Dispatch<SetStateAction<Question[][]>>;
+}
+export function RenderCustomExam({pageDescriptions, setPageDescriptions, questionObjs, setQuestionObjs}: CustomExamProps) {
     const [ currentPage, setCurrentPage ] = useState(0);
     const [ pages, setPages ] = useState(1);
     const [ previousPageCount, setPreviousPageCount ] = useState(0);
 
-    const [ descriptions, setDescriptions ] = useState<string[]>(["Enter a description."]);
     const [ isStartDisabled, setIsStartDisabled ] = useState(true);
     const [ isEndDisabled, setIsEndDisabled ] = useState(true);
 
@@ -64,7 +73,7 @@ export function RenderCustomExam({questionObjs, setQuestionObjs}:{questionObjs:Q
             if(pages > previousPageCount) {
                 const newQuestions = [...prev];
                 const item:Question = { 
-                    type: "short-answer", 
+                    type: "Short Answer", 
                     id: crypto.randomUUID(),
                     question: "Enter a question.",
                     wordLimit: null  
@@ -89,7 +98,7 @@ export function RenderCustomExam({questionObjs, setQuestionObjs}:{questionObjs:Q
             newPages[currentPage] = [
                 ...newPages[currentPage] ?? [],
                 { 
-                    type: "short-answer", 
+                    type: "Short Answer", 
                     id: crypto.randomUUID(),
                     question: "",
                     wordLimit: null 
@@ -112,14 +121,14 @@ export function RenderCustomExam({questionObjs, setQuestionObjs}:{questionObjs:Q
 
         let newQuestion: Question;
         const questionId = crypto.randomUUID();
-        if(value === "short-answer" || value === "Paragraph") {;
+        if(value === "Short Answer" || value === "Paragraph") {;
             newQuestion = { 
                 type: value, 
                 id: questionId,
                 question: "",
-                wordLimit: (value === "short-answer") ? null : 300 
+                wordLimit: (value === "Short Answer") ? null : 300 
             };
-        } else if(value === "multiple-choice" || value === "checkbox" || value === "dropbox") {
+        } else if(value === "Multiple Choice" || value === "checkbox" || value === "dropbox") {
             newQuestion = { 
                 type: value, 
                 id: questionId,
@@ -181,7 +190,7 @@ export function RenderCustomExam({questionObjs, setQuestionObjs}:{questionObjs:Q
         setCurrentPage(currentPage+1);
         setPreviousPageCount(pages);
         setPages(pages+1);
-        setDescriptions(prev => [
+        setPageDescriptions(prev => [
             ...prev,
             "Enter description."
         ])
@@ -259,7 +268,7 @@ export function RenderCustomExam({questionObjs, setQuestionObjs}:{questionObjs:Q
                 >Move Page Down</button>
             </div>
 
-            <RenderDescription descriptions={descriptions} setDescriptions={setDescriptions} currentPage={currentPage} />
+            <RenderDescription descriptions={pageDescriptions} setDescriptions={setPageDescriptions} currentPage={currentPage} />
 
             <div style={{width: "100%"}}>
                 <button
@@ -314,11 +323,10 @@ export function RenderCustomExam({questionObjs, setQuestionObjs}:{questionObjs:Q
                                         value={questionType}
                                         onChange={e => updateQuestionType(e.target.value, questionId, index) }
                                     >
-                                        <option value="short-answer">Short Answer</option>
+                                        <option value="Short Answer">Short Answer</option>
                                         <option value="Paragraph">Paragraph</option>
-                                        <option value="multiple-choice">Multiple Choice</option>
-                                        <option value="checkbox">Checkbox</option>
-                                        <option value="dropdown">Dropdown</option>
+                                        <option value="Multiple Choice">Multiple Choice</option>
+                                        <option value="Checkbox">Checkbox</option>
                                         <option value="File Submission">File Submission</option>
                                     </select>
                                 </label>
@@ -330,7 +338,7 @@ export function RenderCustomExam({questionObjs, setQuestionObjs}:{questionObjs:Q
                                 </button>
                             </div>
                                     
-                            { (questionType === "short-answer" || questionType === "Paragraph") && 
+                            { (questionType === "Short Answer" || questionType === "Paragraph") && 
                                 (<RenderInputQuestion 
                                     questionType={questionType}
                                     questionId={questionId}
@@ -338,7 +346,7 @@ export function RenderCustomExam({questionObjs, setQuestionObjs}:{questionObjs:Q
                                     currentPage={currentPage}
                                 />) }
 
-                            { (questionType === "multiple-choice" || questionType === "checkbox" || questionType === "dropdown") && 
+                            { (questionType === "Multiple Choice" || questionType === "checkbox" || questionType === "dropdown") && 
                                 (<RenderOptionQuestion 
                                     questionType={questionType}
                                     questionId={questionId}

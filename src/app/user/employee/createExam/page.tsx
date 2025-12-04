@@ -8,17 +8,17 @@ import { type ReactNode, useContext, useEffect, useState } from "react";
 import { type Employee, UserContext } from "~/app/UserContext";
 import { LinkButton } from "~/app/_components/links";
 import { RenderCustomExam, RenderEssay, RenderFileSubmission } from "./examTypes";
-import type { Question } from "./customExam";
+import type { Question } from "./customExams";
 import { useRouter } from "next/navigation";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 export type ExamDetails = {
     examID: string;
-    employeeID: string;
     examTitle: string;
     examType: string;
     course: string;
     sections: string[];
+    pageDescriptions: string[];
     dueDate: string;
     cutOffDate: string;
     releaseDate: string;
@@ -33,7 +33,7 @@ const formattedDate: Intl.DateTimeFormatOptions = {
     minute: "2-digit",
 };
 
-function generateExam(router: AppRouterInstance, examDetails: ExamDetails) {
+function previewExam(router: AppRouterInstance, examDetails: ExamDetails) {
     const jsonText = JSON.stringify(examDetails);
     console.log(jsonText);
     
@@ -44,41 +44,34 @@ function generateExam(router: AppRouterInstance, examDetails: ExamDetails) {
 
 export default function CreateExam() {
     const { currentUser } = useContext(UserContext);
-    
-    if (!currentUser) return <p>No user is logged in</p>;
-    if (currentUser.type !== "employee") return <p>User logged in is not employee</p>;
-    
     const [ examTitle, setExamTitle ] = useState<string>("")
     const [ examType, setExamType ] = useState<string>("");
     const [ course, setCourse ] = useState<string>("");
     const [ sections, setSections ] = useState<string[]>([]);
+    const [ pageDescriptions, setPageDescriptions ] = useState<string[]>([])
     const [ dueDate, setDueDate ] = useState<string>("");
     const [ cutOffDate, setCutOffDate ] = useState<string>("");
     const [ releaseDate, setReleaseDate ] = useState<string>("");
     const [ isManuallyReleasing, setIsManuallyReleasing ] = useState<boolean>(false);
-
+    
     const [ isChecked, setIsChecked ] = useState<boolean[]>([]);
     const [ showSections, setShowSections ] = useState<boolean>(false);
     
     const [ questionObjs, setQuestionObjs ] = useState<Question[][]>([[]]);
-    const [ examID ] = crypto.randomUUID();
-
-    if (!examID) return <p>examID is undefined</p>
-    
+    const examID = useState(() => crypto.randomUUID())[0];
     const [ examDetails, setExamDetails ] = useState<ExamDetails>({
-            examID: examID,
-            employeeID: currentUser.employeeNo,
+            examID,
             examTitle,
             examType,
             course,
             sections,
+            pageDescriptions, 
             dueDate,
             cutOffDate,
             releaseDate,
             examQuestions: questionObjs
         });
     const router = useRouter();
-    if (!examDetails) return <p>examDetails is undefined</p>
     
     useEffect(() => {
         const sectionObjs = getSectionFromCourseTitle(course);
@@ -89,18 +82,27 @@ export default function CreateExam() {
 
     useEffect(() => {
         setExamDetails({
-            examID: examID,
-            employeeID: currentUser.employeeNo,
+            examID,
             examTitle,
             examType,
             course,
             sections,
+            pageDescriptions,
             dueDate: new Date(dueDate).toLocaleString("en-US", formattedDate),
             cutOffDate: new Date(cutOffDate).toLocaleString("en-US", formattedDate),
             releaseDate: new Date(releaseDate).toLocaleString("en-US", formattedDate),
             examQuestions: questionObjs
         })
     }, [questionObjs, examTitle, examType, course, sections, dueDate, cutOffDate, releaseDate])
+
+    if (!currentUser) return <p>No user is logged in</p>;
+    if (currentUser.type !== "employee") return <p>User logged in is not employee</p>;
+    if (!examID) return <p>examID is undefined</p>
+    if (!examDetails) return <p>examDetails is undefined</p>
+
+    useEffect(() => {
+        console.log(sections);
+    }, [sections]);
 
     const RenderCourseOptions = () => {
         const courses = coursesTaught(currentUser.userID);
@@ -245,13 +247,13 @@ export default function CreateExam() {
                 <div className={sharedStyles.examCourseDiv}>
                     { ((examType === "File Submission") && (<RenderFileSubmission questionObjs={questionObjs} setQuestionObjs={setQuestionObjs}/>))}
                     { (examType === "Essay") && (<RenderEssay questionObjs={questionObjs} setQuestionObjs={setQuestionObjs}/>)}
-                    { (examType === "Create Exam") && (<RenderCustomExam questionObjs={questionObjs} setQuestionObjs={setQuestionObjs}/>)}
+                    { (examType === "Create Exam") && (<RenderCustomExam pageDescriptions={pageDescriptions} setPageDescriptions={setPageDescriptions} questionObjs={questionObjs} setQuestionObjs={setQuestionObjs}/>)}
                     <button 
                         className="primaryButton"
                         disabled={examType === ""}
-                        onClick={() => generateExam(router, examDetails)}
+                        onClick={() => previewExam(router, examDetails)}
                     >
-                        Create Exam
+                        Preview Exam
                     </button>
                 </div>
                 
