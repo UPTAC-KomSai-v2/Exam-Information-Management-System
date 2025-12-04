@@ -1,85 +1,61 @@
-import { useEffect, useRef, useState, type MouseEvent } from "react";
+"use client"
+import { useEffect, useState, type Dispatch, type MouseEvent, type SetStateAction } from "react";
 import { RenderDescription, RenderFileSubmissionQuestion, RenderInputQuestion, RenderOptionQuestion, type InputQuestion, type Question, } from "./customExam";
-import { LinkButton } from "~/app/_components/links";
+import { useRouter } from "next/navigation";
+import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
-type createExamProps = {
-    questionObjs: Question[][];
-}
-
-function createExam(questionObjs:Question[][]) {
-    const jsonText = JSON.stringify(questionObjs);
-    console.log(jsonText);
-}
-
-export function RenderFileSubmission() {
+export function RenderFileSubmission({questionObjs, setQuestionObjs}:{questionObjs:Question[][], setQuestionObjs:Dispatch<SetStateAction<Question[][]>>}) {
     const [questionId] = useState(() => crypto.randomUUID());
+
     const questionObj = {
-        type: "file-submission",
+        type: "File Submission",
         id: questionId,
         question: "EGGNOG",
         maxNoOfSubmissions: 3,
         maxFileSize: "100-MB",
         fileSubmissionTypes: [{
-            value: "all-files",
+            value: "All Files",
             label: "All Files",
         }]
     };
-
-    for(let i = 0; i < 5; i++) {
-        console.log("BEFORE: " + questionObj.id);
-    }
     
-    const [ questionObjs, setQuestionObjs ] = useState<Question[][]>([[questionObj]]);
-
     return (
         <>
             <p className="title22px">File Submission</p>
-            <RenderFileSubmissionQuestion questionType={"file-submission"} questionId={questionObj.id} setQuestionObjs={setQuestionObjs} currentPage={0} />
-            <button 
-                className="primaryButton"
-                onClick={() => createExam(questionObjs)}
-            >
-                Create Exam
-            </button>
+            <RenderFileSubmissionQuestion questionType={"File Submission"} questionId={questionObj.id} setQuestionObjs={setQuestionObjs} currentPage={0} />
         </>
     );
 }
 
-export function RenderEssay() {
+export function RenderEssay({questionObjs, setQuestionObjs}:{questionObjs:Question[][], setQuestionObjs:Dispatch<SetStateAction<Question[][]>>}) {
     const [questionId] = useState(() => crypto.randomUUID());
+    const router = useRouter();
+
     const questionObj = {
-        type: "paragraph",
+        type: "Paragraph",
         id: questionId,
         question: "",
         wordLimit: 300
     }
 
-    const [ questionObjs, setQuestionObjs ] = useState<Question[][]>([[]]);
-
     return (
         <>
             <p className="title22px">File Submission</p>
-            <RenderInputQuestion questionType={"paragraph"} questionId={questionObj.id} setQuestionObjs={setQuestionObjs} currentPage={0} />
-            
-            <button 
-                className="primaryButton"
-                onClick={() => createExam(questionObjs)}
-            >
-                Create Exam
-            </button>
+            <RenderInputQuestion questionType={"Paragraph"} questionId={questionObj.id} setQuestionObjs={setQuestionObjs} currentPage={0} />
         </>
     );
 }
 
-export function RenderCustomExam() {
+export function RenderCustomExam({questionObjs, setQuestionObjs}:{questionObjs:Question[][], setQuestionObjs:Dispatch<SetStateAction<Question[][]>>}) {
     const [ currentPage, setCurrentPage ] = useState(0);
     const [ pages, setPages ] = useState(1);
     const [ previousPageCount, setPreviousPageCount ] = useState(0);
-    const [ questionObjs, setQuestionObjs ] = useState<Question[][]>([]);
 
     const [ descriptions, setDescriptions ] = useState<string[]>(["Enter a description."]);
     const [ isStartDisabled, setIsStartDisabled ] = useState(true);
     const [ isEndDisabled, setIsEndDisabled ] = useState(true);
+
+    const router = useRouter();
 
     useEffect(() => {
         setQuestionObjs(prev => {
@@ -136,7 +112,7 @@ export function RenderCustomExam() {
 
         let newQuestion: Question;
         const questionId = crypto.randomUUID();
-        if(value === "short-answer" || value === "paragraph") {;
+        if(value === "short-answer" || value === "Paragraph") {;
             newQuestion = { 
                 type: value, 
                 id: questionId,
@@ -159,14 +135,14 @@ export function RenderCustomExam() {
                 maxFileSize: "",
                 fileSubmissionTypes: [
                     {
-                        value: "all-files",
+                        value: "All Files",
                         label: "All Files"
                     }
                 ]
             };
         }
 
-        setQuestionObjs((prev) => {
+        setQuestionObjs((prev: Question[][]) => {
             const newQuestionObjs = [...prev];
             const pageQuestions = [...(prev[currentPage] ?? [])];
             pageQuestions.forEach((p) => {
@@ -183,7 +159,7 @@ export function RenderCustomExam() {
     }
 
     const removeQuestion = (index: number) => {
-        setQuestionObjs(prev => prev.filter((_, i) => i !== index));
+        setQuestionObjs((prev:Question[][]) => prev.filter((_, i) => i !== index));
     };
 
     const moveQuestion = (direction: number, index: number) => {
@@ -233,7 +209,7 @@ export function RenderCustomExam() {
     }   
 
     const movePage = (direction: number) => {
-        setQuestionObjs(prev => {
+        setQuestionObjs((prev:Question[][]) => {
             const newquestionObjs = [...prev];
             const [item] = newquestionObjs.splice(currentPage, 1);
             if(item === undefined) return questionObjs;
@@ -262,15 +238,15 @@ export function RenderCustomExam() {
             
             <div style={{display: "flex", justifyContent: "space-between", margin: "10px 0px"}}>
                 <button 
-                    onClick={ () => navigatePage(1) }
-                    className="secondaryButton"
-                    disabled={isEndDisabled}
-                >Next Page</button>
-                <button 
                     onClick={ () => navigatePage(-1) }
                     className="secondaryButton"
                     disabled={isStartDisabled}
                 >Previous Page</button>
+                <button 
+                    onClick={ () => navigatePage(1) }
+                    className="secondaryButton"
+                    disabled={isEndDisabled}
+                >Next Page</button>
                 <button 
                     onClick={ () => movePage(1) }
                     className="secondaryButton"
@@ -339,11 +315,11 @@ export function RenderCustomExam() {
                                         onChange={e => updateQuestionType(e.target.value, questionId, index) }
                                     >
                                         <option value="short-answer">Short Answer</option>
-                                        <option value="paragraph">Paragraph</option>
+                                        <option value="Paragraph">Paragraph</option>
                                         <option value="multiple-choice">Multiple Choice</option>
                                         <option value="checkbox">Checkbox</option>
                                         <option value="dropdown">Dropdown</option>
-                                        <option value="file-submission">File Submission</option>
+                                        <option value="File Submission">File Submission</option>
                                     </select>
                                 </label>
                                 <p></p>
@@ -354,7 +330,7 @@ export function RenderCustomExam() {
                                 </button>
                             </div>
                                     
-                            { (questionType === "short-answer" || questionType === "paragraph") && 
+                            { (questionType === "short-answer" || questionType === "Paragraph") && 
                                 (<RenderInputQuestion 
                                     questionType={questionType}
                                     questionId={questionId}
@@ -370,7 +346,7 @@ export function RenderCustomExam() {
                                     currentPage={currentPage} 
                                 />) }
 
-                            { (questionType === "file-submission") && 
+                            { (questionType === "File Submission") && 
                                 (<RenderFileSubmissionQuestion 
                                     questionType={questionType}
                                     questionId={questionId}
@@ -381,12 +357,6 @@ export function RenderCustomExam() {
                     );
                 }
                 )}
-                <button 
-                    className="primaryButton"
-                    onClick={() => createExam(questionObjs)}
-                >
-                    Create Exam
-                </button>
             </div>
         </>
     )

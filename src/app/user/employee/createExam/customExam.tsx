@@ -143,7 +143,6 @@ export function RenderOptionQuestion({questionType, questionId, setQuestionObjs,
 
 export function RenderInputQuestion({questionType, questionId,  setQuestionObjs, currentPage}:QuestionProps) {
     const [ wordLimit, setWordLimit ] = useState((questionType === "paragraph") ? 300 : null);
-    const [ tempQuestion, setTempQuestion ] = useState<string>("Enter a question.");
     const [ question, setQuestion ] = useState<string>("Enter a question.");
     const [ questionObj, setQuestionObj ] = useState<InputQuestion>({
         type: questionType,
@@ -204,23 +203,21 @@ export function RenderInputQuestion({questionType, questionId,  setQuestionObjs,
     );
 }
 
-export function RenderFileSubmissionQuestion({questionType, questionId, setQuestionObjs, currentPage}:QuestionProps) {
-    console.log("INSIDE OF RENDERFILESUBMISSION: " + questionId);
-    
+export function RenderFileSubmissionQuestion({questionType, questionId, setQuestionObjs, currentPage}:QuestionProps) {    
     const [ maxNoOfSubmissions,  setMaxNoOfSubmissions ] = useState(3);
     const [ maxFileSize, setMaxFileSize ] = useState("100-MB");
     const [ customFile, setCustomFile ] = useState<string>("");
     
     const fileOptions = [
-        { value: "all-files", label: "All File Types" },
-        { value: "documents", label: "Documents (.pdf, .doc, .docx, .txt, .rtf, .odt)" },
-        { value: "spreadsheets", label: "Spreadsheets (.xls, .xlsx, .csv, .ods)" },
-        { value: "presentations", label: "Presentations (.ppt, .pptx, .odp)" },
-        { value: "image-files", label: "Image Files (.png, .jpg/.jpeg, .gif, .bmp, .tiff/.tif, .webp)" },
-        { value: "video-files", label: "Video Files (.mp4, .mov, .avi, .wmv, .mkv)" },
-        { value: "audio-files", label: "Audio Files (.mp3, .wav, .m4a, .ogg)" },
-        { value: "code-files", label: "Code Files (.java, .py, .cpp, .c, .js, .ts, .html, .css, .php, .xml, .json, .ipynb, .sql)" },
-        { value: "compressed-archives", label: "Compressed Archives (.zip, .rar, .7z, .tar.gz)" },
+        { value: "All Files", label: "All File Types" },
+        { value: "Documents", label: "Documents (.pdf, .doc, .docx, .txt, .rtf, .odt)" },
+        { value: "Spreadsheets", label: "Spreadsheets (.xls, .xlsx, .csv, .ods)" },
+        { value: "Presentations", label: "Presentations (.ppt, .pptx, .odp)" },
+        { value: "Image Files", label: "Image Files (.png, .jpg/.jpeg, .gif, .bmp, .tiff/.tif, .webp)" },
+        { value: "Video Files", label: "Video Files (.mp4, .mov, .avi, .wmv, .mkv)" },
+        { value: "Audio Files", label: "Audio Files (.mp3, .wav, .m4a, .ogg)" },
+        { value: "Code Files", label: "Code Files (.java, .py, .cpp, .c, .js, .ts, .html, .css, .php, .xml, .json, .ipynb, .sql)" },
+        { value: "Compressed Archives", label: "Compressed Archives (.zip, .rar, .7z, .tar.gz)" },
         { value: customFile, label: "Custom File" },
     ];
     
@@ -231,14 +228,12 @@ export function RenderFileSubmissionQuestion({questionType, questionId, setQuest
         id: questionId,
         question: "Enter a question.",
         maxNoOfSubmissions: 3,
-        maxFileSize: "100-MB",
+        maxFileSize: "100 MB",
         fileSubmissionTypes: [{
-            value: "all-files",
+            value: "All Files",
             label: "All Files",
         }]
     });
-
-    console.log("QuestionID: " + questionId);
 
     useEffect(() => {
         setQuestionObj({
@@ -281,23 +276,23 @@ export function RenderFileSubmissionQuestion({questionType, questionId, setQuest
                 return prev.filter(item => item.value !== value);
             }
 
-            if (value === "all-files") {
+            if (value === "All Files") {
                 return [{ value, label }];
             }
             
-            const filtered = prev.filter(item => item.value !== "all-files");
+            const filtered = prev.filter(item => item.value !== "All Files");
             return [...filtered, { value, label }];
         });
     };
 
     const [ isChecked, setIsChecked ] = useState(false);
     useEffect(() => {
-        setIsChecked(fileSubmissionTypes.some(item => item.label === "Custom File" || item.value === "all-files") );
+        setIsChecked(fileSubmissionTypes.some(item => item.label === "Custom File" || item.value === "All Files") );
     }, [fileSubmissionTypes]);
 
     const [ checkedAllFiles, setCheckedAllFiles ] = useState(true);
     useEffect(() => {
-        setCheckedAllFiles(fileSubmissionTypes.some(type => type.value === "all-files"));
+        setCheckedAllFiles(fileSubmissionTypes.some(type => type.value === "All Files"));
     }, [fileSubmissionTypes])
 
     const RenderFileTypes = () => {
@@ -359,11 +354,11 @@ export function RenderFileSubmissionQuestion({questionType, questionId, setQuest
                     value={ maxFileSize }
                     onChange={e =>  setMaxFileSize(e.target.value)}
                 >
-                    <option value="1-MB">1 MB</option>
-                    <option value="10-MB">10 MB</option>
-                    <option value="100-MB">100 MB</option>
-                    <option value="1-GB">1 GB</option>
-                    <option value="10-GB">10 GB</option>
+                    <option value="1 MB">1 MB</option>
+                    <option value="10 MB">10 MB</option>
+                    <option value="100 MB">100 MB</option>
+                    <option value="1 GB">1 GB</option>
+                    <option value="10 GB">10 GB</option>
                 </select>
             </label>
 

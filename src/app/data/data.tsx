@@ -1,3 +1,4 @@
+import type { Question } from "../user/employee/createExam/customExam";
 import type { Employee, Student } from "../UserContext";
 
 export const courses: Course[] = [
@@ -115,6 +116,11 @@ export type ReferenceExam = {
     timeAllotted: string,
     dueDate: string,
 };
+
+export type ExamContent = {
+    examID: string;
+    examQuestions: Question[][];
+}
 
 export const students: Student[] = [
     {
@@ -539,5 +545,42 @@ export const referenceExams: ReferenceExam[] = [
         examType: "Submission",
         timeAllotted: "1 Hour 30 minutes",
         dueDate: "November 29, 2025"
+    }
+];
+
+
+
+export const examContent: ExamContent[] = [
+    {
+        examID: "01",
+        examQuestions: [
+            [
+                {
+                    type: "paragraph",
+                    id: "123456789",
+                    question: "Write about your life experience.",
+                    wordLimit: 300
+                }
+            ]
+        ]
+    },
+    {
+        examID: "02",
+        examQuestions: [
+            [
+                {
+                    type: "short-answer",
+                    id: "01",
+                    question: "What is 1 + 1?",
+                    wordLimit: null
+                },
+                {
+                    type: "short-answer",
+                    id: "02",
+                    question: "Would you marry me? Yes or no.",
+                    wordLimit: null
+                },
+            ]
+        ]
     }
 ];
