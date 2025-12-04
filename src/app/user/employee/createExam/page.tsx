@@ -8,7 +8,7 @@ import { type ReactNode, useContext, useEffect, useState } from "react";
 import { type Employee, UserContext } from "~/app/UserContext";
 import { LinkButton } from "~/app/_components/links";
 import { RenderCustomExam, RenderEssay, RenderFileSubmission } from "./examTypes";
-import type { Question } from "./customExams";
+import { BASE_FILE_OPTIONS, type Question } from "./customExams";
 import { useRouter } from "next/navigation";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
@@ -72,7 +72,7 @@ export default function CreateExam() {
             examQuestions: questionObjs
         });
     const router = useRouter();
-    
+
     useEffect(() => {
         const sectionObjs = getSectionFromCourseTitle(course);
         if(!sectionObjs) return;
@@ -95,14 +95,44 @@ export default function CreateExam() {
         })
     }, [questionObjs, examTitle, examType, course, sections, dueDate, cutOffDate, releaseDate])
 
+    useEffect(() => {
+        const id = crypto.randomUUID();
+        setQuestionObjs((prev:Question[][]) => {
+            const newQuestionObjs = [...prev];
+            newQuestionObjs.splice(0, 1);
+            if(examType !== "") {
+                const replacingObj = [ 
+                    (examType === "File Submission") ? {
+                            type: examType,
+                            id,
+                            question: "Enter a description.",
+                            maxNoOfSubmissions: 3,
+                            maxFileSize: "100-MB",
+                            fileSubmissionTypes: [...BASE_FILE_OPTIONS, {value:"", label: "Custom Files"}]
+                        }
+                        : (examType === "Essay") ? {
+                            type: "Paragraph",
+                            id,
+                            question: "Enter a description.",
+                            wordLimit: 300
+                        } 
+                        : {
+                            type: "Short Answer",
+                            id,
+                            question: "Enter a description.",
+                            wordLimit: null
+                        }
+                ];
+                newQuestionObjs.splice(0, 0, replacingObj);
+            }
+            return newQuestionObjs;
+        });
+    }, [examType])
+
     if (!currentUser) return <p>No user is logged in</p>;
     if (currentUser.type !== "employee") return <p>User logged in is not employee</p>;
     if (!examID) return <p>examID is undefined</p>
     if (!examDetails) return <p>examDetails is undefined</p>
-
-    useEffect(() => {
-        console.log(sections);
-    }, [sections]);
 
     const RenderCourseOptions = () => {
         const courses = coursesTaught(currentUser.userID);

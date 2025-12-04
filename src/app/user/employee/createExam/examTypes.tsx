@@ -1,51 +1,39 @@
 "use client"
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { RenderDescription, RenderFileSubmissionQuestion, RenderInputQuestion, RenderOptionQuestion, type InputQuestion, type Question, } from "./customExams";
-import { useRouter } from "next/navigation";
 
 type GeneralExamProps = {
     questionObjs:Question[][];
     setQuestionObjs:Dispatch<SetStateAction<Question[][]>>;
 }
 
-export function RenderFileSubmission({questionObjs, setQuestionObjs}: GeneralExamProps) {
-    const [questionId] = useState(() => crypto.randomUUID());
 
-    const questionObj = {
-        type: "File Submission",
-        id: questionId,
-        question: "EGGNOG",
-        maxNoOfSubmissions: 3,
-        maxFileSize: "100-MB",
-        fileSubmissionTypes: [{
-            value: "All Files",
-            label: "All Files",
-        }]
-    };
-    
-    return (
+export function RenderFileSubmission({questionObjs, setQuestionObjs}: GeneralExamProps) {
+    if(!questionObjs || !questionObjs[0] || !questionObjs[0][0]) return <p>questionObjs is undefined.</p>;
+return (
         <>
             <p className="title22px">File Submission</p>
-            <RenderFileSubmissionQuestion questionType={"File Submission"} questionId={questionObj.id} setQuestionObjs={setQuestionObjs} currentPage={0} />
+            <RenderFileSubmissionQuestion 
+                questionType={"File Submission"} 
+                questionId={questionObjs[0][0].id} 
+                setQuestionObjs={setQuestionObjs} 
+                currentPage={0} 
+            />
         </>
     );
 }
 
 export function RenderEssay({questionObjs, setQuestionObjs}: GeneralExamProps) {
-    const [questionId] = useState(() => crypto.randomUUID());
-    const router = useRouter();
-
-    const questionObj = {
-        type: "Paragraph",
-        id: questionId,
-        question: "",
-        wordLimit: 300
-    }
-
+    if(!questionObjs || !questionObjs[0] || !questionObjs[0][0]) return <p>questionObjs is undefined.</p>;
     return (
         <>
             <p className="title22px">File Submission</p>
-            <RenderInputQuestion questionType={"Paragraph"} questionId={questionObj.id} setQuestionObjs={setQuestionObjs} currentPage={0} />
+            <RenderInputQuestion 
+                questionType={"Paragraph"}
+                questionId={questionObjs[0][0].id} 
+                setQuestionObjs={setQuestionObjs} 
+                currentPage={0} 
+            />
         </>
     );
 }
@@ -56,44 +44,32 @@ type CustomExamProps = {
     questionObjs:Question[][];
     setQuestionObjs:Dispatch<SetStateAction<Question[][]>>;
 }
+
 export function RenderCustomExam({pageDescriptions, setPageDescriptions, questionObjs, setQuestionObjs}: CustomExamProps) {
-    const [ currentPage, setCurrentPage ] = useState(0);
-    const [ pages, setPages ] = useState(1);
-    const [ previousPageCount, setPreviousPageCount ] = useState(0);
-
-    const [ isStartDisabled, setIsStartDisabled ] = useState(true);
-    const [ isEndDisabled, setIsEndDisabled ] = useState(true);
-
-    const router = useRouter();
-
-    useEffect(() => {
-        setQuestionObjs(prev => {
-            const newPages = [...prev];
-
-            if(pages > previousPageCount) {
-                const newQuestions = [...prev];
-                const item:Question = { 
-                    type: "Short Answer", 
-                    id: crypto.randomUUID(),
-                    question: "Enter a question.",
-                    wordLimit: null  
-                };
-                newQuestions.splice(currentPage, 0, [item]);
-                return newQuestions;
-            } 
-
-            return newPages;
-        });
-    }, [pages])
+    const [ currentPage, setCurrentPage ] = useState<number>(0);
+    const [ pages, setPages ] = useState<number>(1);
+    const [ isStartDisabled, setIsStartDisabled ] = useState<boolean>(true);
+    const [ isEndDisabled, setIsEndDisabled ] = useState<boolean>(true);
+    
+    const [ count, setCount ] = useState<number>(0);
 
     useEffect(() => {
         setIsStartDisabled(currentPage <= 0);
         setIsEndDisabled(currentPage >= pages-1);
-    }, [pages, currentPage])
+        console.log(`[USEFFECT from change in pages and currentPages] pages = ${pages}, currentPage = ${currentPage}`)
+    }, [pages, currentPage]);
+
+    useEffect(() => {
+        console.log(questionObjs);
+    }, [questionObjs]);
+
+    useEffect(() => {
+        setCount(count+1);
+        console.log("" + count+1);
+    }, []);    
 
     const addQuestion = () => {
-        console.log("Adding new question to page " + currentPage+1)
-        setQuestionObjs(prev => {
+        setQuestionObjs((prev:Question[][])=> {
             const newPages = [...prev];
             newPages[currentPage] = [
                 ...newPages[currentPage] ?? [],
@@ -106,17 +82,17 @@ export function RenderCustomExam({pageDescriptions, setPageDescriptions, questio
             ]
             return newPages;
         });
+        console.log(`[Adding new question to page ${currentPage+1}]`);
     };
 
     const updateQuestionType = (value: string, oldId: string, index: number) => {
         const updated = [...questionObjs];
-        if(updated[currentPage] === undefined) return;
+        if(!updated[currentPage]) return;
 
         console.log("Updating question type");
 
         const pageQuestions = [...updated[currentPage]];
         const oldQuestion = pageQuestions[index];
-
         if(!oldQuestion) return;
 
         let newQuestion: Question;
@@ -154,12 +130,8 @@ export function RenderCustomExam({pageDescriptions, setPageDescriptions, questio
         setQuestionObjs((prev: Question[][]) => {
             const newQuestionObjs = [...prev];
             const pageQuestions = [...(prev[currentPage] ?? [])];
-            pageQuestions.forEach((p) => {
-                console.log("pageQuestions IDs " + p.id);
-            })
 
             const index = pageQuestions.findIndex(q => q.id === oldId);
-            console.log("Index: " + index);
 
             pageQuestions[index] = newQuestion;
             newQuestionObjs[currentPage] = pageQuestions;
@@ -172,46 +144,62 @@ export function RenderCustomExam({pageDescriptions, setPageDescriptions, questio
     };
 
     const moveQuestion = (direction: number, index: number) => {
-        const newquestionObjs = [...questionObjs];
-        if(newquestionObjs[currentPage] === undefined) return; 
+        const newQuestionObjs = [...questionObjs];
+        if(!newQuestionObjs[currentPage]) return; 
 
         const toIndex = index + direction;
-        if(toIndex < 0 || toIndex >= newquestionObjs.length) return;
-        const [movedItem] = newquestionObjs[currentPage].splice(index, 1);
+        if(toIndex < 0 || toIndex >= newQuestionObjs.length) return;
+        const [movedItem] = newQuestionObjs[currentPage].splice(index, 1);
 
-        console.log(movedItem);
-        if(movedItem === undefined) return;
-        newquestionObjs[currentPage].splice(toIndex, 0, movedItem);
-        setQuestionObjs(newquestionObjs);
+        if(!movedItem) return;
+        newQuestionObjs[currentPage].splice(toIndex, 0, movedItem);
+        setQuestionObjs(newQuestionObjs);
     };
 
+    // goods
     const addNewPage = () => {
-        console.log("Adding a new page: ");
+        console.log("[Adding a new page]");
         setCurrentPage(currentPage+1);
-        setPreviousPageCount(pages);
         setPages(pages+1);
-        setPageDescriptions(prev => [
-            ...prev,
-            "Enter description."
-        ])
-        console.log(`currentPage = ${currentPage+1}`);
-        console.log(`no of pages = ${pages+1}`);
+        setPageDescriptions((prev:string[])=> {
+            const newPageDescriptions = [...prev];
+            newPageDescriptions.splice(currentPage, 0, "Enter a description.");
+            return newPageDescriptions;
+        })
+
+        setQuestionObjs((prev:Question[][]) => {
+            let newPages = [...prev];
+            const newQuestionArray = [{ 
+                type: "Short Answer", 
+                id: crypto.randomUUID(),
+                question: "Enter a question.",
+                wordLimit: null  
+            }];
+
+            if(!newPages[currentPage]) newPages[currentPage] = newQuestionArray;
+            else newPages.splice(currentPage, 0, newQuestionArray);
+            return newPages;
+        });
     }
 
+    // goods
     const removePage = () => {
-        const newquestionObjs = [...questionObjs];
-
-        console.log("Removing a page: ");
-        if(newquestionObjs[currentPage] !== undefined) 
-            setQuestionObjs(newquestionObjs.filter((_, i) => i !== currentPage));
+        console.log(`[Removing pages ${currentPage}]`);
         setCurrentPage((pages-1 > currentPage || currentPage === 0) ? currentPage : currentPage-1);
-        setPreviousPageCount(pages);
         setPages(pages-1);
-        
-        console.log(`currentPage = ${(pages-1 > currentPage) ? currentPage : currentPage-1}`);
-        console.log(`no of pages = ${pages-1}`);
+        setPageDescriptions((prev:string[])=> {
+            const newPageDescriptions = [...prev];
+            newPageDescriptions.splice(currentPage, 1);
+            return newPageDescriptions;
+        });
+        setQuestionObjs((prev:Question[][]) => {
+            const newPages = [...prev];
+            newPages.splice(currentPage, 1);
+            return newPages;
+        });
     }
 
+    // goods
     const navigatePage = (direction: number) => {
         setCurrentPage(currentPage + direction);
         console.log(`Current Page = ${currentPage+direction}`);
@@ -219,13 +207,16 @@ export function RenderCustomExam({pageDescriptions, setPageDescriptions, questio
 
     const movePage = (direction: number) => {
         setQuestionObjs((prev:Question[][]) => {
-            const newquestionObjs = [...prev];
-            const [item] = newquestionObjs.splice(currentPage, 1);
-            if(item === undefined) return questionObjs;
-            newquestionObjs.splice(currentPage+direction, 0, item);
-            setCurrentPage(currentPage+direction);
-            return newquestionObjs;
+            const newQuestionObjs = [...prev];
+            
+            const [ item ] = newQuestionObjs.splice(currentPage, 1);
+            if(!item) return prev;
+
+            console.log(item);
+            return newQuestionObjs;
         });
+
+        setCurrentPage(currentPage+direction);
     }
 
     return (
@@ -239,7 +230,7 @@ export function RenderCustomExam({pageDescriptions, setPageDescriptions, questio
                 >Add A New Page
                 </button>
                 <button 
-                    onClick={ () => removePage()}
+                    onClick={() => removePage()}
                     className="secondaryButton"
                     disabled={isStartDisabled}
                 >Remove Page</button>
@@ -281,12 +272,12 @@ export function RenderCustomExam({pageDescriptions, setPageDescriptions, questio
             <p className="title17px" style={{textAlign: "center"}}>QUESTION</p>
 
             <div>
-                { questionObjs[currentPage]?.map((questionObj, index) => {
+                { (questionObjs[currentPage]) && (questionObjs[currentPage].map((questionObj, index) => {
                     const questionType = questionObj.type;
                     const questionId = questionObj.id;
                     if(!questionType || !questionId) return (<p>Question type is null</p>);
-                    
-                    console.log(`${questionType}, ${index}`);
+                    console.log(questionObjs[currentPage]?.length);
+
                     return (
                         <div 
                             key={questionId} 
@@ -364,7 +355,7 @@ export function RenderCustomExam({pageDescriptions, setPageDescriptions, questio
                         </div>
                     );
                 }
-                )}
+                ))}
             </div>
         </>
     )
