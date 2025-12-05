@@ -220,7 +220,7 @@ export function RenderInputQuestion({questionType, questionId, questionObj, setQ
 }
 
 export const BASE_FILE_OPTIONS = [
-    { value: "All Files", label: "All File" },
+    { value: "All Files", label: "All Files" },
     { value: "Documents", label: "Documents (.pdf, .doc, .docx, .txt, .rtf, .odt)" },
     { value: "Spreadsheets", label: "Spreadsheets (.xls, .xlsx, .csv, .ods)" },
     { value: "Presentations", label: "Presentations (.ppt, .pptx, .odp)" },

@@ -8,7 +8,7 @@ import { type ReactNode, useContext, useEffect, useState } from "react";
 import { type Employee, UserContext } from "~/app/UserContext";
 import { LinkButton } from "~/app/_components/links";
 import { RenderCustomExam, RenderEssay, RenderFileSubmission } from "./examTypes";
-import { BASE_FILE_OPTIONS, type Question } from "./customExams";
+import { type Question } from "./customExams";
 import { useRouter } from "next/navigation";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
@@ -158,18 +158,17 @@ export default function CreateExam() {
     const updateExamType = (examType: string) => {
         setExamType(examType);
         const id = crypto.randomUUID();
-        setQuestionObjs((prev:Question[][]) => {
-            const newQuestionObjs = [...prev];
-            newQuestionObjs.splice(0, 1);
+        setQuestionObjs(() => {
+            const newQuestionObjs:Question[][] = [];
             if(examType !== "") {
-                const replacingObj = [ 
+                newQuestionObjs.push([ 
                     (examType === "File Submission") ? {
                             type: examType,
                             id,
                             question: "",
                             maxNoOfSubmissions: 3,
-                            maxFileSize: "100-MB",
-                            fileSubmissionTypes: [...BASE_FILE_OPTIONS, {value:"", label: "Custom Files"}]
+                            maxFileSize: "100 MB",
+                            fileSubmissionTypes: [{ value: "All Files", label: "All Files" }]
                         }
                         : (examType === "Essay") ? {
                             type: "Paragraph",
@@ -183,8 +182,7 @@ export default function CreateExam() {
                             question: "",
                             wordLimit: null
                         }
-                ];
-                newQuestionObjs.splice(0, 0, replacingObj);
+                ]);
             }
             return newQuestionObjs;
         });
