@@ -189,7 +189,7 @@ export function RenderInputQuestion({questionType, questionId,  setQuestionObjs,
                     />
             </label>
 
-            { (questionType === "paragraph") && (
+            { (questionType === "Paragraph") && (
                 <label style={{display: "flex", flexDirection: "row", gap: "10px"}}>
                     Set Word Limit
                     <input 
@@ -221,7 +221,10 @@ export function RenderFileSubmissionQuestion({questionType, questionId, setQuest
     const [ maxFileSize, setMaxFileSize ] = useState<string>("100 MB");
     const [ customFile, setCustomFile ] = useState<string>("");
     const optionFiles = [...BASE_FILE_OPTIONS, { value: customFile, label: "Custom File" }];
-    const [ fileSubmissionTypes, setFileSubmissionTypes ] = useState<{value:string, label:string}[]>(optionFiles);
+    const [ fileSubmissionTypes, setFileSubmissionTypes ] = useState<{value:string, label:string}[]>([{
+        value: "All Files",
+        label: "All Files"
+    }]);
     const [ question, setQuestion ] = useState<string>("Enter a question");
     const [ isChecked, setIsChecked ] = useState<boolean>(true);
     const [ checkedAllFiles, setCheckedAllFiles ] = useState<boolean>(true);
@@ -235,13 +238,8 @@ export function RenderFileSubmissionQuestion({questionType, questionId, setQuest
     });
 
     useEffect(() => {
-        console.log("Rendering");
-    }, [{}]);
-
-    useEffect(() => {
         setIsChecked(fileSubmissionTypes.some(item => item.label === "Custom File" || item.value === "All Files") );
         setCheckedAllFiles(fileSubmissionTypes.some(type => type.value === "All Files"));
-        console.log("filesubmissiontypes");
     }, [fileSubmissionTypes])
 
     useEffect(() => {
@@ -253,7 +251,6 @@ export function RenderFileSubmissionQuestion({questionType, questionId, setQuest
             maxFileSize,
             fileSubmissionTypes,
         });
-        console.log("many");
     }, [question, maxNoOfSubmissions, maxFileSize, fileSubmissionTypes]);
 
     useEffect(() => {
@@ -271,15 +268,16 @@ export function RenderFileSubmissionQuestion({questionType, questionId, setQuest
             newQuestionObjs[currentPage] = pageQuestions;
             return newQuestionObjs;
         });        
-        console.log("questionobj");
     }, [questionObj]);
 
     const handleCheck = (value: string, label: string) => {
         setFileSubmissionTypes(prev => {
             // check if already exists
             const exists = prev.some(item => item.label === label);
+            console.log(`${label} exists`);
 
             if (exists) {
+                console.log(`removing ${label}`);
                 return prev.filter(item => item.value !== value);
             }
 

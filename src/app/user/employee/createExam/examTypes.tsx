@@ -202,7 +202,6 @@ export function RenderCustomExam({pageDescriptions, setPageDescriptions, questio
     // goods
     const navigatePage = (direction: number) => {
         setCurrentPage(currentPage + direction);
-        console.log(`Current Page = ${currentPage+direction}`);
     }   
 
     const movePage = (direction: number) => {
@@ -212,7 +211,8 @@ export function RenderCustomExam({pageDescriptions, setPageDescriptions, questio
             const [ item ] = newQuestionObjs.splice(currentPage, 1);
             if(!item) return prev;
 
-            console.log(item);
+            newQuestionObjs.splice(currentPage+direction, 0, item);
+
             return newQuestionObjs;
         });
 
