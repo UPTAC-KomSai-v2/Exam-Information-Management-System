@@ -9,6 +9,42 @@ import { users } from "~/server/db/schema";
 const JWT_SECRET = 'maroon-book-jwt-secret';
 const NOTIFY_HASH_SALT = 'maroon-book-salt';
 
+function generateAuthToken(userId: number, role: string): string {
+    return jwt.sign({
+        id: userId,
+        role,
+    }, JWT_SECRET);
+}
+
+function generateNotifyToken(userId: number, role: string): {
+    signature: string;
+    nonce: string;
+} {
+    const nonce = Date.now().toString() + '-' + userId;
+    const signature = crypto.createHash('sha256')
+        .update(NOTIFY_HASH_SALT + userId + role + nonce)
+        .digest('hex');
+
+    return {
+        signature,
+        nonce,
+    };
+}
+
+function wrapSuccess(data: unknown) {
+    return {
+        status: 'ok',
+        data,
+    };
+}
+
+function wrapError(message: string) {
+    return {
+        status: 'error',
+        message,
+    };
+}
+
 export const userRouter = createTRPCRouter({
     login: publicProcedure
         .input(z.object({
@@ -23,41 +59,28 @@ export const userRouter = createTRPCRouter({
             });
 
             if (!user) {
-                throw new Error('User not found');
+                return wrapError('User not found');
             }
 
             // Check password via BCrypt
             const validPassword = await bcrypt.compare(input.password, user.passwordHash);
 
             if (!validPassword) {
-                throw new Error('Invalid password');
+                return wrapError('Invalid password');
             }
 
-            const notifyNonce = Date.now().toString() + '-' + user.id;
-            const notifyToken = crypto.createHash('sha256')
-                .update(NOTIFY_HASH_SALT + user.id + user.role + notifyNonce)
-                .digest('hex');
-
-            const authToken = jwt.sign({
-                id: user.id,
-                role: user.role,
-            }, JWT_SECRET);
-
-            return {
+            return wrapSuccess({
                 id: user.id,
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email,
 
                 // JWT for API Authentication
-                authToken,
+                authToken: generateAuthToken(user.id, user.role),
 
                 // Credentials for Notification Web Socket Server
-                notify: {
-                    signature: notifyToken,
-                    nonce: notifyNonce,
-                }
-            };
+                notify: generateNotifyToken(user.id, user.role),
+            });
         }),
     getNotifyToken: publicProcedure
         .input(z.object({
@@ -67,19 +90,60 @@ export const userRouter = createTRPCRouter({
             // Verify JWT token
             try {
                 const { id, role } = jwt.verify(input.token, JWT_SECRET) as { id: number, role: string };
-
-                // Generate notify token
-                const notifyNonce = Date.now().toString() + '-' + id;
-                const notifyToken = crypto.createHash('sha256')
-                    .update(NOTIFY_HASH_SALT + id + role + notifyNonce)
-                    .digest('hex');
-
-                return {
-                    signature: notifyToken,
-                    nonce: notifyNonce,
-                };
+                return wrapSuccess(generateNotifyToken(id, role));
             } catch {
-                throw new Error('Invalid token');
+                return wrapError('Invalid auth token');
             }
+        }),
+    
+    register: publicProcedure
+        .input(z.object({
+            id: z.number().int().positive(),
+            firstName: z.string().min(1),
+            lastName: z.string().min(1),
+            email: z.string().email(),
+            password: z.string().min(6),
+            role: z.enum(['employee', 'student']),
+        }))
+        .mutation(async ({ ctx, input }) => {
+            const existingUserById = await ctx.db.query.users.findFirst({
+                where: (users, { eq }) => eq(users.id, input.id),
+            });
+
+            if (existingUserById) {
+                return wrapError('User ID already exists');
+            }
+
+            const existingUserByEmail = await ctx.db.query.users.findFirst({
+                where: (users, { eq }) => eq(users.email, input.email),
+            });
+
+            if (existingUserByEmail) {
+                return wrapError('Email already registered');
+            }
+
+            const passwordHash = await bcrypt.hash(input.password, 10);
+
+            await ctx.db.insert(users).values({
+                id: input.id,
+                firstName: input.firstName,
+                lastName: input.lastName,
+                email: input.email,
+                passwordHash,
+                role: input.role,
+            });
+
+            return wrapSuccess({
+                id: input.id,
+                firstName: input.firstName,
+                lastName: input.lastName,
+                email: input.email,
+
+                // JWT for API Authentication
+                authToken: generateAuthToken(input.id, input.role),
+
+                // Credentials for Notification Web Socket Server
+                notify: generateNotifyToken(input.id, input.role),
+            });
         }),
 });
