@@ -1,6 +1,6 @@
 import express from 'express';
 import http from 'http';
-import { WebSocketServer } from 'ws';
+import { type WebSocket, WebSocketServer } from 'ws';
 import crypto from 'crypto';
 
 // Salt for hashing
@@ -11,9 +11,15 @@ const salt = 'maroon-book-salt';
 
 enum MessageType {
     CONNECTION = 'connection',
+    NOTIFY = 'notify',
 };
 
 type UserRole = 'employee' | 'student';
+
+type UserData = {
+    id: string;
+    role: UserRole;
+};
 
 type MessageBase<TType extends MessageType, TPayload> = {
     type: TType;
@@ -31,6 +37,14 @@ type ConnectionMessage = MessageBase<MessageType.CONNECTION, {
     }
 }>;
 
+type NotifyMessage = MessageBase<MessageType.NOTIFY, {
+    audience: {
+        userIds: string[];
+        signature: string;
+    },
+    data: unknown;
+}>;
+
 function validateConnection(message: ConnectionMessage): boolean {
     const { user, auth } = message.payload;
     const expectedSignature = crypto.createHash('sha256');
@@ -38,6 +52,16 @@ function validateConnection(message: ConnectionMessage): boolean {
     const computedSignature = expectedSignature.digest('hex');
     return computedSignature === auth.signature;
 }
+
+function validateNotify(message: NotifyMessage): boolean {
+    const { audience, data } = message.payload;
+    const expectedSignature = crypto.createHash('sha256');
+    expectedSignature.update(salt + audience.userIds.join(',') + JSON.stringify(data));
+    const computedSignature = expectedSignature.digest('hex');
+    return computedSignature === audience.signature;
+}
+
+const connections = new Map<string, { id: string, ws: WebSocket, user: UserData }[]>();
 
 const app = express();
 const server = http.createServer(app);
@@ -54,8 +78,21 @@ wss.on('connection', (ws) => {
         }
     }, 5000);
 
+    let connectionId: string = crypto.randomUUID();
     let userId: string | null = null;
     let userRole: UserRole | null = null;
+
+    function removeConnection() {
+        if (userId && connections.has(userId)) {
+            const newConnections = connections.get(userId)?.filter((connection) => connection.id !== connectionId);
+
+            if (!newConnections || newConnections.length === 0) {
+                connections.delete(userId);
+            } else if (newConnections) {
+                connections.set(userId, newConnections);
+            }
+        }
+    }
 
     ws.on('message', (data) => {
         try {
@@ -69,9 +106,38 @@ wss.on('connection', (ws) => {
                     console.log('[maroon-book] [backend] Client authenticated successfully');
                     userId = connectionMessage.payload.user.id;
                     userRole = connectionMessage.payload.user.role;
+
+                    if (!connections.has(userId)) {
+                        connections.set(userId, []);
+                    }
+
+                    connections.get(userId)!.push({ id: connectionId, ws, user: { id: userId, role: userRole } });
                 } else {
                     console.log('[maroon-book] [backend] Invalid authentication, closing connection');
                     ws.close();
+                }
+            } else if (message.type === MessageType.NOTIFY) {
+                const notifyMessage = message as NotifyMessage;
+                if (validateNotify(notifyMessage)) {
+                    const { audience, data } = notifyMessage.payload;
+                    const userIds = audience.userIds;
+
+                    if (userIds.length === 1 && userIds[0] === '*') {
+                        for (const [_, userConnections] of connections.entries()) {
+                            for (const connection of userConnections) {
+                                connection.ws.send(JSON.stringify({ type: MessageType.NOTIFY, payload: { data } }));
+                            }
+                        }
+                    } else {
+                        for (const userId of userIds) {
+                            if (connections.has(userId)) {
+                                const userConnections = connections.get(userId)!;
+                                for (const connection of userConnections) {
+                                    connection.ws.send(JSON.stringify({ type: MessageType.NOTIFY, payload: { data } }));
+                                }
+                            }
+                        }
+                    }
                 }
             } else if (!isAuthenticated) {
                 console.log('[maroon-book] [backend] [backend] Received message before authentication, closing connection');
@@ -85,6 +151,7 @@ wss.on('connection', (ws) => {
 
     ws.on('close', () => {
         console.log('[maroon-book] [backend] WebSocket connection closed');
+        removeConnection();
     });
 });
 
