@@ -48,3 +48,9 @@
         color: var(--button-primary-background);
     }
 }
+
+.errorText {
+    font-size: 12px;
+    color: red;
+    font-style: italic;
+}

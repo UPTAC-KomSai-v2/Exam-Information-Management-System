@@ -31,14 +31,20 @@ function generateNotifyToken(userId: number, role: string): {
     };
 }
 
-function wrapSuccess(data: unknown) {
+function wrapSuccess(data: unknown): {
+    status: 'ok';
+    data: unknown;
+} {
     return {
         status: 'ok',
         data,
     };
 }
 
-function wrapError(message: string) {
+function wrapError(message: string): {
+    status: 'error';
+    message: string;
+} {
     return {
         status: 'error',
         message,
