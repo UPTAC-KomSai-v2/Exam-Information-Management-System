@@ -7,7 +7,6 @@ type GeneralExamProps = {
     setQuestionObjs:Dispatch<SetStateAction<Question[][]>>;
 }
 
-
 export function RenderFileSubmission({questionObjs, setQuestionObjs}: GeneralExamProps) {
     if(!questionObjs || !questionObjs[0] || !questionObjs[0][0]) return <p>questionObjs is undefined.</p>;
 return (
@@ -16,6 +15,7 @@ return (
             <RenderFileSubmissionQuestion 
                 questionType={"File Submission"} 
                 questionId={questionObjs[0][0].id} 
+                questionObj={questionObjs[0][0]}
                 setQuestionObjs={setQuestionObjs} 
                 currentPage={0} 
             />
@@ -31,6 +31,7 @@ export function RenderEssay({questionObjs, setQuestionObjs}: GeneralExamProps) {
             <RenderInputQuestion 
                 questionType={"Paragraph"}
                 questionId={questionObjs[0][0].id} 
+                questionObj={questionObjs[0][0]}
                 setQuestionObjs={setQuestionObjs} 
                 currentPage={0} 
             />
@@ -97,14 +98,14 @@ export function RenderCustomExam({pageDescriptions, setPageDescriptions, questio
 
         let newQuestion: Question;
         const questionId = crypto.randomUUID();
-        if(value === "Short Answer" || value === "Paragraph") {;
+        if(value === "Short Answer" || value === "Paragraph") {
             newQuestion = { 
                 type: value, 
                 id: questionId,
                 question: "",
                 wordLimit: (value === "Short Answer") ? null : 300 
             };
-        } else if(value === "Multiple Choice" || value === "checkbox" || value === "dropbox") {
+        } else if(value === "Multiple Choice" || value === "Checkbox") {
             newQuestion = { 
                 type: value, 
                 id: questionId,
@@ -172,7 +173,7 @@ export function RenderCustomExam({pageDescriptions, setPageDescriptions, questio
             const newQuestionArray = [{ 
                 type: "Short Answer", 
                 id: crypto.randomUUID(),
-                question: "Enter a question.",
+                question: "",
                 wordLimit: null  
             }];
 
@@ -272,7 +273,7 @@ export function RenderCustomExam({pageDescriptions, setPageDescriptions, questio
             <p className="title17px" style={{textAlign: "center"}}>QUESTION</p>
 
             <div>
-                { (questionObjs[currentPage]) && (questionObjs[currentPage].map((questionObj, index) => {
+                { (questionObjs[currentPage]) && (questionObjs[currentPage].map((questionObj:Question, index:number) => {
                     const questionType = questionObj.type;
                     const questionId = questionObj.id;
                     if(!questionType || !questionId) return (<p>Question type is null</p>);
@@ -333,14 +334,16 @@ export function RenderCustomExam({pageDescriptions, setPageDescriptions, questio
                                 (<RenderInputQuestion 
                                     questionType={questionType}
                                     questionId={questionId}
+                                    questionObj={questionObj}
                                     setQuestionObjs={setQuestionObjs} 
                                     currentPage={currentPage}
                                 />) }
 
-                            { (questionType === "Multiple Choice" || questionType === "checkbox" || questionType === "dropdown") && 
+                            { (questionType === "Multiple Choice" || questionType === "Checkbox") && 
                                 (<RenderOptionQuestion 
                                     questionType={questionType}
                                     questionId={questionId}
+                                    questionObj={questionObj}
                                     setQuestionObjs={setQuestionObjs} 
                                     currentPage={currentPage} 
                                 />) }
@@ -349,6 +352,7 @@ export function RenderCustomExam({pageDescriptions, setPageDescriptions, questio
                                 (<RenderFileSubmissionQuestion 
                                     questionType={questionType}
                                     questionId={questionId}
+                                    questionObj={questionObj}
                                     setQuestionObjs={setQuestionObjs} 
                                     currentPage={currentPage}
                                 />) }

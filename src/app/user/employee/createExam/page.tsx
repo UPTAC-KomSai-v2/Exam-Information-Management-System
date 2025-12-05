@@ -42,43 +42,57 @@ function previewExam(router: AppRouterInstance, examDetails: ExamDetails) {
     router.push("../exam");
 }
 
+const toDateTimeLocal = (enUS: string) => {
+    console.log("enUS: " + enUS);
+    if(enUS === "Invalid Date" || enUS === "") return "";
+
+    const clean = enUS.replace(" at ", " ");
+    const d = new Date(Date.parse(clean));
+    
+    console.log("d: " + d);
+    return new Date(d.getTime() - d.getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, 16);
+}
+
 export default function CreateExam() {
     const { currentUser } = useContext(UserContext);
-    const [ examTitle, setExamTitle ] = useState<string>("")
-    const [ examType, setExamType ] = useState<string>("");
-    const [ course, setCourse ] = useState<string>("");
-    const [ sections, setSections ] = useState<string[]>([]);
-    const [ pageDescriptions, setPageDescriptions ] = useState<string[]>([])
-    const [ dueDate, setDueDate ] = useState<string>("");
-    const [ cutOffDate, setCutOffDate ] = useState<string>("");
-    const [ releaseDate, setReleaseDate ] = useState<string>("");
+    const rawData = localStorage.getItem("generatedExam");
+
+    const examID = useState(() => crypto.randomUUID())[0];
+    const parsedData = useState<ExamDetails>((rawData) ? JSON.parse(rawData) : {
+            examID,
+            examTitle: "",
+            examType: "",
+            course: "",
+            sections: [],
+            pageDescriptions: [], 
+            dueDate: "",
+            cutOffDate: "",
+            releaseDate: "",
+            examQuestions: [[]]
+        })[0];
+
+    const [ examTitle, setExamTitle ] = useState<string>(parsedData.examTitle);
+    const [ examType, setExamType ] = useState<string>(parsedData.examType);
+    const [ course, setCourse ] = useState<string>(parsedData.course);
+    const [ sections, setSections ] = useState<string[]>(parsedData.sections);
+    const [ pageDescriptions, setPageDescriptions ] = useState<string[]>(parsedData.pageDescriptions)
+    const [ dueDate, setDueDate ] = useState<string>(toDateTimeLocal(parsedData.dueDate));
+    const [ cutOffDate, setCutOffDate ] = useState<string>(toDateTimeLocal(parsedData.cutOffDate));
+    const [ releaseDate, setReleaseDate ] = useState<string>(toDateTimeLocal(parsedData.releaseDate));
     const [ isManuallyReleasing, setIsManuallyReleasing ] = useState<boolean>(false);
     
-    const [ isChecked, setIsChecked ] = useState<boolean[]>([]);
     const [ showSections, setShowSections ] = useState<boolean>(false);
     
-    const [ questionObjs, setQuestionObjs ] = useState<Question[][]>([[]]);
-    const examID = useState(() => crypto.randomUUID())[0];
-    const [ examDetails, setExamDetails ] = useState<ExamDetails>({
-            examID,
-            examTitle,
-            examType,
-            course,
-            sections,
-            pageDescriptions, 
-            dueDate,
-            cutOffDate,
-            releaseDate,
-            examQuestions: questionObjs
-        });
+    const [ questionObjs, setQuestionObjs ] = useState<Question[][]>(parsedData.examQuestions);
+    
+    const [ examDetails, setExamDetails ] = useState<ExamDetails>(parsedData);
     const router = useRouter();
 
     useEffect(() => {
-        const sectionObjs = getSectionFromCourseTitle(course);
-        if(!sectionObjs) return;
-        
-        setIsChecked(Array(sectionObjs.length).fill(false))
-    }, [course]);
+        setShowSections(course !== "");
+    }, [])
 
     useEffect(() => {
         setExamDetails({
@@ -95,44 +109,11 @@ export default function CreateExam() {
         })
     }, [questionObjs, examTitle, examType, course, sections, dueDate, cutOffDate, releaseDate])
 
-    useEffect(() => {
-        const id = crypto.randomUUID();
-        setQuestionObjs((prev:Question[][]) => {
-            const newQuestionObjs = [...prev];
-            newQuestionObjs.splice(0, 1);
-            if(examType !== "") {
-                const replacingObj = [ 
-                    (examType === "File Submission") ? {
-                            type: examType,
-                            id,
-                            question: "Enter a description.",
-                            maxNoOfSubmissions: 3,
-                            maxFileSize: "100-MB",
-                            fileSubmissionTypes: [...BASE_FILE_OPTIONS, {value:"", label: "Custom Files"}]
-                        }
-                        : (examType === "Essay") ? {
-                            type: "Paragraph",
-                            id,
-                            question: "Enter a description.",
-                            wordLimit: 300
-                        } 
-                        : {
-                            type: "Short Answer",
-                            id,
-                            question: "Enter a description.",
-                            wordLimit: null
-                        }
-                ];
-                newQuestionObjs.splice(0, 0, replacingObj);
-            }
-            return newQuestionObjs;
-        });
-    }, [examType])
-
     if (!currentUser) return <p>No user is logged in</p>;
     if (currentUser.type !== "employee") return <p>User logged in is not employee</p>;
     if (!examID) return <p>examID is undefined</p>
     if (!examDetails) return <p>examDetails is undefined</p>
+    console.log(examDetails);
 
     const RenderCourseOptions = () => {
         const courses = coursesTaught(currentUser.userID);
@@ -154,12 +135,6 @@ export default function CreateExam() {
                     ?   [ ...prev, section ]
                     :   prev.filter(s => s !== section)
             );
-
-            setIsChecked(prev => {
-                const newIsChecked = [...prev];
-                newIsChecked[index] = isChecked;
-                return newIsChecked;
-            });
         };
 
         const listOfSections:ReactNode[] = [];
@@ -170,7 +145,7 @@ export default function CreateExam() {
                         type="checkbox" 
                         value={section.sectionName} 
                         key={section.sectionName} 
-                        checked={isChecked[index]}
+                        checked={sections.some(s => s === section.sectionName)}
                         onChange={e => updateSections(e.target.value, e.target.checked, index)}
                     />
                     {section.sectionName}
@@ -178,6 +153,42 @@ export default function CreateExam() {
             );
         });
         return listOfSections;
+    }
+
+    const updateExamType = (examType: string) => {
+        setExamType(examType);
+        const id = crypto.randomUUID();
+        setQuestionObjs((prev:Question[][]) => {
+            const newQuestionObjs = [...prev];
+            newQuestionObjs.splice(0, 1);
+            if(examType !== "") {
+                const replacingObj = [ 
+                    (examType === "File Submission") ? {
+                            type: examType,
+                            id,
+                            question: "",
+                            maxNoOfSubmissions: 3,
+                            maxFileSize: "100-MB",
+                            fileSubmissionTypes: [...BASE_FILE_OPTIONS, {value:"", label: "Custom Files"}]
+                        }
+                        : (examType === "Essay") ? {
+                            type: "Paragraph",
+                            id,
+                            question: "",
+                            wordLimit: 300
+                        } 
+                        : {
+                            type: "Short Answer",
+                            id,
+                            question: "",
+                            wordLimit: null
+                        }
+                ];
+                newQuestionObjs.splice(0, 0, replacingObj);
+            }
+            return newQuestionObjs;
+        });
+        setPageDescriptions([]);
     }
 
     return (
@@ -201,7 +212,7 @@ export default function CreateExam() {
                             Exam Type
                             <select 
                                 value={examType}
-                                onChange={e => setExamType(e.target.value)}
+                                onChange={e => updateExamType(e.target.value)}
                             >
                                 <option value="">Select option</option>
                                 <option value="File Submission">File Submission</option>

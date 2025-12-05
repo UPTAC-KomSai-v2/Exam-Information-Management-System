@@ -32,26 +32,31 @@ export type Question = InputQuestion | OptionQuestion | FileSubmissionQuestion;
 type QuestionProps = {
     questionType: string|null;
     questionId: string|null;
+    questionObj: Question;
     setQuestionObjs: React.Dispatch<React.SetStateAction<Question[][]>>|undefined;
     currentPage: number;
 }
 
-export function RenderOptionQuestion({questionType, questionId, setQuestionObjs, currentPage}:QuestionProps) {
-    const [ options, setOptions ] = useState<string[]>([]);
-    const [ count, setCount ] = useState(1);
-    const [ question, setQuestion ] = useState("Enter a question.");
-    const [ questionObj, setQuestionObj ] = useState<OptionQuestion>({
+export function RenderOptionQuestion({questionType, questionId, questionObj, setQuestionObjs, currentPage}:QuestionProps) {
+    if(!("options" in questionObj)) return <p>questionObj is invalid</p>;
+
+    const initQuestionObj = questionObj as OptionQuestion ?? {
         type: questionType,
         id: questionId,
-        question: question,
-        options: options
-    });
+        question: "Enter a question.",
+        options: []
+    };
+
+    const [ options, setOptions ] = useState<string[]>(initQuestionObj.options);
+    const [ count, setCount ] = useState(1);
+    const [ question, setQuestion ] = useState(initQuestionObj.question);
+    const [ qo, setQuestionObj ] = useState<OptionQuestion>(initQuestionObj);
 
     if(!setQuestionObjs) return <p>setQuestionObjs Function is undefined</p>;
 
     useEffect(() => {
         setQuestionObj({
-            ...questionObj,
+            ...qo,
             question: question,
             options
         });
@@ -64,19 +69,19 @@ export function RenderOptionQuestion({questionType, questionId, setQuestionObjs,
             const newQuestionObjs = [...prev];
             const pageQuestions = [...(prev[currentPage] ?? [])];
             
-            const index = pageQuestions.findIndex(q => q.id === questionObj.id);
+            const index = pageQuestions.findIndex(q => q.id === qo.id);
 
-            if (index === -1) pageQuestions.push(questionObj);
-            else pageQuestions[index] = questionObj;
+            if (index === -1) pageQuestions.push(qo);
+            else pageQuestions[index] = qo;
 
             newQuestionObjs[currentPage] = pageQuestions;
             console.log(pageQuestions);
             return newQuestionObjs;
         });        
-    }, [ questionObj ]);
+    }, [ qo ]);
 
-    const optionType = (questionObj.type === "Multiple Choice") ? "𖧋" : 
-        (questionObj.type === "checkbox") ? "☐" : "";
+    const optionType = (qo.type === "Multiple Choice") ? "𖧋" : 
+        (qo.type === "Checkbox") ? "☐" : "";
 
     const addNewOption = () => {
         setOptions(prev => [
@@ -95,15 +100,18 @@ export function RenderOptionQuestion({questionType, questionId, setQuestionObjs,
         setOptions(updated);
     }
 
+    console.log("type: " + qo.type);
+
     return (
         <>
-            {(questionObj.type != undefined) && (<p className="title17px">{questionObj.type.toUpperCase().replace("-", " ")}</p>)}
+            {(qo.type != undefined) && (<p className="title17px">{qo.type.toUpperCase().replace("-", " ")}</p>)}
             
             <label style={{ display: "flex", flexDirection: "column", margin: "10px 0px"}}>
                 Description/Question
                 <textarea 
                     style={{height: "50px"}}
                     onChange={e => setQuestion(e.target.value)}
+                    placeholder="Enter a question."
                     value={question}
                 />
             </label>
@@ -142,15 +150,20 @@ export function RenderOptionQuestion({questionType, questionId, setQuestionObjs,
 }
 
 // goods
-export function RenderInputQuestion({questionType, questionId,  setQuestionObjs, currentPage}:QuestionProps) {
-    const [ wordLimit, setWordLimit ] = useState((questionType === "paragraph") ? 300 : null);
-    const [ question, setQuestion ] = useState<string>("Enter a question.");
-    const [ questionObj, setQuestionObj ] = useState<InputQuestion>({
+export function RenderInputQuestion({questionType, questionId, questionObj, setQuestionObjs, currentPage}:QuestionProps) {    
+    if(!("wordLimit" in questionObj)) return <p>questionObj.type is invalid</p>
+
+    const initQuestionObj = (questionObj as InputQuestion) ??
+    {
         type: questionType,
         id: questionId,
-        question,
-        wordLimit
-    });
+        question: "Enter a question.",
+        wordLimit: questionType === "paragraph" ? 300 : null,
+    };
+
+    const [ wordLimit, setWordLimit ] = useState(initQuestionObj.wordLimit);
+    const [ question, setQuestion ] = useState<string>(initQuestionObj.question);
+    const [ qo, setQuestionObj ] = useState<InputQuestion>(initQuestionObj);
 
     useEffect(() => {
         setQuestionObj({
@@ -168,15 +181,15 @@ export function RenderInputQuestion({questionType, questionId,  setQuestionObjs,
             const newQuestionObjs = [...prev];
             const pageQuestions = [...(prev[currentPage] ?? [])];
             
-            const index = pageQuestions.findIndex(q => q.id === questionObj.id);
+            const index = pageQuestions.findIndex(q => q.id === qo.id);
 
-            if (index === -1) pageQuestions.push(questionObj);
-            else pageQuestions[index] = questionObj;
+            if (index === -1) pageQuestions.push(qo);
+            else pageQuestions[index] = qo;
 
             newQuestionObjs[currentPage] = pageQuestions;
             return newQuestionObjs;
         });        
-    }, [questionObj]);
+    }, [qo]);
 
     return(
         <>
@@ -186,7 +199,8 @@ export function RenderInputQuestion({questionType, questionId,  setQuestionObjs,
                 <textarea 
                     value={question}
                     onChange={e => setQuestion(e.target.value)}
-                    />
+                    placeholder="Enter a question."
+                />
             </label>
 
             { (questionType === "Paragraph") && (
@@ -195,6 +209,7 @@ export function RenderInputQuestion({questionType, questionId,  setQuestionObjs,
                     <input 
                         type="number"
                         value={`${wordLimit}`}
+                        placeholder="Enter a word limit."
                         onChange={e => setWordLimit(Number(e.target.value))}
                     />
                 </label>
@@ -216,26 +231,37 @@ export const BASE_FILE_OPTIONS = [
     { value: "Compressed Archives", label: "Compressed Archives (.zip, .rar, .7z, .tar.gz)" }
 ];
 
-export function RenderFileSubmissionQuestion({questionType, questionId, setQuestionObjs, currentPage}:QuestionProps) {    
-    const [ maxNoOfSubmissions,  setMaxNoOfSubmissions ] = useState<number>(3);
-    const [ maxFileSize, setMaxFileSize ] = useState<string>("100 MB");
-    const [ customFile, setCustomFile ] = useState<string>("");
-    const optionFiles = [...BASE_FILE_OPTIONS, { value: customFile, label: "Custom File" }];
-    const [ fileSubmissionTypes, setFileSubmissionTypes ] = useState<{value:string, label:string}[]>([{
-        value: "All Files",
-        label: "All Files"
-    }]);
-    const [ question, setQuestion ] = useState<string>("Enter a question");
-    const [ isChecked, setIsChecked ] = useState<boolean>(true);
-    const [ checkedAllFiles, setCheckedAllFiles ] = useState<boolean>(true);
-    const [ questionObj, setQuestionObj ] = useState<FileSubmissionQuestion>({
+export function RenderFileSubmissionQuestion({questionType, questionId, questionObj, setQuestionObjs, currentPage}:QuestionProps) {  
+    const invalid = !(
+        "maxNoOfSubmissions" in questionObj 
+        && "maxFileSize" in questionObj 
+        && "fileSubmissionTypes" in questionObj);
+    if(invalid) return <p>questionObj.type is invalid</p>
+    
+    const initQuestionObj = (questionObj as FileSubmissionQuestion) ??
+    {
         type: questionType,
         id: questionId,
-        question,
-        maxNoOfSubmissions,
-        maxFileSize,
-        fileSubmissionTypes,
-    });
+        question: "Enter a question",
+        maxNoOfSubmissions: 3,
+        maxFileSize: "100 MB",
+        fileSubmissionTypes: [{
+            value: "All Files",
+            label: "All Files"
+        }]
+    };
+
+    const [ question, setQuestion ] = useState<string>(initQuestionObj.question);
+    const [ maxNoOfSubmissions,  setMaxNoOfSubmissions ] = useState<number>(initQuestionObj.maxNoOfSubmissions);
+    const [ maxFileSize, setMaxFileSize ] = useState<string>(initQuestionObj.maxFileSize);
+    const [ customFile, setCustomFile ] = useState<string>("");
+    const [ fileSubmissionTypes, setFileSubmissionTypes ] = useState<{value:string, label:string}[]>(initQuestionObj.fileSubmissionTypes);
+
+    const [ isChecked, setIsChecked ] = useState<boolean>(true);
+    const [ checkedAllFiles, setCheckedAllFiles ] = useState<boolean>(true);
+    const [ qo, setQuestionObj ] = useState<FileSubmissionQuestion>(initQuestionObj);
+    
+    const optionFiles = [...BASE_FILE_OPTIONS, { value: customFile, label: "Custom File" }];
 
     useEffect(() => {
         setIsChecked(fileSubmissionTypes.some(item => item.label === "Custom File" || item.value === "All Files") );
@@ -260,15 +286,15 @@ export function RenderFileSubmissionQuestion({questionType, questionId, setQuest
             const newQuestionObjs = [...prev];
             const pageQuestions = [...(prev[currentPage] ?? [])];
             
-            const index = pageQuestions.findIndex(q => q.id === questionObj.id);
+            const index = pageQuestions.findIndex(q => q.id === qo.id);
 
-            if (index === -1) pageQuestions.push(questionObj);
-            else pageQuestions[index] = questionObj;
+            if (index === -1) pageQuestions.push(qo);
+            else pageQuestions[index] = qo;
 
             newQuestionObjs[currentPage] = pageQuestions;
             return newQuestionObjs;
         });        
-    }, [questionObj]);
+    }, [qo]);
 
     const handleCheck = (value: string, label: string) => {
         setFileSubmissionTypes(prev => {
@@ -326,6 +352,7 @@ export function RenderFileSubmissionQuestion({questionType, questionId, setQuest
                 <textarea 
                     value={ question }
                     onChange={e => setQuestion(e.target.value)}
+                    placeholder="Enter a question."
                     style={{height: "75px", width: "100%"}}
                 />
             </label>
@@ -382,6 +409,7 @@ export function RenderDescription({descriptions, setDescriptions, currentPage}: 
             <textarea 
                 value={descriptions[currentPage]}
                 onChange={e => updateDescription(e.target.value)}
+                placeholder="Enter a page description."
                 style={{ height: "100px"}}
             />
         </label>
