@@ -45,6 +45,25 @@ type NotifyMessage = MessageBase<MessageType.NOTIFY, {
     data: unknown;
 }>;
 
+function validateConnectionNonce(nonce: string): boolean {
+    const parts = nonce.split('-');
+    if (parts.length !== 2) {
+        return false;
+    }
+
+    const [ timestamp, userId ] = parts;
+
+    const nonceTime = parseInt(timestamp!, 10);
+    const lastTime = lastUsedNonce.get(userId!) || 0;
+
+    if (isNaN(nonceTime) || nonceTime <= lastTime) {
+        return false;
+    }
+
+    lastUsedNonce.set(userId!, nonceTime);
+    return true;
+}
+
 function validateConnection(message: ConnectionMessage): boolean {
     const { user, auth } = message.payload;
     const expectedSignature = crypto.createHash('sha256');
@@ -62,6 +81,7 @@ function validateNotify(message: NotifyMessage): boolean {
 }
 
 const connections = new Map<string, { id: string, ws: WebSocket, user: UserData }[]>();
+const lastUsedNonce = new Map<string, number>();
 
 const app = express();
 const server = http.createServer(app);
@@ -101,6 +121,15 @@ wss.on('connection', (ws) => {
             if (message.type === MessageType.CONNECTION) {
                 const connectionMessage = message as ConnectionMessage;
                 if (validateConnection(connectionMessage)) {
+                    if (!validateConnectionNonce(connectionMessage.payload.auth.nonce)) {
+                        console.log('[maroon-book] [backend] Invalid nonce, closing connection');
+                        ws.send(JSON.stringify({ type: 'error', payload: { message: 'Invalid nonce' } }));
+                        ws.close();
+                        return;
+                    }
+
+                    ws.send(JSON.stringify({ type: 'connected', payload: { message: 'Connection established' } }));
+
                     isAuthenticated = true;
                     clearTimeout(authTimeout);
                     console.log('[maroon-book] [backend] Client authenticated successfully');
@@ -114,6 +143,7 @@ wss.on('connection', (ws) => {
                     connections.get(userId)!.push({ id: connectionId, ws, user: { id: userId, role: userRole } });
                 } else {
                     console.log('[maroon-book] [backend] Invalid authentication, closing connection');
+                    ws.send(JSON.stringify({ type: 'error', payload: { message: 'Invalid auth' } }));
                     ws.close();
                 }
             } else if (message.type === MessageType.NOTIFY) {
@@ -141,11 +171,12 @@ wss.on('connection', (ws) => {
                 }
             } else if (!isAuthenticated) {
                 console.log('[maroon-book] [backend] [backend] Received message before authentication, closing connection');
+                ws.send(JSON.stringify({ type: 'error', payload: { message: 'Not authed' } }));
                 ws.close();
             }
         } catch (error) {
             console.log('[maroon-book] [backend] Error processing message:', error);
-            ws.close();
+            ws.send(JSON.stringify({ type: 'error', payload: { message: 'Invalid message' } }));
         }
     });
 
