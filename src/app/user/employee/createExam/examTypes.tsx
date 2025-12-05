@@ -177,8 +177,8 @@ export function RenderCustomExam({pageDescriptions, setPageDescriptions, questio
                 wordLimit: null  
             }];
 
-            if(!newPages[currentPage]) newPages[currentPage] = newQuestionArray;
-            else newPages.splice(currentPage, 0, newQuestionArray);
+            if(!newPages[currentPage+1]) newPages[currentPage+1] = newQuestionArray;
+            else newPages.splice(currentPage+1, 0, newQuestionArray);
             return newPages;
         });
     }
