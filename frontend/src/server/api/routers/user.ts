@@ -46,7 +46,7 @@ function wrapError(message: string) {
 }
 
 export const userRouter = createTRPCRouter({
-    login: publicProcedure
+    loginStudent: publicProcedure
         .input(z.object({
             id: z.number().int().positive(),
             // Bad practice, but this is just a
@@ -55,7 +55,10 @@ export const userRouter = createTRPCRouter({
         }))
         .query(async ({ ctx, input }) => {
             const user = await ctx.db.query.users.findFirst({
-                where: (users, { eq }) => eq(users.id, input.id),
+                where: (users, { and, eq }) => and(
+                    eq(users.id, input.id),
+                    eq(users.role, 'student'),
+                ),
             });
 
             if (!user) {
@@ -82,6 +85,47 @@ export const userRouter = createTRPCRouter({
                 notify: generateNotifyToken(user.id, user.role),
             });
         }),
+
+    loginEmployee: publicProcedure
+        .input(z.object({
+            id: z.number().int().positive(),
+            // Bad practice, but this is just a
+            // demo app
+            password: z.string().min(1),
+        }))
+        .query(async ({ ctx, input }) => {
+            const user = await ctx.db.query.users.findFirst({
+                where: (users, { and, eq }) => and(
+                    eq(users.id, input.id),
+                    eq(users.role, 'employee'),
+                ),
+            });
+
+            if (!user) {
+                return wrapError('User not found');
+            }
+
+            // Check password via BCrypt
+            const validPassword = await bcrypt.compare(input.password, user.passwordHash);
+
+            if (!validPassword) {
+                return wrapError('Invalid password');
+            }
+
+            return wrapSuccess({
+                id: user.id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+
+                // JWT for API Authentication
+                authToken: generateAuthToken(user.id, user.role),
+
+                // Credentials for Notification Web Socket Server
+                notify: generateNotifyToken(user.id, user.role),
+            });
+        }),
+
     getNotifyToken: publicProcedure
         .input(z.object({
             token: z.string(),
