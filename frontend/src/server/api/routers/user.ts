@@ -81,6 +81,7 @@ export const userRouter = createTRPCRouter({
             return wrapSuccess({
                 id: user.id,
                 firstName: user.firstName,
+                middleName: user.middleName,
                 lastName: user.lastName,
                 email: user.email,
 
@@ -121,6 +122,7 @@ export const userRouter = createTRPCRouter({
             return wrapSuccess({
                 id: user.id,
                 firstName: user.firstName,
+                middleName: user.middleName,
                 lastName: user.lastName,
                 email: user.email,
 
@@ -150,6 +152,7 @@ export const userRouter = createTRPCRouter({
         .input(z.object({
             id: z.number().int().positive(),
             firstName: z.string().min(1),
+            middleName: z.string().optional(),
             lastName: z.string().min(1),
             email: z.string().email(),
             password: z.string().min(6),
@@ -177,6 +180,7 @@ export const userRouter = createTRPCRouter({
             await ctx.db.insert(users).values({
                 id: input.id,
                 firstName: input.firstName,
+                middleName: input.middleName,
                 lastName: input.lastName,
                 email: input.email,
                 passwordHash,
@@ -186,6 +190,7 @@ export const userRouter = createTRPCRouter({
             return wrapSuccess({
                 id: input.id,
                 firstName: input.firstName,
+                middleName: input.middleName,
                 lastName: input.lastName,
                 email: input.email,
 

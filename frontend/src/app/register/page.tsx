@@ -8,15 +8,46 @@ import { UserRoleToggle, InputContent, type UserRole } from "~/app/_components/s
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { LinkButton } from "~/app/_components/links";
+import { api } from "~/trpc/client";
 
 export default function Register() {
     const router = useRouter();
-    
+
+    const firstNameRef = useRef<HTMLInputElement>(null);
+    const middleNameRef = useRef<HTMLInputElement>(null);
+    const lastNameRef = useRef<HTMLInputElement>(null);
+    const passwordRef = useRef<HTMLInputElement>(null);
+    const confirmPasswordRef = useRef<HTMLInputElement>(null);
+    const campusRef = useRef<HTMLInputElement>(null);
+    const userNumberRef = useRef<HTMLInputElement>(null);
+    const emailRef = useRef<HTMLInputElement>(null);
+    const dataRef = useRef<HTMLInputElement>(null);
+
     const [ showRegister, setShow ] = useState(false);
     const [ showUserRole, setShowUserRole ] = useState(true);
     const [ userRole, setUserRole ] = useState<UserRole>("");
 
-    const validateRegistration = () => {
+    const validateRegistration = async () => {
+        const internalUserType = userRole === "Employee" ? "employee" : "student";
+        
+        const id = parseInt(userNumberRef.current?.value ?? "0");
+
+        if (isNaN(id) || id <= 0) {
+            // TODO: 
+            alert("Please enter a valid user number.");
+            return;
+        }
+
+        await api.user.register.mutate({
+            id: id,
+            firstName: firstNameRef.current?.value ?? "",
+            middleName: middleNameRef.current?.value ?? "",
+            lastName: lastNameRef.current?.value ?? "",
+            password: passwordRef.current?.value ?? "",
+            email: emailRef.current?.value ?? "",
+            role: internalUserType,
+        });
+
         router.push(userRole === "Employee" ? "/user/professor" : "/user/student");
     };
 
@@ -48,13 +79,26 @@ export default function Register() {
                         <hr />
 
                         <p className={"innerTitle"}>Personal Information</p>
-                        <PersonalInformation />
+                        <PersonalInformation
+                            firstNameRef={firstNameRef}
+                            middleNameRef={middleNameRef}
+                            lastNameRef={lastNameRef}
+                        />
 
                         <p className={"innerTitle"}>University Information</p>
-                        <DisplayUniversityInformation userRole={userRole} />
+                        <DisplayUniversityInformation
+                            campusRef={campusRef}
+                            userNumberRef={userNumberRef}
+                            emailRef={emailRef}
+                            dataRef={dataRef}
+                            userRole={userRole}
+                        />
 
                         <p className={"innerTitle"}>Password Creation</p>
-                        <CreatePassword />
+                        <CreatePassword
+                            passwordRef={passwordRef}
+                            confirmPasswordRef={confirmPasswordRef}
+                        />
 
                         <div className={sharedStyles.rowButtons}>
                             <button 
@@ -73,7 +117,7 @@ export default function Register() {
                                 Create Account
                             </button>
                         </div>
-                        
+
                         <LinkButton href="/login" className={sharedStyles.registerLoginLink}>
                             Already have an account? Login here.
                         </LinkButton>
@@ -84,10 +128,15 @@ export default function Register() {
     );
 }
 
-function PersonalInformation() {
-    const firstNameRef = useRef<HTMLInputElement>(null);
-    const middleNameRef = useRef<HTMLInputElement>(null);
-    const lastNameRef = useRef<HTMLInputElement>(null);
+function PersonalInformation({
+    firstNameRef,
+    middleNameRef,
+    lastNameRef,
+}: {
+    firstNameRef: React.RefObject<HTMLInputElement | null>;
+    middleNameRef: React.RefObject<HTMLInputElement | null>;
+    lastNameRef: React.RefObject<HTMLInputElement | null>;
+}) {
     return (
         <div className={styles.container}>
             <InputContent str="First Name" placeholder="E.g. Juan" type="name" ref={firstNameRef} />
@@ -97,9 +146,13 @@ function PersonalInformation() {
     );
 }
 
-function CreatePassword() {
-    const passwordRef = useRef<HTMLInputElement>(null);
-    const confirmPasswordRef = useRef<HTMLInputElement>(null);
+function CreatePassword({
+    passwordRef,
+    confirmPasswordRef,
+}: {
+    passwordRef: React.RefObject<HTMLInputElement | null>;
+    confirmPasswordRef: React.RefObject<HTMLInputElement | null>;
+}) {
     return (
         <div className={styles.container}>
             <InputContent str="Password" placeholder="Create a password" type="password" ref={passwordRef} />
@@ -108,12 +161,19 @@ function CreatePassword() {
     );
 }
 
-function DisplayUniversityInformation({ userRole }: { userRole: UserRole }) {
-    const campusRef = useRef<HTMLInputElement>(null);
-    const userNumberRef = useRef<HTMLInputElement>(null);
-    const emailRef = useRef<HTMLInputElement>(null);
-    const dataRef = useRef<HTMLInputElement>(null);
-
+function DisplayUniversityInformation({
+    campusRef,
+    userNumberRef,
+    emailRef,
+    dataRef,
+    userRole,
+}: {
+    userRole: UserRole;
+    campusRef: React.RefObject<HTMLInputElement | null>;
+    userNumberRef: React.RefObject<HTMLInputElement | null>;
+    emailRef: React.RefObject<HTMLInputElement | null>;
+    dataRef: React.RefObject<HTMLInputElement | null>;
+}) {
     if(userRole === "Employee") {
         return (
             <>
