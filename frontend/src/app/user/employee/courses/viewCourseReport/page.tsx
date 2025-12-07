@@ -212,7 +212,7 @@ function getAVGScoresAndNoOfTakers(exam: EmployeeExam, sectionID: number) {
     })
     .map((examScore) => {
       noOfTakers++;
-      totalScore += examScore.score;
+      totalScore += examScore.score / exam.questions.reduce((acc, question) => acc + question.points, 0) * 100;
     });
 
   const averageScores = totalScore / noOfTakers;
