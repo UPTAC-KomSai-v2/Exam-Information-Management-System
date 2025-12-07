@@ -208,18 +208,18 @@ export default function CreateExam() {
                         />
                     </div>  
                     <div className={styles.rowDiv}>
-                        <label>
+                        {/* <label>
                             Exam Type
                             <select 
                                 value={examType}
                                 onChange={e => updateExamType(e.target.value)}
                             >
                                 <option value="">Select option</option>
-                                {/* <option value="File Submission">File Submission</option> */}
+                                <option value="File Submission">File Submission</option>
                                 <option value="Create Exam">Create Custom Exam</option>
                                 <option value="Essay">Essay</option>
-                            </select>  
-                        </label>  
+                            </select>
+                        </label>*/}
                         <label>
                             Course
                             <select 
@@ -248,17 +248,17 @@ export default function CreateExam() {
                                 onChange={e => setDueDate(e.target.value)}
                             />
                         </label>
-                        <label>
+                        {/* <label>
                             Cut-Off Date
                             <input 
                                 type="datetime-local" 
                                 value={cutOffDate}
                                 onChange={e => setCutOffDate(e.target.value)}
                             />
-                        </label>
+                        </label> */}
                     </div>
 
-                    <div className={styles.rowDiv}>
+                    {/* <div className={styles.rowDiv}>
                         <label>
                             Exam Release Date
                             <input 
@@ -281,14 +281,22 @@ export default function CreateExam() {
                             />
                             Manually Release Exam
                         </label>
-                    </div>
+                    </div> */}
                     
                 </div>
 
                 <div className={sharedStyles.examCourseDiv}>
-                    { ((examType === "File Submission") && (<RenderFileSubmission questionObjs={questionObjs} setQuestionObjs={setQuestionObjs}/>))}
+                    {/* { ((examType === "File Submission") && (<RenderFileSubmission questionObjs={questionObjs} setQuestionObjs={setQuestionObjs}/>))}
                     { (examType === "Essay") && (<RenderEssay questionObjs={questionObjs} setQuestionObjs={setQuestionObjs}/>)}
-                    { (examType === "Create Exam") && (<RenderCustomExam pageDescriptions={pageDescriptions} setPageDescriptions={setPageDescriptions} questionObjs={questionObjs} setQuestionObjs={setQuestionObjs}/>)}
+                    { (examType === "Create Exam") && (<RenderCustomExam pageDescriptions={pageDescriptions} setPageDescriptions={setPageDescriptions} questionObjs={questionObjs} setQuestionObjs={setQuestionObjs}/>)} */}
+                    
+                    <RenderCustomExam
+                        pageDescriptions={pageDescriptions}
+                        setPageDescriptions={setPageDescriptions}
+                        questionObjs={questionObjs}
+                        setQuestionObjs={setQuestionObjs}
+                    />
+                    
                     <button 
                         className="primaryButton"
                         disabled={examType === ""}
