@@ -197,22 +197,6 @@ app.post('/api/notify', (req, res) => {
             return res.status(400).json({ error: 'Invalid request body' });
         }
 
-        // Generate signature for the notification
-        const signature = crypto.createHash('sha256')
-            .update(salt + userIds.join(',') + JSON.stringify(data))
-            .digest('hex');
-
-        const notifyMessage: NotifyMessage = {
-            type: MessageType.NOTIFY,
-            payload: {
-                audience: {
-                    userIds: userIds.map((id: number) => id.toString()),
-                    signature,
-                },
-                data,
-            },
-        };
-
         // Send notification to all specified users
         const userIdsStr = userIds.map((id: number) => id.toString());
         let notifiedCount = 0;
