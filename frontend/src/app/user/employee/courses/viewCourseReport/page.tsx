@@ -5,7 +5,7 @@ import styles from "./page.module.css";
 import Nav from "~/app/user/components/userNav";
 import { type ReactElement, useContext, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { referenceExams, examScores, type Course, type Section, students, type ReferenceExam } from "~/app/data/data";
+import { referenceExams, examScores, type Course, type Section, type ReferenceExam } from "~/app/data/data";
 import { UserContext } from "~/app/UserContext";
 
 export default function ViewCourseReport() {
@@ -200,10 +200,7 @@ function RenderAllScores({selectedCourse, sectionName}:{selectedCourse: Course|n
         return condition;
       })
       .map((examScore) => {
-        const student = students.find(student => student.userID === examScore.studentID);
-        if(!student) return;
-
-        const studentNo = student.studentNo;
+        const studentNo = examScore.studentID;
         const score = examScore.score;
         const noOfItems = referenceExam.items;
         const grade = ((score/noOfItems)*100).toFixed(2);

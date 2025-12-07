@@ -4,32 +4,6 @@ import { createContext, type ReactNode, useEffect, useState } from "react";
 import type { Course } from "./data/data";
 import { api } from "~/trpc/client";
 
-export type Student = {
-    type: "student",
-    userID: string,
-    firstName: string,
-    middleName: string,
-    lastName: string,
-    password: string,
-    studentNo: string,
-    program: string,
-    campus: string,
-    upMail: string
-};
-
-export type Employee = {
-    type: "employee",
-    userID: string,
-    firstName: string,
-    middleName: string,
-    lastName: string,
-    password: string,
-    employeeNo: string,
-    college: string,
-    campus: string,
-    upMail: string
-};
-
 export type BaseUser = {
     id: number;
     firstName: string;
