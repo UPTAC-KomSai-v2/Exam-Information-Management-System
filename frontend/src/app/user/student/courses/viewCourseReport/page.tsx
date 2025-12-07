@@ -5,7 +5,7 @@ import styles from "./page.module.css";
 import Nav from "~/app/user/components/userNav";
 import { type ReactElement, useContext, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { courses, referenceExams, examScores, type Course, type Section, type ReferenceExam } from "~/app/data/data";
+import { referenceExams, examScores, type Course, type Section, type ReferenceExam } from "~/app/data/data";
 import { getEnrolledSection } from "../../page";
 import { type StudentUser, UserContext } from "~/app/UserContext";
 import { getNoOfExamsPerSection } from "../page";
@@ -13,7 +13,7 @@ import { getNoOfExamsPerSection } from "../page";
 export default function ViewCourseReport() {
     const [ selectedCourse, setSelectedCourse ] = useState<Course|null>(null);
     const [ section, setSection ] = useState<Section|undefined>(undefined);
-    const { baseUser } = useContext(UserContext);
+    const { baseUser, courses } = useContext(UserContext);
     const [ noOfExams, setNoOfExams ] = useState<number>(0);
     const searchParams = useSearchParams();
 
@@ -21,9 +21,9 @@ export default function ViewCourseReport() {
         const courseID = searchParams.get("courseID");
         if (!courseID) return;
 
-        const found = courses.find(course => course.courseID === courseID);
+        const found = courses.find(course => course.courseID === Number(courseID));
         setSelectedCourse(found ?? null);
-    }, [searchParams]);
+    }, [courses, searchParams]);
 
     useEffect(() => {
         if (!selectedCourse || !baseUser) return;
@@ -117,7 +117,7 @@ function RenderScores({ selectedCourse, baseUser }:{ selectedCourse: Course | nu
     );
 }
 
-function getScoreAndGrade(referencedExam: ReferenceExam, studentID: string) {
+function getScoreAndGrade(referencedExam: ReferenceExam, studentID: number) {
     const studentExam = examScores.find((examScore) => {
         return referencedExam.examID === examScore.referencedExamID && examScore.studentID === studentID;
     });

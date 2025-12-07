@@ -1,6 +1,5 @@
 "use client";
 
-import { courses } from "~/app/data/data";
 import styles from "./page.module.css";
 import sharedStyles from "~/app/user/components/shared.module.css";
 import Nav from "~/app/user/components/userNav";
@@ -55,8 +54,13 @@ const toDateTimeLocal = (enUS: string) => {
 }
 
 export default function CreateExam() {
-    const { baseUser } = useContext(UserContext);
+    const { baseUser, courses } = useContext(UserContext);
     const rawData = localStorage.getItem("generatedExam");
+
+    function getSectionFromCourseTitle(courseTitle: string) {
+        const course = courses.find(course => course.courseTitle === courseTitle);
+        return course?.sections;   
+    }
 
     const examID = useState(() => crypto.randomUUID())[0];
     const parsedData = useState<ExamDetails>((rawData) ? JSON.parse(rawData) : {
@@ -115,7 +119,6 @@ export default function CreateExam() {
     console.log(examDetails);
 
     const RenderCourseOptions = () => {
-        const courses = coursesTaught(baseUser.id);
         const listOfCourses:ReactNode[] = [];
         courses.forEach((courseTaught) => {
             listOfCourses.push(
@@ -299,12 +302,3 @@ export default function CreateExam() {
         </div>
     );
 }
-
-function coursesTaught(userID: string) {
-    return courses.filter(course => course.courseEmployeeID === userID);
-}
-
-function getSectionFromCourseTitle(courseTitle: string) {
-    const course = courses.find(course => course.courseTitle === courseTitle);
-    return course?.sections;   
-}    

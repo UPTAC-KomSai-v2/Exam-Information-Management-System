@@ -1,109 +1,110 @@
 import type { Question } from "../user/employee/createExam/customExams";
 import type { Employee, Student } from "../UserContext";
 
-export const courses: Course[] = [
-    {
-        courseID: "CMSC1351STAY2526",
-        courseTitle: "CMSC 135",
-        courseDescription: "Data Communication and Networking",
-        courseEmployeeID: "2",
-        sections: [ 
-            {
-                sectionName: "L",
-                courseCode: "EnrollToCMSC135L",
-                studentsEnrolled: [
-                    "1",
-                    "a9F4kP2qWz",
-                    "X7bR3mL0sJ",
-                    "pQ8wT6vH1k",
-                    "Z5nY2cA9eL",
-                    "rK1xM8bF3q"
-                ]
-            },
-            {
-                sectionName: "M",
-                courseCode: "EnrollToCMSC135M",
-                studentsEnrolled: [
-                    "V0dJ7uP4sW",
-                    "hL6tR9kQ2z",
-                    "S3yN5vC0pX",
-                    "mF8aH1rD7w",
-                    "G2bK4zT6qJ",
-                    "N9vD3pL8xK"
-                ]
-            }
-        ],
-        academicYear: "AY 2025 - 2026",
-        semester: "1st Semester",
-    },
-    {
-        courseID: "SCI101STAY2526",
-        courseTitle: "SCIENCE 10",
-        courseDescription: "Science 10 Description lol",
-        courseEmployeeID: "K9bL3pH7qS",
-        sections: [
-            {
-                sectionName: "A",
-                courseCode: "EnrollToSCI10A",
-                studentsEnrolled: [
-                    "Z5nY2cA9eL"
-                ]
-            },
-            {
-                sectionName: "B",
-                courseCode: "EnrollToSCI10B",
-                studentsEnrolled: []
-            },
-            {
-                sectionName: "C",
-                courseCode: "EnrollToSCI10C",
-                studentsEnrolled: []
-            }
-        ],
-        academicYear: "AY 2025 - 2026",
-        semester: "1st Semester"
-    },
-    {
-        courseID: "ETHICS11STAY2526",
-        courseTitle: "ETHICS 1",
-        courseEmployeeID: "V3dJ9uP6sW",
-        courseDescription: "Ethics and Moral Reasoning in Everyday Life",
-        sections: [
-            {
-                sectionName: "D",
-                courseCode: "EnrollToETHICS1D",
-                studentsEnrolled: []
-            },
-            {
-                sectionName: "F",
-                courseCode: "EnrollToETHICS1F",
-                studentsEnrolled: []
-            },
-            {
-                sectionName: "G",
-                courseCode: "EnrollToETHICS1G",
-                studentsEnrolled: []
-            }
-        ],
-        academicYear: "AY 2025 - 2026",
-        semester: "1st Semester"
-    }
-];
+// export const courses: Course[] = [
+//     {
+//         courseID: "CMSC1351STAY2526",
+//         courseTitle: "CMSC 135",
+//         courseDescription: "Data Communication and Networking",
+//         courseEmployeeID: "2",
+//         sections: [ 
+//             {
+//                 sectionName: "L",
+//                 courseCode: "EnrollToCMSC135L",
+//                 studentsEnrolled: [
+//                     "1",
+//                     "a9F4kP2qWz",
+//                     "X7bR3mL0sJ",
+//                     "pQ8wT6vH1k",
+//                     "Z5nY2cA9eL",
+//                     "rK1xM8bF3q"
+//                 ]
+//             },
+//             {
+//                 sectionName: "M",
+//                 courseCode: "EnrollToCMSC135M",
+//                 studentsEnrolled: [
+//                     "V0dJ7uP4sW",
+//                     "hL6tR9kQ2z",
+//                     "S3yN5vC0pX",
+//                     "mF8aH1rD7w",
+//                     "G2bK4zT6qJ",
+//                     "N9vD3pL8xK"
+//                 ]
+//             }
+//         ],
+//         academicYear: "AY 2025 - 2026",
+//         semester: "1st Semester",
+//     },
+//     {
+//         courseID: "SCI101STAY2526",
+//         courseTitle: "SCIENCE 10",
+//         courseDescription: "Science 10 Description lol",
+//         courseEmployeeID: "K9bL3pH7qS",
+//         sections: [
+//             {
+//                 sectionName: "A",
+//                 courseCode: "EnrollToSCI10A",
+//                 studentsEnrolled: [
+//                     "Z5nY2cA9eL"
+//                 ]
+//             },
+//             {
+//                 sectionName: "B",
+//                 courseCode: "EnrollToSCI10B",
+//                 studentsEnrolled: []
+//             },
+//             {
+//                 sectionName: "C",
+//                 courseCode: "EnrollToSCI10C",
+//                 studentsEnrolled: []
+//             }
+//         ],
+//         academicYear: "AY 2025 - 2026",
+//         semester: "1st Semester"
+//     },
+//     {
+//         courseID: "ETHICS11STAY2526",
+//         courseTitle: "ETHICS 1",
+//         courseEmployeeID: "V3dJ9uP6sW",
+//         courseDescription: "Ethics and Moral Reasoning in Everyday Life",
+//         sections: [
+//             {
+//                 sectionName: "D",
+//                 courseCode: "EnrollToETHICS1D",
+//                 studentsEnrolled: []
+//             },
+//             {
+//                 sectionName: "F",
+//                 courseCode: "EnrollToETHICS1F",
+//                 studentsEnrolled: []
+//             },
+//             {
+//                 sectionName: "G",
+//                 courseCode: "EnrollToETHICS1G",
+//                 studentsEnrolled: []
+//             }
+//         ],
+//         academicYear: "AY 2025 - 2026",
+//         semester: "1st Semester"
+//     }
+// ];
 
 export type Course = {
-    courseID: string,
+    courseID: number,
     courseTitle: string,
     courseDescription: string,
-    courseEmployeeID: string,
+    courseEmployeeID: number,
     sections: Section[],
     academicYear: string,
     semester: string
 };
 
 export type Section = {
+    sectionID: number,
     sectionName: string,
     courseCode: string,
-    studentsEnrolled: string[]
+    studentsEnrolled: number[]
 };
 
 export type ReferenceExam = {

@@ -45,6 +45,20 @@ async function main() {
         division: 'DNSM',
     };
 
+    const course1: typeof schema.courses.$inferInsert = {
+        courseTitle: 'CMSC 135',
+        courseDescription: 'Data Communication and Networking',
+        academicYear: 'AY 2025 - 2026',
+        semester: 'First Semester',
+        courseEmployeeID: employeeUser.id,
+    };
+
+    const course1SectionL: typeof schema.courseSections.$inferInsert = {
+        sectionName: 'L',
+        courseCode: 'CMSC135-L',
+        courseID: -1, // to be set after course insertion
+    };
+
     console.log('Clearing existing users...');
     // eslint-disable-next-line drizzle/enforce-delete-with-where
     await db.delete(schema.users);
@@ -57,6 +71,18 @@ async function main() {
     await db.insert(schema.users).values([studentUser, employeeUser]);
     await db.insert(schema.students).values(studentDetails);
     await db.insert(schema.employees).values(employeeDetails);
+
+    const course1Entry = await db.insert(schema.courses).values(course1).returning();
+    course1SectionL.courseID = course1Entry[0]!.courseID;
+
+    const course1SectionLEntry = await db.insert(schema.courseSections).values(course1SectionL).returning();
+
+    const enrollment1: typeof schema.enrollments.$inferInsert = {
+        studentID: studentUser.id,
+        sectionID: course1SectionLEntry[0]!.sectionID,
+    };
+
+    await db.insert(schema.enrollments).values(enrollment1);
 
     const seededUsers = await db.select().from(schema.users);
     console.log('Seeded Users:', seededUsers);

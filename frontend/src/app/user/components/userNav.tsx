@@ -1,3 +1,5 @@
+"use client";
+
 import navStyles from "~/styles/nav.module.css";
 
 import NavigationBar from "~/app/_components/navigationBar";

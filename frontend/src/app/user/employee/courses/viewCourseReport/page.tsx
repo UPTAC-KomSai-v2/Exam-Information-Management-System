@@ -3,9 +3,10 @@
 import sharedStyles from "~/app/user/components/shared.module.css";
 import styles from "./page.module.css";
 import Nav from "~/app/user/components/userNav";
-import { type ReactElement, useEffect, useState } from "react";
+import { type ReactElement, useContext, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { courses, referenceExams, examScores, type Course, type Section, students, type ReferenceExam } from "~/app/data/data";
+import { referenceExams, examScores, type Course, type Section, students, type ReferenceExam } from "~/app/data/data";
+import { UserContext } from "~/app/UserContext";
 
 export default function ViewCourseReport() {
   const [ selectedSection, setSelectedSection ] = useState<string>("All Sections");
@@ -14,15 +15,16 @@ export default function ViewCourseReport() {
   const [ sections, setSections ] = useState<Section[]|null>(null);
   const { noOfStudents, noOfExams } = getUpdatedInformation(selectedCourse, selectedSection);
   const searchParams = useSearchParams();
+  const { courses } = useContext(UserContext);
 
   // for every effect that occurs
   useEffect(() => {
     const courseID = searchParams.get("courseID");
     if(!courseID) return;
 
-    const found = courses.find(course => course.courseID === courseID)
+    const found = courses.find(course => course.courseID === Number(courseID))
     setSelectedCourse(found ?? null);
-  }, [searchParams]);
+  }, [courses, searchParams]);
   
   useEffect(() => {
     if(!selectedCourse) return;

@@ -1,6 +1,5 @@
 "use client";
 
-import { courses } from "~/app/data/data";
 import styles from "./page.module.css";
 import sharedStyles from "~/app/user/components/shared.module.css";
 import Nav from "~/app/user/components/userNav";
@@ -15,7 +14,7 @@ export default function GenerateExam() {
     const [ currentPage, setCurrentPage ] = useState<number>(0);
     const [ isStartDisabled, setIsStartDisabled ] = useState<boolean>(false);
     const [ isEndDisabled, setIsEndDisabled ] = useState<boolean>(false);
-    const [ noOfPages,  ] = useState<number>(1);
+    const [ noOfPages ] = useState<number>(1);
     
     if (!baseUser) return <p>No user is logged in</p>;
     const generatedExamRaw  = localStorage.getItem("generatedExam");
@@ -33,7 +32,19 @@ export default function GenerateExam() {
         cutOffDate,
         releaseDate,
         examQuestions,
-    } = JSON.parse(generatedExamRaw);
+    } = JSON.parse(generatedExamRaw) as {
+        examID: string;
+        employeeID: string;
+        examTitle: string;
+        examType: string;
+        course: string;
+        sections: string[];
+        pageDescriptions: string[];
+        dueDate: string;
+        cutOffDate: string;
+        releaseDate: string;
+        examQuestions: Question[][];
+    };
 
     let sectionFormatted = "";
     sections.forEach((section:string, i:number) => {
@@ -96,7 +107,7 @@ export default function GenerateExam() {
                                 <p>Description: {pageDescriptions[currentPage]}</p>
                             )
                         }
-                        { examQuestions[currentPage].map((question:Question, index:number) => {
+                        { examQuestions[currentPage]?.map((question:Question, index:number) => {
                             console.log(question);
                             switch(question.type){
                                 case "File Submission":
@@ -117,13 +128,4 @@ export default function GenerateExam() {
             </main>
         </div>
     );
-}
-
-function coursesTaught(userID: string) {
-    return courses.filter(course => course.courseEmployeeID === userID);
-}
-
-function getSectionFromCourseTitle(courseTitle: string) {
-    const course = courses.find(course => course.courseTitle === courseTitle);
-    return course?.sections;   
-}    
+} 

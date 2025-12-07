@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { employees, students, users } from "~/server/db/schema";
+import type { Course } from "~/app/data/data";
 
 const JWT_SECRET = 'maroon-book-jwt-secret';
 const NOTIFY_HASH_SALT = 'maroon-book-salt';
@@ -254,5 +255,93 @@ export const userRouter = createTRPCRouter({
 
                 details,
             });
+        }),
+    
+    // Employee
+    getEmployeeCourses: publicProcedure
+        .input(z.object({
+            token: z.string(),
+        }))
+        .query(async ({ ctx, input }) => {
+            // Verify JWT token
+            try {
+                const { id, role } = jwt.verify(input.token, JWT_SECRET) as { id: number, role: string };
+                if (role !== 'employee') {
+                    return wrapError('User is not an employee');
+                }
+
+                const coursesTaught = await ctx.db.query.courses.findMany({
+                    where: (courses, { eq }) => eq(courses.courseEmployeeID, id),
+                    with: {
+                        sections: {
+                            with: {
+                                enrollments: true,
+                            }
+                        }
+                    }
+                });
+
+                for (const course of coursesTaught) {
+                    for (const section of course.sections) {
+                        // @ts-expect-error: This is fine, we will always set studentsEnrolled to a number[]
+                        section.studentsEnrolled = section.enrollments.map(enrollment => enrollment.studentID);
+                    }
+                }
+
+                return wrapSuccess(coursesTaught as unknown as Course[]);
+            } catch {
+                return wrapError('Invalid auth token');
+            }
+        }),
+
+    // Student
+    getStudentCourses: publicProcedure
+        .input(z.object({
+            token: z.string(),
+        }))
+        .query(async ({ ctx, input }) => {
+            // Verify JWT token
+            try {
+                const { id, role } = jwt.verify(input.token, JWT_SECRET) as { id: number, role: string };
+                if (role !== 'student') {
+                    return wrapError('User is not a student');
+                }
+
+                const enrollments = await ctx.db.query.enrollments.findMany({
+                    where: (enrollments, { eq }) => eq(enrollments.studentID, id),
+                    with: {
+                        section: {
+                            with: {
+                                course: {
+                                    with: {
+                                        sections: {
+                                            with: {
+                                                enrollments: true,
+                                            },
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                const coursesEnrolled = enrollments.map(enrollment => enrollment.section.course);
+
+                for (const course of coursesEnrolled) {
+                    for (const section of course.sections) {
+                        // @ts-expect-error: This is fine, we will always set studentsEnrolled to a number[]
+                        section.studentsEnrolled = section.enrollments.map(enrollment => enrollment.studentID);
+                    }
+
+                    course.sections = course.sections.filter(section => 
+                        section.enrollments.some(enrollment => enrollment.studentID === id)
+                    );
+                }
+
+                return wrapSuccess(coursesEnrolled as unknown as Course[]);
+            } catch {
+                return wrapError('Invalid auth token');
+            }
         }),
 });

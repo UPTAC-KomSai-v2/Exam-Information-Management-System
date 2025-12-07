@@ -1,6 +1,6 @@
 "use client";
 
-import { courses, referenceExams, type ReferenceExam } from "~/app/data/data";
+import { referenceExams, type Course, type ReferenceExam } from "~/app/data/data";
 import mainStyle from "./page.module.css";
 import styles from "~/app/user/components/shared.module.css";
 import Nav from "~/app/user/components/userNav";
@@ -9,7 +9,7 @@ import { type EmployeeUser, UserContext } from "~/app/UserContext";
 import { LinkButton } from "~/app/_components/links";
 
 export default function EmployeeDashboard() {
-    const { baseUser } = useContext(UserContext);
+    const { baseUser, courses } = useContext(UserContext);
 
     if (!baseUser) return <p>No user is logged in</p>;
     if (baseUser.type !== "employee") return <p>User logged in is not employee</p>;
@@ -25,13 +25,13 @@ export default function EmployeeDashboard() {
                         Create New Exam
                     </LinkButton>
                 </div>
-                <RenderExamList baseUser={baseUser} />
+                <RenderExamList baseUser={baseUser} courses={courses} />
             </main>
         </div>
     );
 }
 
-function RenderExamList({ baseUser }: { baseUser: EmployeeUser }) {
+function RenderExamList({ baseUser, courses }: { baseUser: EmployeeUser, courses: Course[] }) {
     const indivExamContent = (refExam: ReferenceExam, examDescription: string, sectionNames: string) => {
         return(
             <div className={styles.examCourseDiv} key={refExam.examID}>
@@ -52,7 +52,7 @@ function RenderExamList({ baseUser }: { baseUser: EmployeeUser }) {
     }
 
     const examList: ReactNode[] = [];
-    const coursesTaught = courses.filter(course => course.courseEmployeeID === baseUser.id + ''); // TODO (james): change to proper comparison when backend is ready for courses
+    const coursesTaught = courses.filter(course => course.courseEmployeeID === baseUser.id);
 
     coursesTaught.forEach((course) => {
         const refExams = referenceExams.filter(refExam => refExam.courseID === course.courseID);

@@ -1,6 +1,7 @@
 // Example model schema from the Drizzle docs
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
+import { relations } from "drizzle-orm";
 import { index, pgTableCreator } from "drizzle-orm/pg-core";
 
 /**
@@ -46,3 +47,52 @@ export const employees = createTable(
     }),
     (t) => [index("employee_id_idx").on(t.id)],
 );
+
+export const courses = createTable(
+    "course",
+    (d) => ({
+        courseID: d.serial().primaryKey().notNull(),
+        courseTitle: d.varchar({ length: 256 }).notNull(),
+        courseDescription: d.text().notNull(),
+        academicYear: d.varchar({ length: 14 }).notNull(),
+        semester: d.varchar({ length: 16 }).notNull(),
+        courseEmployeeID: d.integer().notNull().references(() => employees.id),
+    }),
+    (t) => [index("course_id_idx").on(t.courseID)],
+);
+
+export const courseRelationships = relations(courses, ({ one, many }) => ({
+    employee: one(employees, { fields: [courses.courseEmployeeID], references: [employees.id] }),
+    sections: many(courseSections),
+}));
+
+export const courseSections = createTable(
+    "course_section",
+    (d) => ({
+        sectionID: d.serial().primaryKey().notNull(),
+        sectionName: d.varchar({ length: 4 }).notNull(),
+        courseCode: d.varchar({ length: 64 }).notNull().unique(),
+        courseID: d.integer().notNull().references(() => courses.courseID),
+    }),
+    (t) => [index("section_id_idx").on(t.sectionID)],
+);
+
+export const courseSectionRelations = relations(courseSections, ({ one, many }) => ({
+    course: one(courses, { fields: [courseSections.courseID], references: [courses.courseID] }),
+    enrollments: many(enrollments),
+}));
+
+export const enrollments = createTable(
+    "enrollment",
+    (d) => ({
+        enrollmentID: d.serial().primaryKey().notNull(),
+        studentID: d.integer().notNull().references(() => students.id),
+        sectionID: d.integer().notNull().references(() => courseSections.sectionID),
+    }),
+    (t) => [index("enrollment_id_idx").on(t.enrollmentID)],
+);
+
+export const enrollmentRelations = relations(enrollments, ({ one }) => ({
+    student: one(students, { fields: [enrollments.studentID], references: [students.id] }),
+    section: one(courseSections, { fields: [enrollments.sectionID], references: [courseSections.sectionID] }),
+}));

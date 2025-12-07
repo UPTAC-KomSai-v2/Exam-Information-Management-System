@@ -1,6 +1,6 @@
 "use client";
 
-import { type Course, courses, examScores, referenceExams, type Section } from "~/app/data/data";
+import { type Course, examScores, referenceExams, type Section } from "~/app/data/data";
 import mainStyle from "./page.module.css";
 import styles from "~/app/user/components/shared.module.css";
 import Nav from "~/app/user/components/userNav";
@@ -8,7 +8,7 @@ import { type ReactNode, useContext } from "react";
 import { type StudentUser, UserContext } from "~/app/UserContext";
 
 export default function StudentDashboard() {
-    const { baseUser } = useContext(UserContext);
+    const { baseUser, courses } = useContext(UserContext);
 
     if (!baseUser) return <p>No user is logged in</p>;
     if (baseUser.type !== "student") return <p>User logged in is not a student</p>;
@@ -18,13 +18,13 @@ export default function StudentDashboard() {
             <Nav scope="student" />
             <main className={`${styles.main} ${mainStyle.main} main `}>
                 <p className="title22px">Dashboard</p>
-                <RenderExamList baseUser={baseUser} />
+                <RenderExamList baseUser={baseUser} courses={courses} />
             </main>
         </div>
     );
 }
 
-function RenderExamList({ baseUser }:{ baseUser: StudentUser }) {
+function RenderExamList({ baseUser, courses }:{ baseUser: StudentUser, courses: Course[] }) {
     const indivExamContent = (examID: string, examTitle: string, examDescription: string, noOfItems: number, examType: string, timeAllotted: string, dueDate: string, tookExam: string) => {
         const pastDueDate = new Date() <= new Date(dueDate);
 
@@ -53,9 +53,8 @@ function RenderExamList({ baseUser }:{ baseUser: StudentUser }) {
     }
 
     const examList: ReactNode[] = [];
-    const coursesEnrolled = getEnrolledCourses(baseUser);
 
-    coursesEnrolled.forEach((course) => {
+    courses.forEach((course) => {
         console.log("inside of coursesEnrolled");
         console.log(course.courseTitle);
         const refExams = referenceExams.filter(refExam => refExam.courseID === course.courseID);
@@ -73,13 +72,6 @@ function RenderExamList({ baseUser }:{ baseUser: StudentUser }) {
     }); 
 
     return examList;
-}
-
-export function getEnrolledCourses(baseUser: StudentUser){
-    return courses.filter(course => {
-        console.log(`isEnrolledInCourse(${course.courseTitle}, ${baseUser.firstName}) = ${isEnrolledInCourse(course, baseUser)}`);
-        return isEnrolledInCourse(course, baseUser);
-    });
 }
 
 export function isEnrolledInCourse(course: Course, baseUser: StudentUser) {
@@ -103,7 +95,7 @@ export function isEnrolledInSection(section: Section, baseUser: StudentUser) {
     return found;
 }
 
-export function tookTheExam(refExamID: string, studentID: string){
+export function tookTheExam(refExamID: string, studentID: number){
     return examScores.some(examScore => {
         return examScore.referencedExamID === refExamID && examScore.studentID === studentID;
     });

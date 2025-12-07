@@ -8,12 +8,12 @@ import { type ReactElement, useContext, useState } from "react";
 
 import { referenceExams, type Section } from "~/app/data/data";
 import { type StudentUser, UserContext } from "~/app/UserContext";
-import { getEnrolledCourses, getEnrolledSection } from "../page";
+import { getEnrolledSection } from "../page";
 import { LinkButton } from "~/app/_components/links";
 
 export default function StudentCourses() {
     const [ showOverlay, setShowOverlay]  = useState(false);
-    const { baseUser } = useContext(UserContext);
+    const { baseUser, courses } = useContext(UserContext);
 
     if (!baseUser) return <p>No user is logged in</p>;
     if (baseUser.type !== "student") return <p>User logged in is not a student</p>;
@@ -21,8 +21,7 @@ export default function StudentCourses() {
     // rendering a number of courses lol
     const coursesArray: ReactElement[] = [];
 
-    const coursesEnrolled = getEnrolledCourses(baseUser);
-    coursesEnrolled.forEach((course) => {
+    courses.forEach((course) => {
         const enrolledSection = getEnrolledSection(course, baseUser);
         const fullCourseTitle = `${course.courseTitle} - ${enrolledSection?.sectionName}`;
         const fullCourseDescription = `${course.courseDescription} | ${course.academicYear} ${course.semester}`;
@@ -90,7 +89,7 @@ export default function StudentCourses() {
     );
 }
 
-function addCourseToPage(courseID: string, courseTitle: string, courseDescription: string, noOfExams: number) {
+function addCourseToPage(courseID: number, courseTitle: string, courseDescription: string, noOfExams: number) {
     return (
         <div className={sharedStyles.examCourseDiv} key={courseID}>
             <p className="title22px">{courseTitle}</p>

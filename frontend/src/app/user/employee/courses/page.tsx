@@ -6,21 +6,23 @@ import Nav from "~/app/user/components/userNav";
 import Logo from "~/app/_components/logo";
 import { type ReactElement, useContext, useState } from "react";
 
-import { courses, referenceExams } from "~/app/data/data";
+import { referenceExams } from "~/app/data/data";
 import { UserContext } from "~/app/UserContext";
 import { LinkButton } from "~/app/_components/links";
 
 export default function EmployeeCourses() {
-    const [ showOverlay, setShowOverlay]  = useState(false);
-    const { baseUser } = useContext(UserContext);
+    const [ showOverlay, setShowOverlay ]  = useState(false);
+    const { baseUser, courses } = useContext(UserContext);
 
     if (!baseUser) return <p>No user is logged in</p>;
     if (baseUser.type !== "employee") return <p>User logged in is not employee</p>;
 
-    // rendering a number of courses lol
     const coursesArray: ReactElement[] = [];
 
-    const coursesTaught = courses.filter(course => {console.log(course.courseEmployeeID + " vs " + baseUser.id); return course.courseEmployeeID === baseUser.id + ''}); // TODO (james): change to proper comparison when backend is ready for courses
+    const coursesTaught = courses.filter(course => {
+        return course.courseEmployeeID === baseUser.id
+    });
+
     coursesTaught.forEach((course) => {
         const fullCourseDescription = course.courseDescription + " | " + course.academicYear + " " + course.semester;
         const noOfExams = referenceExams.filter(refExam => refExam.courseID === course.courseID).length;
@@ -42,8 +44,8 @@ export default function EmployeeCourses() {
                 { coursesArray }
 
                 <button
-                  className={styles.enrollCourse}
-                  onClick={() => setShowOverlay(true)}
+                className={styles.enrollCourse}
+                onClick={() => setShowOverlay(true)}
                 >
                     +
                 </button>
@@ -86,7 +88,7 @@ export default function EmployeeCourses() {
     );
 }
 
-function addCourseToPage(courseID: string, courseTitle: string, courseDescription: string, noOfExams: number) {
+function addCourseToPage(courseID: number, courseTitle: string, courseDescription: string, noOfExams: number) {
     return (
         <div className={sharedStyles.examCourseDiv} key={courseID}>
             <p className="title22px">{courseTitle}</p>
