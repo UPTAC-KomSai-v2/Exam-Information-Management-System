@@ -1,23 +1,22 @@
 "use client";
 
-import { referenceExams, type Course, type ReferenceExam } from "~/app/data/data";
+import { courses, referenceExams, type ReferenceExam } from "~/app/data/data";
 import mainStyle from "./page.module.css";
 import styles from "~/app/user/components/shared.module.css";
 import Nav from "~/app/user/components/userNav";
 import { type ReactNode, useContext } from "react";
-import { type EmployeeUser, UserContext } from "~/app/UserContext";
+import { type Employee, UserContext } from "~/app/UserContext";
 import { LinkButton } from "~/app/_components/links";
 
 export default function EmployeeDashboard() {
-    const { baseUser, courses } = useContext(UserContext);
+    const { currentUser } = useContext(UserContext);
 
-    if (!baseUser) return <p>No user is logged in</p>;
-    if (baseUser.type !== "employee") return <p>User logged in is not employee</p>;
+    if (!currentUser) return <p>No user is logged in</p>;
+    if (currentUser.type !== "employee") return <p>User logged in is not employee</p>;
 
     return (
         <div className={styles.page}>
             <Nav scope="employee" />
-
             <main className={`${styles.main} ${mainStyle.main} main `}>
                 <div className={styles.upperDiv}>
                     <p className="title22px">Dashboard</p>
@@ -25,13 +24,13 @@ export default function EmployeeDashboard() {
                         Create New Exam
                     </LinkButton>
                 </div>
-                <RenderExamList baseUser={baseUser} courses={courses} />
+                <RenderExamList currentUser={currentUser} />
             </main>
         </div>
     );
 }
 
-function RenderExamList({ baseUser, courses }: { baseUser: EmployeeUser, courses: Course[] }) {
+function RenderExamList({ currentUser }: { currentUser: Employee }) {
     const indivExamContent = (refExam: ReferenceExam, examDescription: string, sectionNames: string) => {
         return(
             <div className={styles.examCourseDiv} key={refExam.examID}>
@@ -45,14 +44,14 @@ function RenderExamList({ baseUser, courses }: { baseUser: EmployeeUser, courses
                     <p>Due Date: {refExam.dueDate}</p>
                     <a>Publish Exam</a>
                     <a>Hide Exam</a>
-                    <LinkButton href="#" className="">View Exam</LinkButton>
+                    <LinkButton href={`/user/employee/viewExam?examID=${encodeURIComponent(refExam.examID)}`} className="">View Exam</LinkButton>
                 </div>
             </div>
         );
     }
 
     const examList: ReactNode[] = [];
-    const coursesTaught = courses.filter(course => course.courseEmployeeID === baseUser.id);
+    const coursesTaught = courses.filter(course => course.courseEmployeeID === currentUser.userID);
 
     coursesTaught.forEach((course) => {
         const refExams = referenceExams.filter(refExam => refExam.courseID === course.courseID);
