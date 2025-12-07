@@ -5,7 +5,7 @@ import styles from "./page.module.css";
 import Nav from "~/app/user/components/userNav";
 import { type ReactElement, useContext, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { referenceExams, examScores, type Course, type Section, type ReferenceExam } from "~/app/data/data";
+import { type Course, type Section, type UserExamData } from "~/app/data/data";
 import { getEnrolledSection } from "../../page";
 import { type StudentUser, UserContext } from "~/app/UserContext";
 import { getNoOfExamsPerSection } from "../page";
@@ -13,7 +13,7 @@ import { getNoOfExamsPerSection } from "../page";
 export default function ViewCourseReport() {
     const [ selectedCourse, setSelectedCourse ] = useState<Course|null>(null);
     const [ section, setSection ] = useState<Section|undefined>(undefined);
-    const { baseUser, courses } = useContext(UserContext);
+    const { baseUser, courses, userExams } = useContext(UserContext);
     const [ noOfExams, setNoOfExams ] = useState<number>(0);
     const searchParams = useSearchParams();
 
@@ -36,8 +36,8 @@ export default function ViewCourseReport() {
         if (!selectedCourse || !section || !baseUser) return;
         if (baseUser.type !== "student") return;
 
-        setNoOfExams(getNoOfExamsPerSection(section, baseUser));
-    }, [selectedCourse, section, baseUser]);
+        setNoOfExams(getNoOfExamsPerSection(section, baseUser, userExams));
+    }, [selectedCourse, section, baseUser, userExams]);
     
     if (!baseUser) return <p>No user is logged in</p>;
     if (baseUser.type !== "student") return <p>User logged in is not a student</p>;
@@ -57,6 +57,7 @@ export default function ViewCourseReport() {
                         selectedCourse={selectedCourse} 
                         noOfExams={noOfExams}
                         baseUser={baseUser}
+                        userExams={userExams}
                     />
                 </div>
             </main>
@@ -64,7 +65,17 @@ export default function ViewCourseReport() {
     );
 }
 
-function RenderExamContent({ selectedCourse, noOfExams, baseUser }:{ selectedCourse: Course | null, noOfExams: number, baseUser: StudentUser }) {
+function RenderExamContent({
+    selectedCourse,
+    noOfExams,
+    baseUser,
+    userExams
+}:{
+    selectedCourse: Course | null,
+    noOfExams: number,
+    baseUser: StudentUser,
+    userExams: UserExamData[],
+}) {
     return (
         <div className={`${styles.examReportDiv}`}>
             <p className={styles.subheading}>Course Information</p>
@@ -73,28 +84,36 @@ function RenderExamContent({ selectedCourse, noOfExams, baseUser }:{ selectedCou
             </div>
 
             <p className={styles.subheading}>Exam Report</p>
-            <RenderScores selectedCourse={selectedCourse} baseUser={baseUser}/>
+            <RenderScores selectedCourse={selectedCourse} baseUser={baseUser} userExams={userExams} />
         </div>
     );
 }
 
-function RenderScores({ selectedCourse, baseUser }:{ selectedCourse: Course | null, baseUser: StudentUser }) {
+function RenderScores({
+    selectedCourse,
+    baseUser,
+    userExams,
+}:{
+    selectedCourse: Course | null,
+    baseUser: StudentUser,
+    userExams: UserExamData[],
+}) {
     const GetScoreContent = () => {
         const examScoreContent: ReactElement[] = [];
 
         if(!selectedCourse) return null;
 
         let counter = 1;
-        referenceExams
-            .filter(refExam => refExam.courseID === selectedCourse.courseID)
-            .map(refExam => {
+        userExams
+            .filter(exam => exam.courseID === selectedCourse.courseID)
+            .map(exam => {
                 console.log(baseUser.id);
-                const { score, grade } = getScoreAndGrade(refExam, baseUser.id);
+                const { score, grade } = getScoreAndGrade(exam, baseUser.id);
                     examScoreContent.push(
-                        <div className={styles.examDetailsAVG} key={refExam.examID}>
+                        <div className={styles.examDetailsAVG} key={exam.examID}>
                             <p>{counter++}</p>
-                            <p>{refExam.examTitle}</p>
-                            <p>{refExam.items}</p>
+                            <p>{exam.examTitle}</p>
+                            <p>{exam.questions.length}</p>
                             <p>{score}</p>
                             <p>{grade.toFixed(2)}%</p>
                         </div>
@@ -117,19 +136,17 @@ function RenderScores({ selectedCourse, baseUser }:{ selectedCourse: Course | nu
     );
 }
 
-function getScoreAndGrade(referencedExam: ReferenceExam, studentID: number) {
-    const studentExam = examScores.find((examScore) => {
-        return referencedExam.examID === examScore.referencedExamID && examScore.studentID === studentID;
-    });
+function getScoreAndGrade(exam: UserExamData, studentID: number) {
+    const studentScore = exam.scores.find(score => score.studentID === studentID);
 
     let score = 0;
     let grade = 0;
-    if(studentExam === undefined) {
+    if(studentScore === undefined) {
         console.log("STUDENT EXAM IS UNDEFINED");
         return { score, grade };
     }
 
-    score = studentExam.score;
-    grade = (score / referencedExam.items) * 100;
+    score = studentScore.score;
+    grade = (score / exam.questions.reduce((acc, question) => acc + question.points, 0)) * 100;
     return { score, grade };
 }

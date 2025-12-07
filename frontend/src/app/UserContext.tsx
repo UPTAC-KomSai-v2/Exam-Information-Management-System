@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, type ReactNode, useEffect, useState } from "react";
-import type { Course, EmployeeExam } from "./data/data";
+import type { Course, UserExamData } from "./data/data";
 import { api } from "~/trpc/client";
 
 export type BaseUser = {
@@ -39,14 +39,14 @@ export const UserContext = createContext<{
     baseUser: UserData | null;
     setBaseUser: (user: UserData | null) => void;
     courses: Course[];
-    employeeExams: EmployeeExam[];
+    userExams: UserExamData[];
     refreshCourses: () => void;
     logout: () => void;
 }>({
     baseUser: null,
     setBaseUser: () => void 0,
     courses: [],
-    employeeExams: [],
+    userExams: [],
     refreshCourses: () => void 0,
     logout: () => void 0,
 });
@@ -54,12 +54,12 @@ export const UserContext = createContext<{
 export function UserProvider({ children }: { children: ReactNode }) {
     const [ baseUser, setBaseUser ] = useState<UserData | null>(null);
     const [ courses, setCourses ] = useState<Course[]>([]);
-    const [ employeeExams, setEmployeeExams ] = useState<EmployeeExam[]>([]);
+    const [ userExams, setUserExams ] = useState<UserExamData[]>([]);
 
     function logout() {
         setBaseUser(null);
         setCourses([]);
-        setEmployeeExams([]);
+        setUserExams([]);
         localStorage.removeItem("baseUser");
     }
 
@@ -79,7 +79,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
             api.user.getEmployeeExams.query({ token: baseUser.authToken }).then(response => {
                 if (response.status === 'ok') {
-                    setEmployeeExams(response.data);
+                    setUserExams(response.data);
                 } else {
                     console.error("Failed to refresh employee exams:", response.message);
                 }
@@ -95,6 +95,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
                 }
             }).catch(error => {
                 console.error("Error refreshing courses:", error);
+            });
+
+            api.user.getStudentExams.query({ token: baseUser.authToken }).then(response => {
+                if (response.status === 'ok') {
+                    setUserExams(response.data);
+                } else {
+                    console.error("Failed to refresh student exams:", response.message);
+                }
+            }).catch(error => {
+                console.error("Error refreshing student exams:", error);
             });
         }
     }
@@ -122,7 +132,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
             baseUser,
             setBaseUser,
             courses,
-            employeeExams,
+            userExams,
             refreshCourses,
             logout,
         }}>

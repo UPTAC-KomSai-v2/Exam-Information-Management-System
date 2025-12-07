@@ -1,6 +1,6 @@
 "use client";
 
-import { type Course, examScores, referenceExams, type Section } from "~/app/data/data";
+import { type Course, type Section, type UserExamData } from "~/app/data/data";
 import mainStyle from "./page.module.css";
 import styles from "~/app/user/components/shared.module.css";
 import Nav from "~/app/user/components/userNav";
@@ -8,7 +8,7 @@ import { type ReactNode, useContext } from "react";
 import { type StudentUser, UserContext } from "~/app/UserContext";
 
 export default function StudentDashboard() {
-    const { baseUser, courses } = useContext(UserContext);
+    const { baseUser, courses, userExams } = useContext(UserContext);
 
     if (!baseUser) return <p>No user is logged in</p>;
     if (baseUser.type !== "student") return <p>User logged in is not a student</p>;
@@ -18,25 +18,24 @@ export default function StudentDashboard() {
             <Nav scope="student" />
             <main className={`${styles.main} ${mainStyle.main} main `}>
                 <p className="title22px">Dashboard</p>
-                <RenderExamList baseUser={baseUser} courses={courses} />
+                <RenderExamList baseUser={baseUser} courses={courses} userExams={userExams} />
             </main>
         </div>
     );
 }
 
-function RenderExamList({ baseUser, courses }:{ baseUser: StudentUser, courses: Course[] }) {
-    const indivExamContent = (examID: string, examTitle: string, examDescription: string, noOfItems: number, examType: string, timeAllotted: string, dueDate: string, tookExam: string) => {
-        const pastDueDate = new Date() <= new Date(dueDate);
+function RenderExamList({ baseUser, courses, userExams }:{ baseUser: StudentUser, courses: Course[], userExams: UserExamData[] }) {
+    const indivExamContent = (exam: UserExamData, examDescription: string, tookExam: string) => {
+        const pastDueDate = new Date() <= new Date(exam.dueDate);
 
         return (
-            <div className={styles.examCourseDiv} key={examID}>
-                <p className="title22px">{examTitle}</p>
+            <div className={styles.examCourseDiv} key={exam.examID}>
+                <p className="title22px">{exam.examTitle}</p>
                 <p className={styles.description}>{examDescription}</p>
                 <div className={styles.information}>
-                    <p>Total Items: {noOfItems}</p>
-                    <p>Exam Type: {examType}</p>
-                    <p>Time Allotted: {timeAllotted}</p>
-                    <p>Due Date: {dueDate}</p>
+                    <p>Total Items: {exam.questions.length}</p>
+                    <p>Time Allotted: {exam.timeAllotted}</p>
+                    <p>Due Date: {exam.dueDate}</p>
                     <p>Taken Exam: {tookExam}</p>
                     <a>Hide Exam</a>
 
@@ -57,17 +56,17 @@ function RenderExamList({ baseUser, courses }:{ baseUser: StudentUser, courses: 
     courses.forEach((course) => {
         console.log("inside of coursesEnrolled");
         console.log(course.courseTitle);
-        const refExams = referenceExams.filter(refExam => refExam.courseID === course.courseID);
+        const refExams = userExams.filter(exam => exam.courseID === course.courseID);
         
         const section = getEnrolledSection(course, baseUser);
 
         if(section === undefined)
             return;
 
-        refExams.forEach((refExam) => {
+        refExams.forEach((exam) => {
             const courseDescription = `${course.courseTitle} - ${section.sectionName} | ${course.courseDescription}`;
-            const tookExam = tookTheExam(refExam.examID, baseUser.id) ? "Yes" : "No";
-            examList.push(indivExamContent(refExam.examID, refExam.examTitle, courseDescription, refExam.items, refExam.examType, refExam.timeAllotted, refExam.dueDate, tookExam));
+            const tookExam = tookTheExam(exam, baseUser.id) ? "Yes" : "No";
+            examList.push(indivExamContent(exam, courseDescription, tookExam));
         });
     }); 
 
@@ -95,8 +94,6 @@ export function isEnrolledInSection(section: Section, baseUser: StudentUser) {
     return found;
 }
 
-export function tookTheExam(refExamID: string, studentID: number){
-    return examScores.some(examScore => {
-        return examScore.referencedExamID === refExamID && examScore.studentID === studentID;
-    });
+export function tookTheExam(exam: UserExamData, studentID: number){
+    return exam.scores.some(scoreData => scoreData.studentID === studentID);
 }

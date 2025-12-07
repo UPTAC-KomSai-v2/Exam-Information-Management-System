@@ -11,7 +11,7 @@ import { LinkButton } from "~/app/_components/links";
 
 export default function EmployeeCourses() {
     const [ showOverlay, setShowOverlay ]  = useState(false);
-    const { baseUser, courses, employeeExams } = useContext(UserContext);
+    const { baseUser, courses, userExams } = useContext(UserContext);
 
     if (!baseUser) return <p>No user is logged in</p>;
     if (baseUser.type !== "employee") return <p>User logged in is not employee</p>;
@@ -24,7 +24,7 @@ export default function EmployeeCourses() {
 
     coursesTaught.forEach((course) => {
         const fullCourseDescription = course.courseDescription + " | " + course.academicYear + " " + course.semester;
-        const noOfExams = employeeExams.filter(exam => exam.courseID === course.courseID).length;
+        const noOfExams = userExams.filter(exam => exam.courseID === course.courseID).length;
         coursesArray.push(addCourseToPage(
             course.courseID,
             course.courseTitle,

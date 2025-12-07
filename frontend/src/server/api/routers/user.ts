@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { employees, students, users } from "~/server/db/schema";
-import type { Course, EmployeeExam } from "~/app/data/data";
+import type { Course, UserExamData } from "~/app/data/data";
 
 const JWT_SECRET = 'maroon-book-jwt-secret';
 const NOTIFY_HASH_SALT = 'maroon-book-salt';
@@ -333,7 +333,7 @@ export const userRouter = createTRPCRouter({
                     )
                 );
 
-                return wrapSuccess(exams as EmployeeExam[]);
+                return wrapSuccess(exams as UserExamData[]);
             } catch {
                 return wrapError('Invalid auth token');
             }
@@ -385,6 +385,61 @@ export const userRouter = createTRPCRouter({
                 }
 
                 return wrapSuccess(coursesEnrolled as unknown as Course[]);
+            } catch {
+                return wrapError('Invalid auth token');
+            }
+        }),
+    
+    getStudentExams: publicProcedure
+        .input(z.object({
+            token: z.string(),
+        }))
+        .query(async ({ ctx, input }) => {
+            // Verify JWT token
+            try {
+                const { id, role } = jwt.verify(input.token, JWT_SECRET) as { id: number, role: string };
+                if (role !== 'student') {
+                    return wrapError('User is not a student');
+                }
+
+                const enrollments = await ctx.db.query.enrollments.findMany({
+                    where: (enrollments, { eq }) => eq(enrollments.studentID, id),
+                    with: {
+                        section: {
+                            with: {
+                                course: {
+                                    with: {
+                                        sections: {
+                                            with: {
+                                                exams: {
+                                                    with: {
+                                                        exam: {
+                                                            with: {
+                                                                questions: true,
+                                                                scores: {
+                                                                    where: (scores, { eq }) => eq(scores.studentID, id),
+                                                                },
+                                                                assigned: true,
+                                                            }
+                                                        },
+                                                    }
+                                                },
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                const exams = enrollments.flatMap(enrollment => 
+                    enrollment.section.course.sections.flatMap(section => 
+                        section.exams.flatMap(assignedExam => assignedExam.exam)
+                    )
+                );
+
+                return wrapSuccess(exams as UserExamData[]);
             } catch {
                 return wrapError('Invalid auth token');
             }

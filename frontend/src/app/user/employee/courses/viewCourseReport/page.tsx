@@ -5,17 +5,17 @@ import styles from "./page.module.css";
 import Nav from "~/app/user/components/userNav";
 import { type ReactElement, useContext, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { type Course, type Section, type EmployeeExam } from "~/app/data/data";
+import { type Course, type Section, type UserExamData } from "~/app/data/data";
 import { UserContext } from "~/app/UserContext";
 
 export default function ViewCourseReport() {
-  const { courses, employeeExams } = useContext(UserContext);
+  const { courses, userExams } = useContext(UserContext);
 
   const [ selectedSection, setSelectedSection ] = useState<string>("All Sections");
   const [ selectedDisplay, setSelectedDisplay ] = useState<string>("Average");
   const [ selectedCourse, setSelectedCourse ] = useState<Course|null>(null);
   const [ sections, setSections ] = useState<Section[]|null>(null);
-  const { noOfStudents, noOfExams } = getUpdatedInformation(selectedCourse, employeeExams, selectedSection);
+  const { noOfStudents, noOfExams } = getUpdatedInformation(selectedCourse, userExams, selectedSection);
   const searchParams = useSearchParams();
 
   // for every effect that occurs
@@ -86,7 +86,7 @@ export default function ViewCourseReport() {
             noOfStudents={noOfStudents}
             noOfExams={noOfExams}
             selectedDisplay={selectedDisplay}
-            exams={employeeExams}
+            exams={userExams}
           />
         </div>
       </main>
@@ -95,7 +95,7 @@ export default function ViewCourseReport() {
 }
 
 // getting the updated information
-function getUpdatedInformation(selectedCourse: Course | null, exams: EmployeeExam[], selectedSectionName: string) {
+function getUpdatedInformation(selectedCourse: Course | null, exams: UserExamData[], selectedSectionName: string) {
   let noOfStudents = 0;
   let noOfExams = 0;
 
@@ -135,7 +135,7 @@ function RenderExamContent({
   noOfStudents: number,
   noOfExams: number,
   selectedDisplay: string,
-  exams: EmployeeExam[],
+  exams: UserExamData[],
 }) {
   console.log(selectedDisplay);
   return (
@@ -163,7 +163,7 @@ function RenderAverageScores({
 }: {
   selectedCourse: Course | null,
   sectionID: number,
-  exams: EmployeeExam[],
+  exams: UserExamData[],
 }) {
   const GetScoreContent = () => {
     const examScoreContent: ReactElement[] = [];
@@ -202,7 +202,7 @@ function RenderAverageScores({
   );
 }
 
-function getAVGScoresAndNoOfTakers(exam: EmployeeExam, sectionID: number) {
+function getAVGScoresAndNoOfTakers(exam: UserExamData, sectionID: number) {
   let totalScore = 0;
   let noOfTakers = 0;
   
@@ -227,14 +227,14 @@ function RenderAllScores({
 }: {
   selectedCourse: Course | null,
   sectionID: number,
-  exams: EmployeeExam[],
+  exams: UserExamData[],
 }) {
   const GetScoreContent = () => {
     const fullExamScoreContent: ReactElement[] = [];
 
     if(!selectedCourse) return fullExamScoreContent;
 
-    const StudentExamScores = ({ exam }: { exam: EmployeeExam }) => {
+    const StudentExamScores = ({ exam }: { exam: UserExamData }) => {
       const individualExamScore: ReactElement[] = [];
 
       exam.scores

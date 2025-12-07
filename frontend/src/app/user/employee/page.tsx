@@ -6,10 +6,10 @@ import Nav from "~/app/user/components/userNav";
 import { type ReactNode, useContext } from "react";
 import { type EmployeeUser, UserContext } from "~/app/UserContext";
 import { LinkButton } from "~/app/_components/links";
-import type { Course, EmployeeExam } from "~/app/data/data";
+import type { Course, UserExamData } from "~/app/data/data";
 
 export default function EmployeeDashboard() {
-    const { baseUser, employeeExams, courses } = useContext(UserContext);
+    const { baseUser, userExams, courses } = useContext(UserContext);
 
     if (!baseUser) return <p>No user is logged in</p>;
     if (baseUser.type !== "employee") return <p>User logged in is not employee</p>;
@@ -24,7 +24,7 @@ export default function EmployeeDashboard() {
                         Create New Exam
                     </LinkButton>
                 </div>
-                <RenderExamList baseUser={baseUser} employeeExams={employeeExams} courses={courses} />
+                <RenderExamList baseUser={baseUser} userExams={userExams} courses={courses} />
             </main>
         </div>
     );
@@ -32,14 +32,14 @@ export default function EmployeeDashboard() {
 
 function RenderExamList({
     baseUser,
-    employeeExams,
+    userExams,
     courses
 }: {
     baseUser: EmployeeUser,
-    employeeExams: EmployeeExam[],
+    userExams: UserExamData[],
     courses: Course[],
 }) {
-    const indivExamContent = (exam: EmployeeExam, examDescription: string, sectionNames: string) => {
+    const indivExamContent = (exam: UserExamData, examDescription: string, sectionNames: string) => {
         return(
             <div className={styles.examCourseDiv} key={exam.examID}>
                 <p className="title22px">{exam.examTitle}</p>
@@ -60,7 +60,7 @@ function RenderExamList({
     const examList: ReactNode[] = [];
 
     courses.forEach((course) => {
-        const exams = employeeExams.filter(refExam => refExam.courseID === course.courseID);
+        const exams = userExams.filter(refExam => refExam.courseID === course.courseID);
         
         let sectionNames = "";
         course.sections.forEach(section => sectionNames += `${section.sectionName} , `);

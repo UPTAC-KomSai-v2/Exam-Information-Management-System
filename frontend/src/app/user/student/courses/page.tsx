@@ -6,14 +6,14 @@ import Nav from "~/app/user/components/userNav";
 import Logo from "~/app/_components/logo";
 import { type ReactElement, useContext, useState } from "react";
 
-import { referenceExams, type Section } from "~/app/data/data";
+import { type Section, type UserExamData } from "~/app/data/data";
 import { type StudentUser, UserContext } from "~/app/UserContext";
 import { getEnrolledSection } from "../page";
 import { LinkButton } from "~/app/_components/links";
 
 export default function StudentCourses() {
     const [ showOverlay, setShowOverlay]  = useState(false);
-    const { baseUser, courses } = useContext(UserContext);
+    const { baseUser, courses, userExams } = useContext(UserContext);
 
     if (!baseUser) return <p>No user is logged in</p>;
     if (baseUser.type !== "student") return <p>User logged in is not a student</p>;
@@ -25,7 +25,7 @@ export default function StudentCourses() {
         const enrolledSection = getEnrolledSection(course, baseUser);
         const fullCourseTitle = `${course.courseTitle} - ${enrolledSection?.sectionName}`;
         const fullCourseDescription = `${course.courseDescription} | ${course.academicYear} ${course.semester}`;
-        const noOfExams = getNoOfExamsPerSection(enrolledSection, baseUser);
+        const noOfExams = getNoOfExamsPerSection(enrolledSection, baseUser, userExams);
         coursesArray.push(addCourseToPage(
             course.courseID,
             fullCourseTitle,
@@ -106,7 +106,7 @@ function addCourseToPage(courseID: number, courseTitle: string, courseDescriptio
     );
 }
 
-export function getNoOfExamsPerSection(enrolledSection: Section | undefined, baseUser: StudentUser) {
+export function getNoOfExamsPerSection(enrolledSection: Section | undefined, baseUser: StudentUser, userExams: UserExamData[]) {
     if(enrolledSection === undefined) return 0;
-    return referenceExams.filter(refExam => refExam.sections.some(section => section === enrolledSection.sectionName)).length;
+    return userExams.filter(exam => exam.assigned.some(assgn => assgn.sectionID === enrolledSection.sectionID)).length;
 }

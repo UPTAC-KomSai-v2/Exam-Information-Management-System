@@ -5,25 +5,25 @@ import styles from "./page.module.css";
 import Nav from "~/app/user/components/userNav";
 import { useContext, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { type EmployeeExam, type ExamQuestion } from "~/app/data/data";
+import { type UserExamData, type ExamQuestion } from "~/app/data/data";
 import { UserContext } from "~/app/UserContext";
 
 export default function ViewExam() {
-  const { employeeExams } = useContext(UserContext);
+  const { userExams } = useContext(UserContext);
 
   const searchParams = useSearchParams();
   const examID = searchParams.get("examID") ?? "";
-  const [ exam, setExam ] = useState<EmployeeExam | null>(null);
+  const [ exam, setExam ] = useState<UserExamData | null>(null);
   const [ examTitle, setExamTitle ] = useState<string>("Unknown Exam");
 
   useEffect(() => {
     if (examID) {
       // Find the exam content
-      const foundExam = employeeExams.find(e => e.examID === Number(examID));
+      const foundExam = userExams.find(e => e.examID === Number(examID));
       setExam(foundExam ?? null);
       setExamTitle(foundExam?.examTitle ?? "Unknown Exam");
     }
-  }, [employeeExams, examID]);
+  }, [userExams, examID]);
 
   const renderQuestion = (question: ExamQuestion, index: number) => {
     switch (question.questionData.type) {
