@@ -96,3 +96,81 @@ export const enrollmentRelations = relations(enrollments, ({ one }) => ({
     student: one(students, { fields: [enrollments.studentID], references: [students.id] }),
     section: one(courseSections, { fields: [enrollments.sectionID], references: [courseSections.sectionID] }),
 }));
+
+export const exams = createTable(
+    "exam",
+    (d) => ({
+        examID: d.serial().primaryKey().notNull(),
+        examTitle: d.varchar({ length: 256 }).notNull(),
+        timeAllotted: d.varchar({ length: 16 }).notNull(),
+        dueDate: d.timestamp().notNull(),
+    }),
+    (t) => [index("exam_id_idx").on(t.examID)],
+);
+
+export const examRelations = relations(exams, ({ many }) => ({
+    assigned: many(assignedExams),
+    questions: many(examQuestions),
+}));
+
+export const examQuestions = createTable(
+    "exam_question",
+    (d) => ({
+        questionID: d.serial().primaryKey().notNull(),
+        examID: d.integer().notNull().references(() => exams.examID),
+        questionData: d.jsonb().notNull(),
+    }),
+    (t) => [index("question_id_idx").on(t.questionID)],
+);
+
+export const examQuestionRelations = relations(examQuestions, ({ one }) => ({
+    exam: one(exams, { fields: [examQuestions.examID], references: [exams.examID] }),
+}));    
+
+export const assignedExams = createTable(
+    "assigned_exam",
+    (d) => ({
+        assignedExamID: d.serial().primaryKey().notNull(),
+        examID: d.integer().notNull().references(() => exams.examID),
+        sectionID: d.integer().notNull().references(() => courseSections.sectionID),
+    }),
+    (t) => [index("assigned_exam_id_idx").on(t.assignedExamID)],
+);
+
+export const assignedExamRelations = relations(assignedExams, ({ one }) => ({
+    exam: one(exams, { fields: [assignedExams.examID], references: [exams.examID] }),
+    section: one(courseSections, { fields: [assignedExams.sectionID], references: [courseSections.sectionID] }),
+}));
+
+export const examScores = createTable(
+    "exam_score",
+    (d) => ({
+        examScoreID: d.serial().primaryKey().notNull(),
+        examID: d.integer().notNull().references(() => exams.examID),
+        studentID: d.integer().notNull().references(() => students.id),
+        score: d.integer().notNull(),
+    }),
+    (t) => [index("exam_score_id_idx").on(t.examScoreID)],
+);
+
+export const examScoreRelations = relations(examScores, ({ one, many }) => ({
+    exam: one(exams, { fields: [examScores.examID], references: [exams.examID] }),
+    student: one(students, { fields: [examScores.studentID], references: [students.id] }),
+    answers: many(examAnswers),
+}));
+
+export const examAnswers = createTable(
+    "exam_answer",
+    (d) => ({
+        examAnswerID: d.serial().primaryKey().notNull(),
+        examScoreID: d.integer().notNull().references(() => examScores.examScoreID),
+        questionID: d.integer().notNull().references(() => examQuestions.questionID),
+        answerData: d.jsonb().notNull(),
+    }),
+    (t) => [index("exam_answer_id_idx").on(t.examAnswerID)],
+);
+
+export const examAnswerRelations = relations(examAnswers, ({ one }) => ({
+    examScore: one(examScores, { fields: [examAnswers.examScoreID], references: [examScores.examScoreID] }),
+    question: one(examQuestions, { fields: [examAnswers.questionID], references: [examQuestions.questionID] }),
+}));
