@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useContext, useEffect, useRef, useState } from "react";
 import { UserRoleToggle, InputContent, type UserRole } from "../_components/sharedComponents";
 import sharedStyles from "~/styles/shared.module.css";
-import { UserContext } from "../UserContext";
+import { UserContext, type BaseUser } from "../UserContext";
 import Nav from "../_components/homepageNav";
 import { LinkButton } from "../_components/links";
 import Logo from "../_components/logo";
@@ -29,7 +29,7 @@ export default function Login() {
     const router = useRouter();
     const numberRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
-    const { setCurrentUser } = useContext(UserContext);
+    const { setBaseUser } = useContext(UserContext);
     
     const validateUser = async () => {
         if(!(numberRef.current && passwordRef.current)){
@@ -60,10 +60,10 @@ export default function Login() {
                 } else if (loginResponse.status === 'ok') {
                     setError('');
                     // TODO (james): Need to change how we store user data
-                    setCurrentUser({
+                    setBaseUser({
                         type: 'student',
                         ...loginResponse.data,
-                    });
+                    } as BaseUser);
                     router.push("/user/student");
                 }
 
@@ -78,10 +78,10 @@ export default function Login() {
                 } else if (loginResponse.status === 'ok') {
                     setError('');
                     // TODO (james): Need to change how we store user data
-                    setCurrentUser({
+                    setBaseUser({
                         type: 'employee',
                         ...loginResponse.data,
-                    });
+                    } as BaseUser);
                     router.push("/user/employee");
                 }
 

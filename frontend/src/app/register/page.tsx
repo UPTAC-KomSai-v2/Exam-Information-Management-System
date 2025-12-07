@@ -6,9 +6,10 @@ import Logo from "~/app/_components/logo";
 import sharedStyles from "~/styles/shared.module.css";
 import { UserRoleToggle, InputContent, type UserRole } from "~/app/_components/sharedComponents";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { LinkButton } from "~/app/_components/links";
 import { api } from "~/trpc/client";
+import { UserContext, type BaseUser } from "../UserContext";
 
 export default function Register() {
     const router = useRouter();
@@ -26,6 +27,9 @@ export default function Register() {
     const [ showRegister, setShow ] = useState(false);
     const [ showUserRole, setShowUserRole ] = useState(true);
     const [ userRole, setUserRole ] = useState<UserRole>("");
+    const [ error, setError ] = useState<string>("");
+
+    const { setBaseUser } = useContext(UserContext);
 
     const validateRegistration = async () => {
         const internalUserType = userRole === "Employee" ? "employee" : "student";
@@ -33,12 +37,11 @@ export default function Register() {
         const id = parseInt(userNumberRef.current?.value ?? "0");
 
         if (isNaN(id) || id <= 0) {
-            // TODO: 
-            alert("Please enter a valid user number.");
+            setError("Please enter a valid user number.");
             return;
         }
 
-        await api.user.register.mutate({
+        const result = await api.user.register.mutate({
             id: id,
             firstName: firstNameRef.current?.value ?? "",
             middleName: middleNameRef.current?.value ?? "",
@@ -47,6 +50,16 @@ export default function Register() {
             email: emailRef.current?.value ?? "",
             role: internalUserType,
         });
+
+        if (!result || result.status === "error") {
+            setError(result?.message || "Failed to register");
+            return;
+        }
+
+        setBaseUser({
+            type: internalUserType,
+            ...result.data,
+        } as BaseUser);
 
         router.push(userRole === "Employee" ? "/user/professor" : "/user/student");
     };
@@ -99,6 +112,8 @@ export default function Register() {
                             passwordRef={passwordRef}
                             confirmPasswordRef={confirmPasswordRef}
                         />
+
+                        {error && <p className={sharedStyles.errorText}>{error}</p>}
 
                         <div className={sharedStyles.rowButtons}>
                             <button 

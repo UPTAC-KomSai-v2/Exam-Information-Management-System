@@ -31,9 +31,9 @@ function generateNotifyToken(userId: number, role: string): {
     };
 }
 
-function wrapSuccess(data: unknown): {
+function wrapSuccess<T>(data: T): {
     status: 'ok';
-    data: unknown;
+    data: T;
 } {
     return {
         status: 'ok',
