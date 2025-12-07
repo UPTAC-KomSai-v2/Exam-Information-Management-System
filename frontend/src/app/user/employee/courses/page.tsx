@@ -55,16 +55,23 @@ export default function EmployeeCourses() {
                 {showOverlay && (
                     <div className={styles.overlay}>
                         <Logo width={217} height={26} />
-                        <p className={styles.overlayTitle}>Enroll a course</p>
+                        <p className={styles.overlayTitle}>Create a course</p>
 
                         <div>
-                            <p>To enroll on a course, please</p>
-                            <p> enter the course code below.</p>
+                            <p>To create on a course, please</p>
+                            <p>fill in the information below.</p>
                         </div>
 
                         <div className={styles.inputContainer}>
-                            <label>Course Code:</label>
-                            <input type="text" name="courseCode" className={styles.courseCode}/>
+                            <label>Course Title:
+                                <input type="text" name="courseTitle" className={styles.courseCode}/>
+                            </label>
+                            <label>Sections:
+                                <input type="text" name="sections" className={styles.courseCode}/>
+                            </label>
+                            <label>Course Code:
+                                <input type="text" name="courseCode" className={styles.courseCode}/>
+                            </label>
                         </div>
 
                         <button 
