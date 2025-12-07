@@ -84,6 +84,8 @@ const connections = new Map<string, { id: string, ws: WebSocket, user: UserData 
 const lastUsedNonce = new Map<string, number>();
 
 const app = express();
+app.use(express.json());
+
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server, path: '/ws' });
 
@@ -184,6 +186,65 @@ wss.on('connection', (ws) => {
         console.log('[maroon-book] [backend] WebSocket connection closed');
         removeConnection();
     });
+});
+
+// HTTP endpoint to send notifications
+app.post('/api/notify', (req, res) => {
+    try {
+        const { userIds, data } = req.body;
+
+        if (!Array.isArray(userIds) || !data) {
+            return res.status(400).json({ error: 'Invalid request body' });
+        }
+
+        // Generate signature for the notification
+        const signature = crypto.createHash('sha256')
+            .update(salt + userIds.join(',') + JSON.stringify(data))
+            .digest('hex');
+
+        const notifyMessage: NotifyMessage = {
+            type: MessageType.NOTIFY,
+            payload: {
+                audience: {
+                    userIds: userIds.map((id: number) => id.toString()),
+                    signature,
+                },
+                data,
+            },
+        };
+
+        // Send notification to all specified users
+        const userIdsStr = userIds.map((id: number) => id.toString());
+        let notifiedCount = 0;
+
+        if (userIdsStr.length === 1 && userIdsStr[0] === '*') {
+            // Broadcast to all connected users
+            for (const [_, userConnections] of connections.entries()) {
+                for (const connection of userConnections) {
+                    connection.ws.send(JSON.stringify({ type: MessageType.NOTIFY, payload: { data } }));
+                    notifiedCount++;
+                }
+            }
+        } else {
+            // Send to specific users
+            for (const userId of userIdsStr) {
+                if (connections.has(userId)) {
+                    const userConnections = connections.get(userId)!;
+                    for (const connection of userConnections) {
+                        connection.ws.send(JSON.stringify({ type: MessageType.NOTIFY, payload: { data } }));
+                        notifiedCount++;
+                    }
+                }
+            }
+        }
+
+        console.log(`[maroon-book] [backend] Sent notification to ${notifiedCount} connection(s) for ${userIdsStr.length} user(s)`);
+
+        res.json({ success: true, notified: notifiedCount });
+    } catch (error) {
+        console.error('[maroon-book] [backend] Error sending notification:', error);
+        res.status(500).json({ error: 'Failed to send notification' });
+    }
 });
 
 server.listen(3001, () => {

@@ -5,6 +5,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import { UserProvider } from "./UserContext";
+import { NotificationProvider } from "./NotificationContext";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -29,7 +30,9 @@ export default function RootLayout({
             <body className={`${geistSans.variable} ${geistMono.variable}`}>
                 <TRPCReactProvider>
                     <UserProvider>
-                        {children}
+                        <NotificationProvider>
+                            {children}
+                        </NotificationProvider>
                     </UserProvider>
                 </TRPCReactProvider>
             </body>

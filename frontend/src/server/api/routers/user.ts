@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { assignedExams, employees, examQuestions, exams, students, users } from "~/server/db/schema";
+import { assignedExams, employees, enrollments, examQuestions, exams, students, users } from "~/server/db/schema";
 import type { Course, UserExamData } from "~/app/data/data";
 
 const JWT_SECRET = 'maroon-book-jwt-secret';
@@ -393,8 +393,10 @@ export const userRouter = createTRPCRouter({
 
                 let success = false;
 
+                let examEntry: { examID: number }[] = [];
+
                 await ctx.db.transaction(async (tx) => {
-                    const examEntry = await tx.insert(exams).values({
+                    examEntry = await tx.insert(exams).values({
                         courseID: input.exam.courseID,
                         examTitle: input.exam.examTitle,
                         timeAllotted: input.exam.timeAllotted,
@@ -425,6 +427,59 @@ export const userRouter = createTRPCRouter({
                 });
 
                 if (success) {
+                    // Get all students enrolled in the assigned sections
+                    const sectionIDs = input.exam.assigned.map(a => a.sectionID);
+                    let studentEnrollments: typeof enrollments.$inferSelect[] = [];
+                    
+                    if (sectionIDs.length > 0) {
+                        if (sectionIDs.length === 1) {
+                            studentEnrollments = await ctx.db.query.enrollments.findMany({
+                                where: (enrollments, { eq }) => eq(enrollments.sectionID, sectionIDs[0]!),
+                            });
+                        } else {
+                            studentEnrollments = await ctx.db.query.enrollments.findMany({
+                                where: (enrollments, { or, eq }) => 
+                                    or(...sectionIDs.map(sectionID => eq(enrollments.sectionID, sectionID))),
+                            });
+                        }
+                    }
+
+                    // Get unique student IDs
+                    const studentIDs = [...new Set(studentEnrollments.map(e => e.studentID))];
+
+                    // Send notifications to enrolled students
+                    if (studentIDs.length > 0) {
+                        try {
+                            const notificationData = {
+                                message: `A new exam "${input.exam.examTitle}" has been added to your course.`,
+                                examTitle: input.exam.examTitle,
+                                examID: examEntry[0]!.examID,
+                                courseID: input.exam.courseID,
+                                dueDate: input.exam.dueDate,
+                            };
+
+                            const response = await fetch('http://localhost:3001/api/notify', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    userIds: studentIDs,
+                                    data: notificationData,
+                                }),
+                            });
+
+                            if (!response.ok) {
+                                console.error('Failed to send notifications:', await response.text());
+                            } else {
+                                console.log(`Sent exam notification to ${studentIDs.length} student(s)`);
+                            }
+                        } catch (error) {
+                            // Don't fail exam creation if notification fails
+                            console.error('Error sending notifications:', error);
+                        }
+                    }
+
                     return wrapSuccess({});
                 } else {
                     return wrapError('Failed to create exam');

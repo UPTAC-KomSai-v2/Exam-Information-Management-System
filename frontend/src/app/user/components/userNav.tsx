@@ -6,8 +6,9 @@ import NavigationBar from "~/app/_components/navigationBar";
 import Image from "next/image";
 import { LinkButton } from "~/app/_components/links";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
 import NotificationDropdown from "~/app/user/components/notificationDropdown";
+import { NotificationContext } from "~/app/NotificationContext";
 
 type UserNavBarProps = {
   scope: "student" | "employee";
@@ -16,6 +17,9 @@ type UserNavBarProps = {
 export default function UserNavBar({ scope }: UserNavBarProps) {
   const [notifOpen, setNotifOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
+  const { notifications } = useContext(NotificationContext);
+  
+  const hasNotifications = notifications.length > 0;
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -61,7 +65,7 @@ export default function UserNavBar({ scope }: UserNavBarProps) {
           }}
         >
           <Image
-            src="/images/notification_false.png"
+            src={hasNotifications ? "/images/notification_true.png" : "/images/notification_false.png"}
             alt="notification"
             width={20}
             height={20}
