@@ -8,12 +8,12 @@ import { useContext } from "react";
 import { LinkButton } from "~/app/_components/links";
 
 export default function EmployeeProfile() {
-    const { currentUser } = useContext(UserContext);
+    const { baseUser } = useContext(UserContext);
 
-    if (!currentUser) return <p>There&apos;s no user logged in.</p>;
-    if (currentUser.type !== "employee") return <p>User logged in is not employee</p>;
+    if (!baseUser) return <p>There&apos;s no user logged in.</p>;
+    if (baseUser.type !== "employee") return <p>User logged in is not employee</p>;
 
-    const fullName = currentUser.firstName + " " + currentUser.middleName.charAt(0) + ". " + currentUser.lastName;
+    const fullName = baseUser.firstName + " " + baseUser.middleName.charAt(0) + ". " + baseUser.lastName;
 
     return (
         <div className="page">
@@ -29,8 +29,11 @@ export default function EmployeeProfile() {
                     <label>Country</label>
                     <p>Philippines</p>
 
-                    <label>College</label>
-                    <p>{currentUser.college}</p>
+                    <label>Campus</label>
+                    <p>{baseUser.details.campus}</p>
+
+                    <label>Division</label>
+                    <p>{baseUser.details.division}</p>
 
                     <label>Role</label>
                     <p>Employee</p>

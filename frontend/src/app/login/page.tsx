@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useContext, useEffect, useRef, useState } from "react";
 import { UserRoleToggle, InputContent, type UserRole } from "../_components/sharedComponents";
 import sharedStyles from "~/styles/shared.module.css";
-import { UserContext, type BaseUser } from "../UserContext";
+import { UserContext, type BaseUser, type EmployeeUser, type StudentUser } from "../UserContext";
 import Nav from "../_components/homepageNav";
 import { LinkButton } from "../_components/links";
 import Logo from "../_components/logo";
@@ -59,11 +59,10 @@ export default function Login() {
                     setError(loginResponse?.message || "Failed to login");
                 } else if (loginResponse.status === 'ok') {
                     setError('');
-                    // TODO (james): Need to change how we store user data
                     setBaseUser({
                         type: 'student',
                         ...loginResponse.data,
-                    } as BaseUser);
+                    } as StudentUser);
                     router.push("/user/student");
                 }
 
@@ -77,11 +76,10 @@ export default function Login() {
                     setError(loginResponse?.message || "Failed to login");
                 } else if (loginResponse.status === 'ok') {
                     setError('');
-                    // TODO (james): Need to change how we store user data
                     setBaseUser({
                         type: 'employee',
                         ...loginResponse.data,
-                    } as BaseUser);
+                    } as EmployeeUser);
                     router.push("/user/employee");
                 }
 

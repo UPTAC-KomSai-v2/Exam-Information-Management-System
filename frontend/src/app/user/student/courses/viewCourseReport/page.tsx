@@ -7,13 +7,13 @@ import { type ReactElement, useContext, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { courses, referenceExams, examScores, type Course, type Section, type ReferenceExam } from "~/app/data/data";
 import { getEnrolledSection } from "../../page";
-import { type Student, UserContext } from "~/app/UserContext";
+import { type StudentUser, UserContext } from "~/app/UserContext";
 import { getNoOfExamsPerSection } from "../page";
 
 export default function ViewCourseReport() {
     const [ selectedCourse, setSelectedCourse ] = useState<Course|null>(null);
     const [ section, setSection ] = useState<Section|undefined>(undefined);
-    const { currentUser } = useContext(UserContext);
+    const { baseUser } = useContext(UserContext);
     const [ noOfExams, setNoOfExams ] = useState<number>(0);
     const searchParams = useSearchParams();
 
@@ -26,21 +26,21 @@ export default function ViewCourseReport() {
     }, [searchParams]);
 
     useEffect(() => {
-        if (!selectedCourse || !currentUser) return;
-        if (currentUser.type !== "student") return;
+        if (!selectedCourse || !baseUser) return;
+        if (baseUser.type !== "student") return;
 
-        setSection(getEnrolledSection(selectedCourse, currentUser));
-    }, [selectedCourse, currentUser]);
+        setSection(getEnrolledSection(selectedCourse, baseUser));
+    }, [selectedCourse, baseUser]);
 
     useEffect(() => {
-        if (!selectedCourse || !section || !currentUser) return;
-        if (currentUser.type !== "student") return;
+        if (!selectedCourse || !section || !baseUser) return;
+        if (baseUser.type !== "student") return;
 
-        setNoOfExams(getNoOfExamsPerSection(section, currentUser));
-    }, [selectedCourse, section, currentUser]);
+        setNoOfExams(getNoOfExamsPerSection(section, baseUser));
+    }, [selectedCourse, section, baseUser]);
     
-    if (!currentUser) return <p>No user is logged in</p>;
-    if (currentUser.type !== "student") return <p>User logged in is not a student</p>;
+    if (!baseUser) return <p>No user is logged in</p>;
+    if (baseUser.type !== "student") return <p>User logged in is not a student</p>;
     if (!selectedCourse) return <p>there is no selected course</p>;
     
     return (
@@ -56,7 +56,7 @@ export default function ViewCourseReport() {
                     <RenderExamContent 
                         selectedCourse={selectedCourse} 
                         noOfExams={noOfExams}
-                        currentUser={currentUser}
+                        baseUser={baseUser}
                     />
                 </div>
             </main>
@@ -64,7 +64,7 @@ export default function ViewCourseReport() {
     );
 }
 
-function RenderExamContent({selectedCourse, noOfExams, currentUser}:{selectedCourse: Course|null, noOfExams: number, currentUser: Student}) {
+function RenderExamContent({ selectedCourse, noOfExams, baseUser }:{ selectedCourse: Course | null, noOfExams: number, baseUser: StudentUser }) {
     return (
         <div className={`${styles.examReportDiv}`}>
             <p className={styles.subheading}>Course Information</p>
@@ -73,12 +73,12 @@ function RenderExamContent({selectedCourse, noOfExams, currentUser}:{selectedCou
             </div>
 
             <p className={styles.subheading}>Exam Report</p>
-            <RenderScores selectedCourse={selectedCourse} currentUser={currentUser}/>
+            <RenderScores selectedCourse={selectedCourse} baseUser={baseUser}/>
         </div>
     );
 }
 
-function RenderScores({ selectedCourse, currentUser }:{ selectedCourse: Course|null, currentUser:Student }) {
+function RenderScores({ selectedCourse, baseUser }:{ selectedCourse: Course | null, baseUser: StudentUser }) {
     const GetScoreContent = () => {
         const examScoreContent: ReactElement[] = [];
 
@@ -88,8 +88,8 @@ function RenderScores({ selectedCourse, currentUser }:{ selectedCourse: Course|n
         referenceExams
             .filter(refExam => refExam.courseID === selectedCourse.courseID)
             .map(refExam => {
-                console.log(currentUser.userID);
-                const { score, grade } = getScoreAndGrade(refExam, currentUser.userID);
+                console.log(baseUser.id);
+                const { score, grade } = getScoreAndGrade(refExam, baseUser.id);
                     examScoreContent.push(
                         <div className={styles.examDetailsAVG} key={refExam.examID}>
                             <p>{counter++}</p>

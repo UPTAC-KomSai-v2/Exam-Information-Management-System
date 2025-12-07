@@ -26,3 +26,23 @@ export const users = createTable(
     }),
     (t) => [index("id_idx").on(t.id)],
 );
+
+export const students = createTable(
+    "student",
+    (d) => ({
+        id: d.integer().primaryKey().notNull().references(() => users.id),
+        campus: d.varchar({ length: 128 }).notNull(),
+        program: d.varchar({ length: 128 }).notNull(),
+    }),
+    (t) => [index("student_id_idx").on(t.id)],
+);
+
+export const employees = createTable(
+    "employee",
+    (d) => ({
+        id: d.integer().primaryKey().notNull().references(() => users.id),
+        campus: d.varchar({ length: 128 }).notNull(),
+        division: d.varchar({ length: 128 }).notNull(),
+    }),
+    (t) => [index("employee_id_idx").on(t.id)],
+);

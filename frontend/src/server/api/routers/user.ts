@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { users } from "~/server/db/schema";
+import { employees, students, users } from "~/server/db/schema";
 
 const JWT_SECRET = 'maroon-book-jwt-secret';
 const NOTIFY_HASH_SALT = 'maroon-book-salt';
@@ -67,6 +67,10 @@ export const userRouter = createTRPCRouter({
                 ),
             });
 
+            const userDetails = await ctx.db.query.students.findFirst({
+                where: (students, { eq }) => eq(students.id, input.id),
+            });
+
             if (!user) {
                 return wrapError('User not found');
             }
@@ -90,6 +94,11 @@ export const userRouter = createTRPCRouter({
 
                 // Credentials for Notification Web Socket Server
                 notify: generateNotifyToken(user.id, user.role),
+
+                details: {
+                    campus: userDetails?.campus ?? '',
+                    program: userDetails?.program ?? '',
+                },
             });
         }),
 
@@ -108,6 +117,10 @@ export const userRouter = createTRPCRouter({
                 ),
             });
 
+            const userDetails = await ctx.db.query.employees.findFirst({
+                where: (employees, { eq }) => eq(employees.id, input.id),
+            });
+
             if (!user) {
                 return wrapError('User not found');
             }
@@ -131,6 +144,11 @@ export const userRouter = createTRPCRouter({
 
                 // Credentials for Notification Web Socket Server
                 notify: generateNotifyToken(user.id, user.role),
+
+                details: {
+                    campus: userDetails?.campus ?? '',
+                    division: userDetails?.division ?? '',
+                },
             });
         }),
 
@@ -157,6 +175,8 @@ export const userRouter = createTRPCRouter({
             email: z.string().email(),
             password: z.string().min(6),
             role: z.enum(['employee', 'student']),
+            campus: z.string().min(1),
+            programOrDivision: z.string().min(1),
         }))
         .mutation(async ({ ctx, input }) => {
             const existingUserById = await ctx.db.query.users.findFirst({
@@ -187,6 +207,38 @@ export const userRouter = createTRPCRouter({
                 role: input.role,
             });
 
+            // @ts-expect-error: This is fine, we will always set details based on role
+            let details: {
+                campus: string;
+                division: string;
+            } | {
+                campus: string;
+                program: string;
+            } = {};
+            if (input.role === 'student') {
+                await ctx.db.insert(students).values({
+                    id: input.id,
+                    campus: input.campus,
+                    program: input.programOrDivision,
+                });
+
+                details = {
+                    campus: input.campus,
+                    program: input.programOrDivision,
+                };
+            } else if (input.role === 'employee') {
+                await ctx.db.insert(employees).values({
+                    id: input.id,
+                    campus: input.campus,
+                    division: input.programOrDivision,
+                });
+
+                details = {
+                    campus: input.campus,
+                    division: input.programOrDivision,
+                };
+            }
+
             return wrapSuccess({
                 id: input.id,
                 firstName: input.firstName,
@@ -199,6 +251,8 @@ export const userRouter = createTRPCRouter({
 
                 // Credentials for Notification Web Socket Server
                 notify: generateNotifyToken(input.id, input.role),
+
+                details,
             });
         }),
 });

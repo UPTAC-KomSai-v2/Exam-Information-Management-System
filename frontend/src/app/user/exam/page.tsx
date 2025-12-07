@@ -1,23 +1,23 @@
 "use client";
 
-import { courses, referenceExams, type Course, type ReferenceExam } from "~/app/data/data";
+import { courses } from "~/app/data/data";
 import styles from "./page.module.css";
 import sharedStyles from "~/app/user/components/shared.module.css";
 import Nav from "~/app/user/components/userNav";
-import { type ReactNode, useContext, useEffect, useState } from "react";
-import { type Employee, UserContext } from "~/app/UserContext";
+import { useContext, useState } from "react";
+import { UserContext } from "~/app/UserContext";
 import type { Question } from "../employee/createExam/customExams";
 import { RenderGeneratedFileExam, RenderGeneratedInputExam, RenderGeneratedOptionExam } from "./customExams";
 import { LinkButton } from "~/app/_components/links";
 
 export default function GenerateExam() {
-    const { currentUser } = useContext(UserContext);
+    const { baseUser } = useContext(UserContext);
     const [ currentPage, setCurrentPage ] = useState<number>(0);
     const [ isStartDisabled, setIsStartDisabled ] = useState<boolean>(false);
     const [ isEndDisabled, setIsEndDisabled ] = useState<boolean>(false);
     const [ noOfPages,  ] = useState<number>(1);
     
-    if (!currentUser) return <p>No user is logged in</p>;
+    if (!baseUser) return <p>No user is logged in</p>;
     const generatedExamRaw  = localStorage.getItem("generatedExam");
     if(!generatedExamRaw) return <p>generatedExamRaw is null</p>
 

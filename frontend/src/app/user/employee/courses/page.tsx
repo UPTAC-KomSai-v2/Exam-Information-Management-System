@@ -12,15 +12,15 @@ import { LinkButton } from "~/app/_components/links";
 
 export default function EmployeeCourses() {
     const [ showOverlay, setShowOverlay]  = useState(false);
-    const { currentUser } = useContext(UserContext);
+    const { baseUser } = useContext(UserContext);
 
-    if (!currentUser) return <p>No user is logged in</p>;
-    if (currentUser.type !== "employee") return <p>User logged in is not employee</p>;
+    if (!baseUser) return <p>No user is logged in</p>;
+    if (baseUser.type !== "employee") return <p>User logged in is not employee</p>;
 
     // rendering a number of courses lol
     const coursesArray: ReactElement[] = [];
 
-    const coursesTaught = courses.filter(course => {console.log(course.courseEmployeeID + " vs " + currentUser.userID); return course.courseEmployeeID === currentUser.userID});
+    const coursesTaught = courses.filter(course => {console.log(course.courseEmployeeID + " vs " + baseUser.id); return course.courseEmployeeID === baseUser.id + ''}); // TODO (james): change to proper comparison when backend is ready for courses
     coursesTaught.forEach((course) => {
         const fullCourseDescription = course.courseDescription + " | " + course.academicYear + " " + course.semester;
         const noOfExams = referenceExams.filter(refExam => refExam.courseID === course.courseID).length;

@@ -7,26 +7,26 @@ import Logo from "~/app/_components/logo";
 import { type ReactElement, useContext, useState } from "react";
 
 import { referenceExams, type Section } from "~/app/data/data";
-import { type Student, UserContext } from "~/app/UserContext";
+import { type StudentUser, UserContext } from "~/app/UserContext";
 import { getEnrolledCourses, getEnrolledSection } from "../page";
 import { LinkButton } from "~/app/_components/links";
 
 export default function StudentCourses() {
     const [ showOverlay, setShowOverlay]  = useState(false);
-    const { currentUser } = useContext(UserContext);
+    const { baseUser } = useContext(UserContext);
 
-    if (!currentUser) return <p>No user is logged in</p>;
-    if (currentUser.type !== "student") return <p>User logged in is not a student</p>;
+    if (!baseUser) return <p>No user is logged in</p>;
+    if (baseUser.type !== "student") return <p>User logged in is not a student</p>;
 
     // rendering a number of courses lol
     const coursesArray: ReactElement[] = [];
 
-    const coursesEnrolled = getEnrolledCourses(currentUser);
+    const coursesEnrolled = getEnrolledCourses(baseUser);
     coursesEnrolled.forEach((course) => {
-        const enrolledSection = getEnrolledSection(course, currentUser);
+        const enrolledSection = getEnrolledSection(course, baseUser);
         const fullCourseTitle = `${course.courseTitle} - ${enrolledSection?.sectionName}`;
         const fullCourseDescription = `${course.courseDescription} | ${course.academicYear} ${course.semester}`;
-        const noOfExams = getNoOfExamsPerSection(enrolledSection, currentUser);
+        const noOfExams = getNoOfExamsPerSection(enrolledSection, baseUser);
         coursesArray.push(addCourseToPage(
             course.courseID,
             fullCourseTitle,
@@ -107,7 +107,7 @@ function addCourseToPage(courseID: string, courseTitle: string, courseDescriptio
     );
 }
 
-export function getNoOfExamsPerSection(enrolledSection: Section | undefined, currentUser: Student) {
+export function getNoOfExamsPerSection(enrolledSection: Section | undefined, baseUser: StudentUser) {
     if(enrolledSection === undefined) return 0;
     return referenceExams.filter(refExam => refExam.sections.some(section => section === enrolledSection.sectionName)).length;
 }

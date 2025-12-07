@@ -1,12 +1,11 @@
 "use client";
 
-import { courses, referenceExams, type Course, type ReferenceExam } from "~/app/data/data";
+import { courses } from "~/app/data/data";
 import styles from "./page.module.css";
 import sharedStyles from "~/app/user/components/shared.module.css";
 import Nav from "~/app/user/components/userNav";
 import { type ReactNode, useContext, useEffect, useState } from "react";
-import { type Employee, UserContext } from "~/app/UserContext";
-import { LinkButton } from "~/app/_components/links";
+import { UserContext } from "~/app/UserContext";
 import { RenderCustomExam, RenderEssay, RenderFileSubmission } from "./examTypes";
 import { type Question } from "./customExams";
 import { useRouter } from "next/navigation";
@@ -56,7 +55,7 @@ const toDateTimeLocal = (enUS: string) => {
 }
 
 export default function CreateExam() {
-    const { currentUser } = useContext(UserContext);
+    const { baseUser } = useContext(UserContext);
     const rawData = localStorage.getItem("generatedExam");
 
     const examID = useState(() => crypto.randomUUID())[0];
@@ -109,14 +108,14 @@ export default function CreateExam() {
         })
     }, [questionObjs, examTitle, examType, course, sections, dueDate, cutOffDate, releaseDate])
 
-    if (!currentUser) return <p>No user is logged in</p>;
-    if (currentUser.type !== "employee") return <p>User logged in is not employee</p>;
+    if (!baseUser) return <p>No user is logged in</p>;
+    if (baseUser.type !== "employee") return <p>User logged in is not employee</p>;
     if (!examID) return <p>examID is undefined</p>
     if (!examDetails) return <p>examDetails is undefined</p>
     console.log(examDetails);
 
     const RenderCourseOptions = () => {
-        const courses = coursesTaught(currentUser.userID);
+        const courses = coursesTaught(baseUser.id);
         const listOfCourses:ReactNode[] = [];
         courses.forEach((courseTaught) => {
             listOfCourses.push(

@@ -21,6 +21,12 @@ async function main() {
         passwordHash: studentPassword,
     };
 
+    const studentDetails: typeof schema.students.$inferInsert = {
+        id: studentUser.id,
+        campus: 'UPTC',
+        program: 'BS Computer Science',
+    };
+
     const employeePassword = bcrypt.hashSync('123456', 10);
 
     const employeeUser: typeof schema.users.$inferInsert = {
@@ -33,12 +39,24 @@ async function main() {
         passwordHash: employeePassword,
     };
 
+    const employeeDetails: typeof schema.employees.$inferInsert = {
+        id: employeeUser.id,
+        campus: 'UPTC',
+        division: 'DNSM',
+    };
+
     console.log('Clearing existing users...');
     // eslint-disable-next-line drizzle/enforce-delete-with-where
     await db.delete(schema.users);
+    // eslint-disable-next-line drizzle/enforce-delete-with-where
+    await db.delete(schema.students);
+    // eslint-disable-next-line drizzle/enforce-delete-with-where
+    await db.delete(schema.employees);
 
     console.log('Seeding database with initial users...');
     await db.insert(schema.users).values([studentUser, employeeUser]);
+    await db.insert(schema.students).values(studentDetails);
+    await db.insert(schema.employees).values(employeeDetails);
 
     const seededUsers = await db.select().from(schema.users);
     console.log('Seeded Users:', seededUsers);

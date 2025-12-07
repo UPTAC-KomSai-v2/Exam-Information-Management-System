@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { useContext, useRef, useState } from "react";
 import { LinkButton } from "~/app/_components/links";
 import { api } from "~/trpc/client";
-import { UserContext, type BaseUser } from "../UserContext";
+import { UserContext, type UserData } from "../UserContext";
 
 export default function Register() {
     const router = useRouter();
@@ -49,6 +49,8 @@ export default function Register() {
             password: passwordRef.current?.value ?? "",
             email: emailRef.current?.value ?? "",
             role: internalUserType,
+            campus: campusRef.current?.value ?? "",
+            programOrDivision: dataRef.current?.value ?? "",
         });
 
         if (!result || result.status === "error") {
@@ -59,7 +61,7 @@ export default function Register() {
         setBaseUser({
             type: internalUserType,
             ...result.data,
-        } as BaseUser);
+        } as UserData);
 
         router.push(userRole === "Employee" ? "/user/professor" : "/user/student");
     };
@@ -194,7 +196,7 @@ function DisplayUniversityInformation({
             <>
                 <div className={styles.container}>
                     <InputContent str="Campus" placeholder="E.g. Tacloban College" type="text" ref={campusRef} />
-                    <InputContent str="College" placeholder="E.g. DNSM" type="text" ref={dataRef} />
+                    <InputContent str="Division" placeholder="E.g. DNSM" type="text" ref={dataRef} />
                 </div>
                 <div className={styles.container}>
                     <InputContent str="Employee Number" placeholder="Enter employee no." type="text" ref={userNumberRef}/>

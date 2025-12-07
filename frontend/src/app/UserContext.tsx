@@ -28,10 +28,7 @@ export type Employee = {
     upMail: string
 };
 
-export type User = Student | Employee;
-
 export type BaseUser = {
-    type: "student" | "employee",
     id: number;
     firstName: string;
     middleName: string;
@@ -44,39 +41,39 @@ export type BaseUser = {
     };
 };
 
+export type StudentUser = {
+    type: "student";
+    details: {
+        campus: string;
+        program: string;
+    };
+} & BaseUser;
+
+export type EmployeeUser = {
+    type: "employee";
+    details: {
+        campus: string;
+        division: string;
+    };
+} & BaseUser;
+
+export type UserData = StudentUser | EmployeeUser;
+
 export const UserContext = createContext<{
-    currentUser: User | null;
-    setCurrentUser: (user : User | null) => void;
-
-    baseUser: BaseUser | null;
-    setBaseUser: (user: BaseUser | null) => void;
+    baseUser: UserData | null;
+    setBaseUser: (user: UserData | null) => void;
 }>({
-    currentUser: null,
-    setCurrentUser: () => void 0,
-
     baseUser: null,
     setBaseUser: () => void 0,
 });
 
 export function UserProvider({ children }: { children: ReactNode }) {
-    const [ currentUser, setCurrentUser ] = useState<User | null>(null);
-    const [ baseUser, setBaseUser ] = useState<BaseUser | null>(null);
+    const [ baseUser, setBaseUser ] = useState<UserData | null>(null);
     
     useEffect(() => {
-        const saved = localStorage.getItem("currentUser");
-        if(saved) setCurrentUser(JSON.parse(saved) as User);
-
         const savedBaseUser = localStorage.getItem("baseUser");
-        if(savedBaseUser) setBaseUser(JSON.parse(savedBaseUser) as BaseUser);
+        if(savedBaseUser) setBaseUser(JSON.parse(savedBaseUser) as UserData);
     }, []);
-    
-    useEffect(() => {
-        if (currentUser) {
-            localStorage.setItem("currentUser", JSON.stringify(currentUser));
-        } else {
-            localStorage.removeItem("currentUser");
-        }
-    }, [currentUser]);
 
     useEffect(() => {
         if (baseUser) {
@@ -88,8 +85,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
     
     return (
         <UserContext.Provider value={{
-            currentUser,
-            setCurrentUser,
             baseUser,
             setBaseUser,
         }}>

@@ -7,12 +7,12 @@ import { useContext } from "react";
 import { LinkButton } from "~/app/_components/links";
 
 export default function StudentProfile() {
-    const { currentUser } = useContext(UserContext);
+    const { baseUser } = useContext(UserContext);
 
-    if (!currentUser) return <p>No user is logged in</p>;
-    if (currentUser.type !== "student") return <p>User logged in is not a student</p>;
+    if (!baseUser) return <p>No user is logged in</p>;
+    if (baseUser.type !== "student") return <p>User logged in is not a student</p>;
 
-    const fullName = currentUser.firstName + " " + currentUser.middleName.charAt(0) + ". " + currentUser.lastName;
+    const fullName = baseUser.firstName + " " + baseUser.middleName.charAt(0) + ". " + baseUser.lastName;
 
     return (
         <div className="page">
@@ -28,8 +28,11 @@ export default function StudentProfile() {
                     <label>Country</label>
                     <p>Philippines</p>
 
+                    <label>Campus</label>
+                    <p>{baseUser.details.campus}</p>
+
                     <label>Program</label>
-                    <p>{currentUser.program}</p>
+                    <p>{baseUser.details.program}</p>
 
                     <label>Role</label>
                     <p>Student</p>
