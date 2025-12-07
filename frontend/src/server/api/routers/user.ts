@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { assignedExams, employees, enrollments, examQuestions, exams, students, users } from "~/server/db/schema";
+import { assignedExams, courseSections, courses, employees, enrollments, examQuestions, exams, students, users } from "~/server/db/schema";
 import type { Course, UserExamData } from "~/app/data/data";
 
 const JWT_SECRET = 'maroon-book-jwt-secret';
@@ -591,6 +591,220 @@ export const userRouter = createTRPCRouter({
 
                 return wrapSuccess(exams as UserExamData[]);
             } catch {
+                return wrapError('Invalid auth token');
+            }
+        }),
+
+    createCourse: publicProcedure
+        .input(z.object({
+            token: z.string(),
+            course: z.object({
+                courseTitle: z.string().min(1),
+                courseDescription: z.string().min(1),
+                academicYear: z.string().min(1),
+                semester: z.string().min(1),
+                sections: z.array(z.object({
+                    sectionName: z.string().min(1).max(4),
+                    courseCode: z.string().min(1).max(64),
+                })).min(1),
+            }),
+        }))
+        .mutation(async ({ ctx, input }) => {
+            // Verify JWT token
+            try {
+                const { id, role } = jwt.verify(input.token, JWT_SECRET) as { id: number, role: string };
+                if (role !== 'employee') {
+                    return wrapError('User is not an employee');
+                }
+
+                // Check if any course code already exists
+                const courseCodes = input.course.sections.map(s => s.courseCode);
+                let existingSections: typeof courseSections.$inferSelect[] = [];
+                
+                if (courseCodes.length === 1) {
+                    existingSections = await ctx.db.query.courseSections.findMany({
+                        where: (sections, { eq }) => eq(sections.courseCode, courseCodes[0]!),
+                    });
+                } else if (courseCodes.length > 1) {
+                    existingSections = await ctx.db.query.courseSections.findMany({
+                        where: (sections, { or, eq }) => 
+                            or(...courseCodes.map(code => eq(sections.courseCode, code))),
+                    });
+                }
+
+                if (existingSections.length > 0) {
+                    const existingCodes = existingSections.map(s => s.courseCode).join(', ');
+                    return wrapError(`Course code(s) already exist: ${existingCodes}`);
+                }
+
+                let success = false;
+                let createdCourse: { courseID: number } | null = null;
+
+                await ctx.db.transaction(async (tx) => {
+                    // Create the course
+                    const courseEntry = await tx.insert(courses).values({
+                        courseTitle: input.course.courseTitle,
+                        courseDescription: input.course.courseDescription,
+                        academicYear: input.course.academicYear,
+                        semester: input.course.semester,
+                        courseEmployeeID: id,
+                    }).returning();
+
+                    if (courseEntry.length === 0) {
+                        tx.rollback();
+                        return;
+                    }
+
+                    createdCourse = courseEntry[0]!;
+
+                    // Create sections
+                    for (const section of input.course.sections) {
+                        await tx.insert(courseSections).values({
+                            courseID: createdCourse.courseID,
+                            sectionName: section.sectionName,
+                            courseCode: section.courseCode,
+                        });
+                    }
+
+                    success = true;
+                });
+
+                if (success && createdCourse) {
+                    // Notify all students that a new course was created
+                    try {
+                        const allStudents = await ctx.db.query.students.findMany();
+                        const studentIDs = allStudents.map(s => s.id);
+
+                        if (studentIDs.length > 0) {
+                            const notificationData = {
+                                message: `A new course "${input.course.courseTitle}" has been created. Course codes: ${input.course.sections.map(s => s.courseCode).join(', ')}`,
+                                courseTitle: input.course.courseTitle,
+                                courseDescription: input.course.courseDescription,
+                                courseID: createdCourse.courseID,
+                                courseCodes: input.course.sections.map(s => s.courseCode),
+                            };
+
+                            const response = await fetch('http://localhost:3001/api/notify', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    userIds: studentIDs,
+                                    data: notificationData,
+                                }),
+                            });
+
+                            if (!response.ok) {
+                                console.error('Failed to send course creation notifications:', await response.text());
+                            } else {
+                                console.log(`Sent course creation notification to ${studentIDs.length} student(s)`);
+                            }
+                        }
+                    } catch (error) {
+                        // Don't fail course creation if notification fails
+                        console.error('Error sending course creation notifications:', error);
+                    }
+
+                    return wrapSuccess({ courseID: createdCourse.courseID });
+                } else {
+                    return wrapError('Failed to create course');
+                }
+            } catch (error) {
+                console.error('Error creating course:', error);
+                return wrapError('Invalid auth token');
+            }
+        }),
+
+    enrollCourse: publicProcedure
+        .input(z.object({
+            token: z.string(),
+            courseCode: z.string().min(1),
+        }))
+        .mutation(async ({ ctx, input }) => {
+            // Verify JWT token
+            try {
+                const { id, role } = jwt.verify(input.token, JWT_SECRET) as { id: number, role: string };
+                if (role !== 'student') {
+                    return wrapError('User is not a student');
+                }
+
+                // Find the section by course code
+                const section = await ctx.db.query.courseSections.findFirst({
+                    where: (sections, { eq }) => eq(sections.courseCode, input.courseCode),
+                });
+
+                if (!section) {
+                    return wrapError('Course code not found');
+                }
+
+                // Check if already enrolled
+                const existingEnrollment = await ctx.db.query.enrollments.findFirst({
+                    where: (enrollments, { and, eq }) => and(
+                        eq(enrollments.studentID, id),
+                        eq(enrollments.sectionID, section.sectionID),
+                    ),
+                });
+
+                if (existingEnrollment) {
+                    return wrapError('Already enrolled in this course section');
+                }
+
+                // Create enrollment
+                await ctx.db.insert(enrollments).values({
+                    studentID: id,
+                    sectionID: section.sectionID,
+                });
+
+                // Get the course to find the instructor
+                const courseWithInstructor = await ctx.db.query.courseSections.findFirst({
+                    where: (sections, { eq }) => eq(sections.sectionID, section.sectionID),
+                    with: {
+                        course: true,
+                    },
+                });
+
+                // Notify the instructor
+                if (courseWithInstructor?.course?.courseEmployeeID) {
+                    try {
+                        const studentInfo = await ctx.db.query.users.findFirst({
+                            where: (users, { eq }) => eq(users.id, id),
+                        });
+
+                        const notificationData = {
+                            message: `A new student has enrolled in ${courseWithInstructor.course.courseTitle} - Section ${section.sectionName}`,
+                            courseTitle: courseWithInstructor.course.courseTitle,
+                            sectionName: section.sectionName,
+                            courseCode: section.courseCode,
+                            studentID: id,
+                            studentName: studentInfo ? `${studentInfo.firstName} ${studentInfo.lastName}` : 'Unknown',
+                        };
+
+                        const response = await fetch('http://localhost:3001/api/notify', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                userIds: [courseWithInstructor.course.courseEmployeeID],
+                                data: notificationData,
+                            }),
+                        });
+
+                        if (!response.ok) {
+                            console.error('Failed to send enrollment notification:', await response.text());
+                        } else {
+                            console.log(`Sent enrollment notification to instructor ${courseWithInstructor.course.courseEmployeeID}`);
+                        }
+                    } catch (error) {
+                        // Don't fail enrollment if notification fails
+                        console.error('Error sending enrollment notification:', error);
+                    }
+                }
+
+                return wrapSuccess({ sectionID: section.sectionID });
+            } catch (error) {
+                console.error('Error enrolling in course:', error);
                 return wrapError('Invalid auth token');
             }
         }),

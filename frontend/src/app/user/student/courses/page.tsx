@@ -10,10 +10,16 @@ import { type Section, type UserExamData } from "~/app/data/data";
 import { type StudentUser, UserContext } from "~/app/UserContext";
 import { getEnrolledSection } from "../page";
 import { LinkButton } from "~/app/_components/links";
+import { api } from "~/trpc/react";
 
 export default function StudentCourses() {
     const [ showOverlay, setShowOverlay]  = useState(false);
-    const { baseUser, courses, userExams } = useContext(UserContext);
+    const { baseUser, courses, userExams, refreshCourses } = useContext(UserContext);
+    const enrollCourseMutation = api.user.enrollCourse.useMutation();
+
+    // Form state
+    const [courseCode, setCourseCode] = useState("");
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     if (!baseUser) return <p>No user is logged in</p>;
     if (baseUser.type !== "student") return <p>User logged in is not a student</p>;
@@ -65,20 +71,69 @@ export default function StudentCourses() {
                         </div>
                         
                         <div className={styles.inputContainer}>
-                            <label>Course Code:</label>
-                            <input type="text" name="courseCode" className={styles.courseCode}/>
+                            <label>Course Code:
+                                <input 
+                                    type="text" 
+                                    name="courseCode" 
+                                    className={styles.courseCode}
+                                    value={courseCode}
+                                    onChange={(e) => setCourseCode(e.target.value)}
+                                    placeholder="e.g., CMSC135-L"
+                                />
+                            </label>
                         </div>
+
+                        {errorMessage && (
+                            <p style={{ color: "red", margin: "10px 0" }}>{errorMessage}</p>
+                        )}
 
                         <button 
                             className="primaryButton"
-                            onClick={() => setShowOverlay(false)}
+                            disabled={enrollCourseMutation.isPending}
+                            onClick={async () => {
+                                if (!baseUser?.authToken) {
+                                    setErrorMessage("User not authenticated");
+                                    return;
+                                }
+
+                                if (!courseCode.trim()) {
+                                    setErrorMessage("Course code is required");
+                                    return;
+                                }
+
+                                setErrorMessage(null);
+
+                                try {
+                                    const result = await enrollCourseMutation.mutateAsync({
+                                        token: baseUser.authToken,
+                                        courseCode: courseCode.trim(),
+                                    });
+
+                                    if (result.status === 'ok') {
+                                        // Reset form
+                                        setCourseCode("");
+                                        setShowOverlay(false);
+                                        // Refresh courses
+                                        refreshCourses();
+                                    } else {
+                                        setErrorMessage(result.message);
+                                    }
+                                } catch (error) {
+                                    console.error("Error enrolling in course:", error);
+                                    setErrorMessage("Failed to enroll in course. Please try again.");
+                                }
+                            }}
                         >
-                            Submit
+                            {enrollCourseMutation.isPending ? "Enrolling..." : "Submit"}
                         </button>
 
                         <button 
                             className={styles.exitOverlay} 
-                            onClick={() => setShowOverlay(false)}
+                            onClick={() => {
+                                setShowOverlay(false);
+                                setErrorMessage(null);
+                                setCourseCode("");
+                            }}
                         >
                             ✖
                         </button>
