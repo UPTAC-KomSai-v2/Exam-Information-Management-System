@@ -101,7 +101,7 @@ const toDateTimeLocal = (enUS: string) => {
 }
 
 export default function CreateExam() {
-    const { baseUser, courses } = useContext(UserContext);
+    const { baseUser, courses, refreshCourses } = useContext(UserContext);
     const rawData = localStorage.getItem("generatedExam");
     const createExamMutation = api.user.createExam.useMutation();
 
@@ -348,6 +348,7 @@ export default function CreateExam() {
 
             if (result.status === 'ok') {
                 alert("Exam created successfully!");
+                refreshCourses();
                 // Optionally redirect or clear form
                 router.push("/user/employee/courses");
             } else {
