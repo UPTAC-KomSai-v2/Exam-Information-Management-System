@@ -75,16 +75,6 @@ export default function UserNavBar({ scope }: UserNavBarProps) {
         {notifOpen && <NotificationDropdown />}
       </div>
 
-
-      <LinkButton href={`/user/${scope}/messages`} className={navStyles.navLink}>
-        <Image
-          src="/images/message_false.png"
-          alt="message"
-          width={20}
-          height={20}
-        />
-      </LinkButton>
-
       <LinkButton href={`/user/${scope}/profile`} className={navStyles.navLink}>
         Profile
       </LinkButton>

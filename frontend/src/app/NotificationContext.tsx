@@ -24,7 +24,7 @@ export const NotificationContext = createContext<NotificationContextType>({
 });
 
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
-    const { baseUser, setBaseUser } = useContext(UserContext);
+    const { baseUser, setBaseUser, refreshCourses } = useContext(UserContext);
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [connectionStatus, setConnectionStatus] = useState<"disconnected" | "connecting" | "connected" | "error">("disconnected");
     
@@ -107,7 +107,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
                         setConnectionStatus("connected");
                     } else if (message.type === "notify") {
                         console.log("[WebSocket] Received notification:", message.payload);
-                        
+                        refreshCourses();
                         // Format notification message
                         let notificationMessage: string;
                         if (typeof message.payload.data === "string") {
