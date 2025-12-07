@@ -36,10 +36,11 @@ export default function ViewExam() {
               <p className={styles.questionText}>{question.questionData.question}</p>
             </div>
             <div className={styles.optionsContainer}>
-              {["A", "B", "C", "D"].map((option) => (
+              {["A", "B", "C", "D"].map((option, index) => (
                 <label key={option} className={styles.optionLabel}>
                   <input type="radio" name={`q${question.questionID}`} value={option} className={styles.radio} />
-                  <span className={styles.optionText}>{option}. Option {option}</span>
+                  {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */}
+                  <span className={styles.optionText}>{option}. {question.questionData.type === 'multiple-choice' ? index < question.questionData.options.length ? question.questionData.options[index] : `Option ${option}` : `Option ${option}`}</span>
                 </label>
               ))}
             </div>

@@ -57,6 +57,7 @@ export type ExamQuestion = {
 export type ExamQuestionData = {
     type: 'multiple-choice';
     question: string;
+    options: string[];
 } | {
     type: 'short-answer';
     question: string;
