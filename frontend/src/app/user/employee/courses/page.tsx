@@ -6,13 +6,12 @@ import Nav from "~/app/user/components/userNav";
 import Logo from "~/app/_components/logo";
 import { type ReactElement, useContext, useState } from "react";
 
-import { referenceExams } from "~/app/data/data";
 import { UserContext } from "~/app/UserContext";
 import { LinkButton } from "~/app/_components/links";
 
 export default function EmployeeCourses() {
     const [ showOverlay, setShowOverlay ]  = useState(false);
-    const { baseUser, courses } = useContext(UserContext);
+    const { baseUser, courses, employeeExams } = useContext(UserContext);
 
     if (!baseUser) return <p>No user is logged in</p>;
     if (baseUser.type !== "employee") return <p>User logged in is not employee</p>;
@@ -25,7 +24,7 @@ export default function EmployeeCourses() {
 
     coursesTaught.forEach((course) => {
         const fullCourseDescription = course.courseDescription + " | " + course.academicYear + " " + course.semester;
-        const noOfExams = referenceExams.filter(refExam => refExam.courseID === course.courseID).length;
+        const noOfExams = employeeExams.filter(exam => exam.courseID === course.courseID).length;
         coursesArray.push(addCourseToPage(
             course.courseID,
             course.courseTitle,
@@ -33,7 +32,7 @@ export default function EmployeeCourses() {
             noOfExams
         ))
     });
-    
+
     return (
         <div className={`${sharedStyles.page} ${styles.page}`}>
             <Nav scope="employee" />

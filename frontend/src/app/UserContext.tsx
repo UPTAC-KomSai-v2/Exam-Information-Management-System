@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, type ReactNode, useEffect, useState } from "react";
-import type { Course } from "./data/data";
+import type { Course, EmployeeExam } from "./data/data";
 import { api } from "~/trpc/client";
 
 export type BaseUser = {
@@ -39,17 +39,29 @@ export const UserContext = createContext<{
     baseUser: UserData | null;
     setBaseUser: (user: UserData | null) => void;
     courses: Course[];
+    employeeExams: EmployeeExam[];
     refreshCourses: () => void;
+    logout: () => void;
 }>({
     baseUser: null,
     setBaseUser: () => void 0,
     courses: [],
+    employeeExams: [],
     refreshCourses: () => void 0,
+    logout: () => void 0,
 });
 
 export function UserProvider({ children }: { children: ReactNode }) {
     const [ baseUser, setBaseUser ] = useState<UserData | null>(null);
     const [ courses, setCourses ] = useState<Course[]>([]);
+    const [ employeeExams, setEmployeeExams ] = useState<EmployeeExam[]>([]);
+
+    function logout() {
+        setBaseUser(null);
+        setCourses([]);
+        setEmployeeExams([]);
+        localStorage.removeItem("baseUser");
+    }
 
     function refreshCourses() {
         if (!baseUser) return;
@@ -63,6 +75,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
                 }
             }).catch(error => {
                 console.error("Error refreshing courses:", error);
+            });
+
+            api.user.getEmployeeExams.query({ token: baseUser.authToken }).then(response => {
+                if (response.status === 'ok') {
+                    setEmployeeExams(response.data);
+                } else {
+                    console.error("Failed to refresh employee exams:", response.message);
+                }
+            }).catch(error => {
+                console.error("Error refreshing employee exams:", error);
             });
         } else {
             api.user.getStudentCourses.query({ token: baseUser.authToken }).then(response => {
@@ -91,8 +113,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
             localStorage.setItem("baseUser", JSON.stringify(baseUser));
             refreshCourses();
         } else {
-            localStorage.removeItem("baseUser");
-            setCourses([]);
+            logout();
         }
     }, [baseUser]);
     
@@ -101,7 +122,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
             baseUser,
             setBaseUser,
             courses,
+            employeeExams,
             refreshCourses,
+            logout,
         }}>
             { children }
         </UserContext.Provider>

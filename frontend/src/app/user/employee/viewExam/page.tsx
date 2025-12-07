@@ -3,53 +3,42 @@
 import sharedStyles from "~/app/user/components/shared.module.css";
 import styles from "./page.module.css";
 import Nav from "~/app/user/components/userNav";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { examScores, students, type ReferenceExam, type Course, examContent, referenceExams, type ExamContent } from "~/app/data/data";
-import {
-  loadExamData,
-  calculateExamStatistics,
-  getStudentPerformanceData,
-  formatExamDetails,
-  isDataReady,
-  type ExamStatistics,
-  type StudentScore,
-} from "./examData";
+import { type EmployeeExam, type ExamQuestion } from "~/app/data/data";
+import { UserContext } from "~/app/UserContext";
 
 export default function ViewExam() {
+  const { employeeExams } = useContext(UserContext);
+
   const searchParams = useSearchParams();
-  const examID = searchParams.get("examID") || "";
-  const [exam, setExam] = useState<ExamContent | null>(null);
-  const [examTitle, setExamTitle] = useState<string>("Unknown Exam");
+  const examID = searchParams.get("examID") ?? "";
+  const [ exam, setExam ] = useState<EmployeeExam | null>(null);
+  const [ examTitle, setExamTitle ] = useState<string>("Unknown Exam");
 
   useEffect(() => {
     if (examID) {
       // Find the exam content
-      const foundExam = examContent.find(e => e.examID === examID);
-      setExam(foundExam || null);
-
-      // Find the exam title from referenceExams
-      const refExam = referenceExams.find(e => e.examID === examID);
-      if (refExam) {
-        setExamTitle(refExam.examTitle);
-      }
+      const foundExam = employeeExams.find(e => e.examID === Number(examID));
+      setExam(foundExam ?? null);
+      setExamTitle(foundExam?.examTitle ?? "Unknown Exam");
     }
-  }, [examID]);
+  }, [employeeExams, examID]);
 
-  const renderQuestion = (question: any, index: number) => {
-    switch (question.type) {
+  const renderQuestion = (question: ExamQuestion, index: number) => {
+    switch (question.questionData.type) {
       case "multiple-choice":
         return (
-          <div key={question.id} className={styles.questionContainer}>
+          <div key={question.questionID} className={styles.questionContainer}>
             <div className={styles.questionHeader}>
               <span className={styles.questionNumber}>Q{index + 1}</span>
               <span className={`${styles.questionType} ${styles.multipleChoice}`}>Multiple Choice</span>
-              <p className={styles.questionText}>{question.question}</p>
+              <p className={styles.questionText}>{question.questionData.question}</p>
             </div>
             <div className={styles.optionsContainer}>
               {["A", "B", "C", "D"].map((option) => (
                 <label key={option} className={styles.optionLabel}>
-                  <input type="radio" name={`q${question.id}`} value={option} className={styles.radio} />
+                  <input type="radio" name={`q${question.questionID}`} value={option} className={styles.radio} />
                   <span className={styles.optionText}>{option}. Option {option}</span>
                 </label>
               ))}
@@ -58,37 +47,37 @@ export default function ViewExam() {
         );
       case "short-answer":
         return (
-          <div key={question.id} className={styles.questionContainer}>
+          <div key={question.questionID} className={styles.questionContainer}>
             <div className={styles.questionHeader}>
               <span className={styles.questionNumber}>Q{index + 1}</span>
               <span className={`${styles.questionType} ${styles.shortAnswer}`}>Short Answer</span>
-              <p className={styles.questionText}>{question.question}</p>
+              <p className={styles.questionText}>{question.questionData.question}</p>
             </div>
-            {question.wordLimit && (
-              <p className={styles.wordLimit}>Word Limit: {question.wordLimit} words</p>
+            {question.questionData.wordLimit && (
+              <p className={styles.wordLimit}>Word Limit: {question.questionData.wordLimit} words</p>
             )}
             <textarea
               className={styles.textarea}
               placeholder="Enter your answer here..."
-              maxLength={question.wordLimit ? question.wordLimit * 6 : undefined}
+              maxLength={question.questionData.wordLimit ? question.questionData.wordLimit * 6 : undefined}
             />
           </div>
         );
       case "paragraph":
         return (
-          <div key={question.id} className={styles.questionContainer}>
+          <div key={question.questionID} className={styles.questionContainer}>
             <div className={styles.questionHeader}>
               <span className={styles.questionNumber}>Q{index + 1}</span>
               <span className={`${styles.questionType} ${styles.paragraph}`}>Essay</span>
-              <p className={styles.questionText}>{question.question}</p>
+              <p className={styles.questionText}>{question.questionData.question}</p>
             </div>
-            {question.wordLimit && (
-              <p className={styles.wordLimit}>Word Limit: {question.wordLimit} words</p>
+            {question.questionData.wordLimit && (
+              <p className={styles.wordLimit}>Word Limit: {question.questionData.wordLimit} words</p>
             )}
             <textarea
               className={`${styles.textarea} ${styles.paragraphTextarea}`}
               placeholder="Write your essay here..."
-              maxLength={question.wordLimit ? question.wordLimit * 6 : undefined}
+              maxLength={question.questionData.wordLimit ? question.questionData.wordLimit * 6 : undefined}
             />
           </div>
         );
@@ -107,7 +96,7 @@ export default function ViewExam() {
         </div>
         {exam ? (
           <div className={styles.questionsSection}>
-            {exam.examQuestions[0]?.map((question, index) => renderQuestion(question, index))}
+            {exam.questions?.map((question, index) => renderQuestion(question, index))}
           </div>
         ) : (
           <p className={styles.noContent}>No exam content found.</p>

@@ -5,17 +5,18 @@ import styles from "./page.module.css";
 import Nav from "~/app/user/components/userNav";
 import { type ReactElement, useContext, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { referenceExams, examScores, type Course, type Section, type ReferenceExam } from "~/app/data/data";
+import { type Course, type Section, type EmployeeExam } from "~/app/data/data";
 import { UserContext } from "~/app/UserContext";
 
 export default function ViewCourseReport() {
+  const { courses, employeeExams } = useContext(UserContext);
+
   const [ selectedSection, setSelectedSection ] = useState<string>("All Sections");
   const [ selectedDisplay, setSelectedDisplay ] = useState<string>("Average");
   const [ selectedCourse, setSelectedCourse ] = useState<Course|null>(null);
   const [ sections, setSections ] = useState<Section[]|null>(null);
-  const { noOfStudents, noOfExams } = getUpdatedInformation(selectedCourse, selectedSection);
+  const { noOfStudents, noOfExams } = getUpdatedInformation(selectedCourse, employeeExams, selectedSection);
   const searchParams = useSearchParams();
-  const { courses } = useContext(UserContext);
 
   // for every effect that occurs
   useEffect(() => {
@@ -79,10 +80,14 @@ export default function ViewCourseReport() {
           <hr/>
           <RenderExamContent 
             selectedCourse={selectedCourse} 
-            sectionName={selectedSection} 
+            sectionName={selectedSection}
+            sectionID={(selectedSection === "All Sections") ? -1 :
+                        (sections ? sections.find(section => section.sectionName === selectedSection)?.sectionID ?? -1 : -1)} 
             noOfStudents={noOfStudents}
             noOfExams={noOfExams}
-            selectedDisplay={selectedDisplay} />
+            selectedDisplay={selectedDisplay}
+            exams={employeeExams}
+          />
         </div>
       </main>
     </div>
@@ -90,27 +95,48 @@ export default function ViewCourseReport() {
 }
 
 // getting the updated information
-function getUpdatedInformation(selectedCourse: Course|null, selectedSectionName: string) {
+function getUpdatedInformation(selectedCourse: Course | null, exams: EmployeeExam[], selectedSectionName: string) {
   let noOfStudents = 0;
   let noOfExams = 0;
+
   if(!selectedCourse) return { noOfStudents, noOfExams };
 
   // get the sections within the course
   const sections = selectedCourse.sections;
 
-  if(selectedSectionName === "All Sections"){
+  let targetSectionIds: number[] = [];
+  if (selectedSectionName === "All Sections") {
     sections.forEach(section => noOfStudents += section.studentsEnrolled.length);
+    targetSectionIds = sections.map(section => section.sectionID);
   } else {
     const selectedSection = sections.find(section => section.sectionName === selectedSectionName);
     if(!selectedSection) return { noOfStudents, noOfExams };
 
     noOfStudents = selectedSection.studentsEnrolled.length;
+    targetSectionIds = [selectedSection.sectionID];
   }
-  noOfExams = referenceExams.filter(refExam => refExam.courseID === selectedCourse.courseID).length;
+
+  noOfExams = exams.filter(exam => exam.assigned.some(assignedExam => targetSectionIds.includes(assignedExam.sectionID))).length;
   return { noOfStudents, noOfExams };
 }
 
-function RenderExamContent({selectedCourse, sectionName, noOfStudents, noOfExams, selectedDisplay}:{selectedCourse: Course|null, sectionName: string, noOfStudents: number, noOfExams: number, selectedDisplay: string}) {
+function RenderExamContent({
+  selectedCourse,
+  sectionName,
+  sectionID,
+  noOfStudents,
+  noOfExams,
+  selectedDisplay,
+  exams,
+}: {
+  selectedCourse: Course | null,
+  sectionName: string,
+  sectionID: number,
+  noOfStudents: number,
+  noOfExams: number,
+  selectedDisplay: string,
+  exams: EmployeeExam[],
+}) {
   console.log(selectedDisplay);
   return (
     <div className={`${styles.examReportDiv}`}>
@@ -123,33 +149,42 @@ function RenderExamContent({selectedCourse, sectionName, noOfStudents, noOfExams
 
       <p className={styles.subheading}>Exam Report</p>
       { (selectedDisplay === "Average") ? 
-        <RenderAverageScores selectedCourse={selectedCourse} sectionName={sectionName} /> : 
-        <RenderAllScores selectedCourse={selectedCourse} sectionName={sectionName} /> 
+        <RenderAverageScores selectedCourse={selectedCourse} sectionID={sectionID} exams={exams} /> : 
+        <RenderAllScores selectedCourse={selectedCourse} sectionID={sectionID} exams={exams} /> 
       }
     </div>
   );
 }
 
-function RenderAverageScores({selectedCourse, sectionName}:{selectedCourse: Course|null, sectionName: string}) {
+function RenderAverageScores({
+  selectedCourse,
+  sectionID,
+  exams,
+}: {
+  selectedCourse: Course | null,
+  sectionID: number,
+  exams: EmployeeExam[],
+}) {
   const GetScoreContent = () => {
     const examScoreContent: ReactElement[] = [];
     if(!selectedCourse) return null;
 
     let counter = 1;
-    referenceExams
-    .filter(refExam => refExam.courseID === selectedCourse.courseID)
-    .map(refExam => {
-      const { averageScores, noOfTakers } = getAVGScoresAndNoOfTakers(refExam.examID, sectionName);
-        examScoreContent.push(
-          <div className={styles.examDetailsAVG} key={refExam.examID}>
-            <p>{counter++}</p>
-            <p>{refExam.examTitle}</p>
-            <p>{refExam.items}</p>
-            <p>{averageScores.toFixed(2)}%</p>
-            <p>{noOfTakers}</p>
-          </div>
-        );
-    });
+    exams
+      .filter(exam => exam.courseID === selectedCourse.courseID)
+      .map(exam => {
+        const { averageScores, noOfTakers } = getAVGScoresAndNoOfTakers(exam, sectionID);
+          examScoreContent.push(
+            <div className={styles.examDetailsAVG} key={exam.examID}>
+              <p>{counter++}</p>
+              <p>{exam.examTitle}</p>
+              <p>{exam.questions.length}</p>
+              <p>{averageScores.toFixed(2)}%</p>
+              <p>{noOfTakers}</p>
+            </div>
+          );
+      });
+
     return examScoreContent;
   }
 
@@ -167,75 +202,84 @@ function RenderAverageScores({selectedCourse, sectionName}:{selectedCourse: Cour
   );
 }
 
-function getAVGScoresAndNoOfTakers(referencedExamID: string, sectionName: string) {
+function getAVGScoresAndNoOfTakers(exam: EmployeeExam, sectionID: number) {
   let totalScore = 0;
   let noOfTakers = 0;
   
-  examScores
-  .filter((examScore) => {
-    const condition = (sectionName === "All Sections") ? (examScore.referencedExamID === referencedExamID) : (examScore.referencedExamID === referencedExamID && examScore.section === sectionName);
-    return condition;
-  })
-  .map((examScore) => {
-    noOfTakers++;
-    totalScore += examScore.score;
-  });
+  exam.scores
+    .filter((examScore) => {
+      return (sectionID === -1) ? true : (examScore.sectionID === sectionID);
+    })
+    .map((examScore) => {
+      noOfTakers++;
+      totalScore += examScore.score;
+    });
+
   const averageScores = totalScore / noOfTakers;
   return { averageScores, noOfTakers };
 }
 
 // rendering for all scores
-function RenderAllScores({selectedCourse, sectionName}:{selectedCourse: Course|null, sectionName: string}) {
+function RenderAllScores({
+  selectedCourse,
+  sectionID,
+  exams,
+}: {
+  selectedCourse: Course | null,
+  sectionID: number,
+  exams: EmployeeExam[],
+}) {
   const GetScoreContent = () => {
     const fullExamScoreContent: ReactElement[] = [];
 
     if(!selectedCourse) return fullExamScoreContent;
 
-    const StudentExamScores = ({referenceExam}:{referenceExam: ReferenceExam}) => {
+    const StudentExamScores = ({ exam }: { exam: EmployeeExam }) => {
       const individualExamScore: ReactElement[] = [];
 
-      examScores
-      .filter((examScore) => {
-        const condition = (sectionName === "All Sections") ? referenceExam.examID === examScore.referencedExamID :referenceExam.examID === examScore.referencedExamID && examScore.section === sectionName;
-        return condition;
-      })
-      .map((examScore) => {
-        const studentNo = examScore.studentID;
-        const score = examScore.score;
-        const noOfItems = referenceExam.items;
-        const grade = ((score/noOfItems)*100).toFixed(2);
-        const scoreWithItems = score + "/" + noOfItems;
-        
-        individualExamScore.push(
-          <div className={styles.examDetailsAll} key={studentNo}>
-            <p>{studentNo}</p>
-            <p>{scoreWithItems}</p>
-            <p>{grade}%</p>
-          </div>
-        )
-      });
+      exam.scores
+        .filter((examScore) => {
+          return (sectionID === -1) ? true : (examScore.sectionID === sectionID);
+        })
+        .map((examScore) => {
+          const studentNo = examScore.studentID;
+          const score = examScore.score;
+          const totalPoints = exam.questions.reduce((acc, question) => acc + question.points, 0);
+          const grade = ((score / totalPoints) * 100).toFixed(2);
+          const scoreWithItems = score + "/" + totalPoints;
+          
+          individualExamScore.push(
+            <div className={styles.examDetailsAll} key={studentNo}>
+              <p>{studentNo}</p>
+              <p>{scoreWithItems}</p>
+              <p>{grade}%</p>
+            </div>
+          )
+        });
+
       return individualExamScore;
     };
 
     let counter = 1;
-    referenceExams
-    .filter(refExam => refExam.courseID === selectedCourse.courseID)
-    .map((refExam) => {
-      fullExamScoreContent.push(
-        <div className={styles.examReportDiv} key={refExam.examID}>
-          <div className={styles.examHeading}>
-            <p>Exam No.: {counter++}</p>
-            <p>Title: {refExam.examTitle}</p>
+    exams
+      .filter(exam => exam.courseID === selectedCourse.courseID)
+      .map((exaam) => {
+        fullExamScoreContent.push(
+          <div className={styles.examReportDiv} key={exaam.examID}>
+            <div className={styles.examHeading}>
+              <p>Exam No.: {counter++}</p>
+              <p>Title: {exaam.examTitle}</p>
+            </div>
+            <div className={styles.examDetailsAll}>
+              <p className={styles.bold}>Student No.</p>
+              <p className={styles.bold}>Score</p>
+              <p className={styles.bold}>Grade</p>
+            </div>
+            <StudentExamScores exam={exaam} />
           </div>
-          <div className={styles.examDetailsAll}>
-            <p className={styles.bold}>Student No.</p>
-            <p className={styles.bold}>Score</p>
-            <p className={styles.bold}>Grade</p>
-          </div>
-          <StudentExamScores referenceExam={refExam} />
-        </div>
-      );
-    });
+        );
+      });
+
     return fullExamScoreContent;
   }
 
@@ -243,4 +287,3 @@ function RenderAllScores({selectedCourse, sectionName}:{selectedCourse: Course|n
     <GetScoreContent />
   );
 }
-

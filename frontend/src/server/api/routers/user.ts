@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { employees, students, users } from "~/server/db/schema";
-import type { Course } from "~/app/data/data";
+import type { Course, EmployeeExam } from "~/app/data/data";
 
 const JWT_SECRET = 'maroon-book-jwt-secret';
 const NOTIFY_HASH_SALT = 'maroon-book-salt';
@@ -289,6 +289,51 @@ export const userRouter = createTRPCRouter({
                 }
 
                 return wrapSuccess(coursesTaught as unknown as Course[]);
+            } catch {
+                return wrapError('Invalid auth token');
+            }
+        }),
+    
+    getEmployeeExams: publicProcedure
+        .input(z.object({
+            token: z.string(),
+        }))
+        .query(async ({ ctx, input }) => {
+            // Verify JWT token
+            try {
+                const { id, role } = jwt.verify(input.token, JWT_SECRET) as { id: number, role: string };
+                if (role !== 'employee') {
+                    return wrapError('User is not an employee');
+                }
+
+                const courses = await ctx.db.query.courses.findMany({
+                    where: (courses, { eq }) => eq(courses.courseEmployeeID, id),
+                    with: {
+                        sections: {
+                            with: {
+                                exams: {
+                                    with: {
+                                        exam: {
+                                            with: {
+                                                questions: true,
+                                                scores: true,
+                                                assigned: true,
+                                            }
+                                        },
+                                    }
+                                },
+                            }
+                        }
+                    }
+                });
+
+                const exams = courses.flatMap(course => 
+                    course.sections.flatMap(section => 
+                        section.exams.flatMap(assignedExam => assignedExam.exam)
+                    )
+                );
+
+                return wrapSuccess(exams as EmployeeExam[]);
             } catch {
                 return wrapError('Invalid auth token');
             }

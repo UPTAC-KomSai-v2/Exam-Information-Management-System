@@ -80,6 +80,7 @@ export const courseSections = createTable(
 export const courseSectionRelations = relations(courseSections, ({ one, many }) => ({
     course: one(courses, { fields: [courseSections.courseID], references: [courses.courseID] }),
     enrollments: many(enrollments),
+    exams: many(assignedExams),
 }));
 
 export const enrollments = createTable(
@@ -101,16 +102,19 @@ export const exams = createTable(
     "exam",
     (d) => ({
         examID: d.serial().primaryKey().notNull(),
+        courseID: d.integer().notNull().references(() => courses.courseID),
         examTitle: d.varchar({ length: 256 }).notNull(),
         timeAllotted: d.varchar({ length: 16 }).notNull(),
-        dueDate: d.timestamp().notNull(),
+        dueDate: d.varchar({ length: 256 }).notNull(),
     }),
     (t) => [index("exam_id_idx").on(t.examID)],
 );
 
-export const examRelations = relations(exams, ({ many }) => ({
+export const examRelations = relations(exams, ({ one, many }) => ({
     assigned: many(assignedExams),
     questions: many(examQuestions),
+    scores: many(examScores),
+    course: one(courses, { fields: [exams.courseID], references: [courses.courseID] }),
 }));
 
 export const examQuestions = createTable(
@@ -119,6 +123,7 @@ export const examQuestions = createTable(
         questionID: d.serial().primaryKey().notNull(),
         examID: d.integer().notNull().references(() => exams.examID),
         questionData: d.jsonb().notNull(),
+        points: d.integer().notNull(),
     }),
     (t) => [index("question_id_idx").on(t.questionID)],
 );
@@ -147,6 +152,7 @@ export const examScores = createTable(
     (d) => ({
         examScoreID: d.serial().primaryKey().notNull(),
         examID: d.integer().notNull().references(() => exams.examID),
+        sectionID: d.integer().notNull().references(() => courseSections.sectionID),
         studentID: d.integer().notNull().references(() => students.id),
         score: d.integer().notNull(),
     }),
@@ -155,6 +161,7 @@ export const examScores = createTable(
 
 export const examScoreRelations = relations(examScores, ({ one, many }) => ({
     exam: one(exams, { fields: [examScores.examID], references: [exams.examID] }),
+    section: one(courseSections, { fields: [examScores.sectionID], references: [courseSections.sectionID] }),
     student: one(students, { fields: [examScores.studentID], references: [students.id] }),
     answers: many(examAnswers),
 }));
@@ -166,6 +173,7 @@ export const examAnswers = createTable(
         examScoreID: d.integer().notNull().references(() => examScores.examScoreID),
         questionID: d.integer().notNull().references(() => examQuestions.questionID),
         answerData: d.jsonb().notNull(),
+        score: d.integer().notNull(),
     }),
     (t) => [index("exam_answer_id_idx").on(t.examAnswerID)],
 );

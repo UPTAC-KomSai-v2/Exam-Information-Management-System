@@ -33,6 +33,62 @@ export type ExamContent = {
     examQuestions: Question[][];
 }
 
+export type EmployeeExam = Exam & {
+    assigned: AssignedExam[];
+    questions: ExamQuestion[];
+    scores: ExamScore[];
+};
+
+export type Exam = {
+    examID: number;
+    courseID: number;
+    examTitle: string;
+    timeAllotted: string;
+    dueDate: string;
+};
+
+export type ExamQuestion = {
+    questionID: number;
+    examID: number;
+    questionData: ExamQuestionData;
+    points: number;
+};
+
+export type ExamQuestionData = {
+    type: 'multiple-choice';
+    question: string;
+} | {
+    type: 'short-answer';
+    question: string;
+    wordLimit?: number;
+} | {
+    type: 'paragraph';
+    question: string;
+    wordLimit?: number;
+};
+
+export type AssignedExam = {
+    assignedExamID: number;
+    examID: number;
+    sectionID: number;
+};
+
+export type ExamScore = {
+    examScoreID: number;
+    examID: number;
+    sectionID: number;
+    studentID: number;
+    score: number;
+};
+
+export type ExamAnswer = {
+    examAnswerID: number;
+    examScoreID: number;
+    questionID: number;
+    answerData: unknown;
+    score: number;
+};
+
 export const examScores = [
     // using a specific 
     // Long Exam 1 Lecture

@@ -1,18 +1,18 @@
 "use client";
 
-import { courses, referenceExams, type ReferenceExam } from "~/app/data/data";
 import mainStyle from "./page.module.css";
 import styles from "~/app/user/components/shared.module.css";
 import Nav from "~/app/user/components/userNav";
 import { type ReactNode, useContext } from "react";
-import { type Employee, UserContext } from "~/app/UserContext";
+import { type EmployeeUser, UserContext } from "~/app/UserContext";
 import { LinkButton } from "~/app/_components/links";
+import type { Course, EmployeeExam } from "~/app/data/data";
 
 export default function EmployeeDashboard() {
-    const { currentUser } = useContext(UserContext);
+    const { baseUser, employeeExams, courses } = useContext(UserContext);
 
-    if (!currentUser) return <p>No user is logged in</p>;
-    if (currentUser.type !== "employee") return <p>User logged in is not employee</p>;
+    if (!baseUser) return <p>No user is logged in</p>;
+    if (baseUser.type !== "employee") return <p>User logged in is not employee</p>;
 
     return (
         <div className={styles.page}>
@@ -24,43 +24,49 @@ export default function EmployeeDashboard() {
                         Create New Exam
                     </LinkButton>
                 </div>
-                <RenderExamList currentUser={currentUser} />
+                <RenderExamList baseUser={baseUser} employeeExams={employeeExams} courses={courses} />
             </main>
         </div>
     );
 }
 
-function RenderExamList({ currentUser }: { currentUser: Employee }) {
-    const indivExamContent = (refExam: ReferenceExam, examDescription: string, sectionNames: string) => {
+function RenderExamList({
+    baseUser,
+    employeeExams,
+    courses
+}: {
+    baseUser: EmployeeUser,
+    employeeExams: EmployeeExam[],
+    courses: Course[],
+}) {
+    const indivExamContent = (exam: EmployeeExam, examDescription: string, sectionNames: string) => {
         return(
-            <div className={styles.examCourseDiv} key={refExam.examID}>
-                <p className="title22px">{refExam.examTitle}</p>
+            <div className={styles.examCourseDiv} key={exam.examID}>
+                <p className="title22px">{exam.examTitle}</p>
                 <p className={styles.description}>{examDescription}</p>
                 <div className={styles.information}>
                     <p>Sections: {sectionNames}</p>
-                    <p>Total Items: {refExam.items}</p>
-                    <p>Exam Type: {refExam.examType}</p>
-                    <p>Time Allotted: {refExam.timeAllotted}</p>
-                    <p>Due Date: {refExam.dueDate}</p>
+                    <p>Total Items: {exam.questions.length}</p>
+                    <p>Time Allotted: {exam.timeAllotted}</p>
+                    <p>Due Date: {exam.dueDate}</p>
                     <a>Publish Exam</a>
                     <a>Hide Exam</a>
-                    <LinkButton href={`/user/employee/viewExam?examID=${encodeURIComponent(refExam.examID)}`} className="">View Exam</LinkButton>
+                    <LinkButton href={`/user/employee/viewExam?examID=${encodeURIComponent(exam.examID)}`} className="">View Exam</LinkButton>
                 </div>
             </div>
         );
     }
 
     const examList: ReactNode[] = [];
-    const coursesTaught = courses.filter(course => course.courseEmployeeID === currentUser.userID);
 
-    coursesTaught.forEach((course) => {
-        const refExams = referenceExams.filter(refExam => refExam.courseID === course.courseID);
+    courses.forEach((course) => {
+        const exams = employeeExams.filter(refExam => refExam.courseID === course.courseID);
         
         let sectionNames = "";
         course.sections.forEach(section => sectionNames += `${section.sectionName} , `);
         sectionNames.slice(0, sectionNames.length-2);
 
-        refExams.forEach((refExam) => {
+        exams.forEach((refExam) => {
             const courseDescription = `${course.courseTitle} | ${course.courseDescription}`
             examList.push(indivExamContent(refExam, courseDescription, sectionNames));
         });

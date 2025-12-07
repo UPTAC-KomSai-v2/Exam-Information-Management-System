@@ -1,4 +1,4 @@
-import { courses, referenceExams, examScores, students, type ReferenceExam, type Course } from "~/app/data/data";
+import { type ReferenceExam, type Course } from "~/app/data/data";
 
 export interface ExamStatistics {
   totalTakers: number;
