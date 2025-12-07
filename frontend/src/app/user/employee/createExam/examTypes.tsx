@@ -8,7 +8,7 @@ type GeneralExamProps = {
 }
 
 export function RenderFileSubmission({questionObjs, setQuestionObjs}: GeneralExamProps) {
-    if(!questionObjs || !questionObjs[0] || !questionObjs[0][0]) return <p>questionObjs is undefined.</p>;
+    if(!questionObjs?.[0]?.[0]) return <p>questionObjs is undefined.</p>;
     return (
         <>
             <p className="title22px">File Submission</p>
@@ -24,7 +24,7 @@ export function RenderFileSubmission({questionObjs, setQuestionObjs}: GeneralExa
 }
 
 export function RenderEssay({questionObjs, setQuestionObjs}: GeneralExamProps) {
-    if(!questionObjs || !questionObjs[0] || !questionObjs[0][0]) return <p>questionObjs is undefined.</p>;
+    if(!questionObjs?.[0]?.[0]) return <p>questionObjs is undefined.</p>;
     return (
         <>
             <p className="title22px">Essay Question</p>
@@ -47,27 +47,28 @@ type CustomExamProps = {
 }
 
 export function RenderCustomExam({pageDescriptions, setPageDescriptions, questionObjs, setQuestionObjs}: CustomExamProps) {
+    // Assume single page for now - commenting out multi-page functionality
     const [ currentPage, setCurrentPage ] = useState<number>(0);
-    const [ pages, setPages ] = useState<number>(1);
-    const [ isStartDisabled, setIsStartDisabled ] = useState<boolean>(true);
-    const [ isEndDisabled, setIsEndDisabled ] = useState<boolean>(true);
+    // const [ pages, setPages ] = useState<number>(1);
+    // const [ isStartDisabled, setIsStartDisabled ] = useState<boolean>(true);
+    // const [ isEndDisabled, setIsEndDisabled ] = useState<boolean>(true);
     
-    const [ count, setCount ] = useState<number>(0);
+    // const [ count, setCount ] = useState<number>(0);
 
-    useEffect(() => {
-        setIsStartDisabled(currentPage <= 0);
-        setIsEndDisabled(currentPage >= pages-1);
-        console.log(`[USEFFECT from change in pages and currentPages] pages = ${pages}, currentPage = ${currentPage}`)
-    }, [pages, currentPage]);
+    // useEffect(() => {
+    //     setIsStartDisabled(currentPage <= 0);
+    //     setIsEndDisabled(currentPage >= pages-1);
+    //     console.log(`[USEFFECT from change in pages and currentPages] pages = ${pages}, currentPage = ${currentPage}`)
+    // }, [pages, currentPage]);
 
     useEffect(() => {
         console.log(questionObjs);
     }, [questionObjs]);
 
-    useEffect(() => {
-        setCount(count+1);
-        console.log("" + count+1);
-    }, []);    
+    // useEffect(() => {
+    //     setCount(count+1);
+    //     console.log("" + count+1);
+    // }, []);    
 
     const addQuestion = () => {
         setQuestionObjs((prev:Question[][])=> {
@@ -105,7 +106,7 @@ export function RenderCustomExam({pageDescriptions, setPageDescriptions, questio
                 question: "",
                 wordLimit: (value === "Short Answer") ? null : 300 
             };
-        } else if(value === "Multiple Choice" || value === "Checkbox") {
+        } else if(value === "Multiple Choice") {
             newQuestion = { 
                 type: value, 
                 id: questionId,
@@ -157,74 +158,73 @@ export function RenderCustomExam({pageDescriptions, setPageDescriptions, questio
         setQuestionObjs(newQuestionObjs);
     };
 
-    // goods
-    const addNewPage = () => {
-        console.log("[Adding a new page]");
-        setCurrentPage(currentPage+1);
-        setPages(pages+1);
-        setPageDescriptions((prev:string[])=> {
-            const newPageDescriptions = [...prev];
-            newPageDescriptions.splice(currentPage, 0, "Enter a description.");
-            return newPageDescriptions;
-        })
+    // Multi-page functionality commented out - assuming single page for now
+    // const addNewPage = () => {
+    //     console.log("[Adding a new page]");
+    //     setCurrentPage(currentPage+1);
+    //     setPages(pages+1);
+    //     setPageDescriptions((prev:string[])=> {
+    //         const newPageDescriptions = [...prev];
+    //         newPageDescriptions.splice(currentPage, 0, "Enter a description.");
+    //         return newPageDescriptions;
+    //     })
 
-        setQuestionObjs((prev:Question[][]) => {
-            let newPages = [...prev];
-            const newQuestionArray = [{ 
-                type: "Short Answer", 
-                id: crypto.randomUUID(),
-                question: "",
-                wordLimit: null  
-            }];
+    //     setQuestionObjs((prev:Question[][]) => {
+    //         let newPages = [...prev];
+    //         const newQuestionArray = [{ 
+    //             type: "Short Answer", 
+    //             id: crypto.randomUUID(),
+    //             question: "",
+    //             wordLimit: null  
+    //         }];
 
-            if(!newPages[currentPage+1]) newPages[currentPage+1] = newQuestionArray;
-            else newPages.splice(currentPage+1, 0, newQuestionArray);
-            return newPages;
-        });
-    }
+    //         if(!newPages[currentPage+1]) newPages[currentPage+1] = newQuestionArray;
+    //         else newPages.splice(currentPage+1, 0, newQuestionArray);
+    //         return newPages;
+    //     });
+    // }
 
-    // goods
-    const removePage = () => {
-        console.log(`[Removing pages ${currentPage}]`);
-        setCurrentPage((pages-1 > currentPage || currentPage === 0) ? currentPage : currentPage-1);
-        setPages(pages-1);
-        setPageDescriptions((prev:string[])=> {
-            const newPageDescriptions = [...prev];
-            newPageDescriptions.splice(currentPage, 1);
-            return newPageDescriptions;
-        });
-        setQuestionObjs((prev:Question[][]) => {
-            const newPages = [...prev];
-            newPages.splice(currentPage, 1);
-            return newPages;
-        });
-    }
+    // const removePage = () => {
+    //     console.log(`[Removing pages ${currentPage}]`);
+    //     setCurrentPage((pages-1 > currentPage || currentPage === 0) ? currentPage : currentPage-1);
+    //     setPages(pages-1);
+    //     setPageDescriptions((prev:string[])=> {
+    //         const newPageDescriptions = [...prev];
+    //         newPageDescriptions.splice(currentPage, 1);
+    //         return newPageDescriptions;
+    //     });
+    //     setQuestionObjs((prev:Question[][]) => {
+    //         const newPages = [...prev];
+    //         newPages.splice(currentPage, 1);
+    //         return newPages;
+    //     });
+    // }
 
-    // goods
-    const navigatePage = (direction: number) => {
-        setCurrentPage(currentPage + direction);
-    }   
+    // const navigatePage = (direction: number) => {
+    //     setCurrentPage(currentPage + direction);
+    // }   
 
-    const movePage = (direction: number) => {
-        setQuestionObjs((prev:Question[][]) => {
-            const newQuestionObjs = [...prev];
+    // const movePage = (direction: number) => {
+    //     setQuestionObjs((prev:Question[][]) => {
+    //         const newQuestionObjs = [...prev];
             
-            const [ item ] = newQuestionObjs.splice(currentPage, 1);
-            if(!item) return prev;
+    //         const [ item ] = newQuestionObjs.splice(currentPage, 1);
+    //         if(!item) return prev;
 
-            newQuestionObjs.splice(currentPage+direction, 0, item);
+    //         newQuestionObjs.splice(currentPage+direction, 0, item);
 
-            return newQuestionObjs;
-        });
+    //         return newQuestionObjs;
+    //     });
 
-        setCurrentPage(currentPage+direction);
-    }
+    //     setCurrentPage(currentPage+direction);
+    // }
 
     return (
         <>
             <p className="title22px">Custom Exam</p>
-            <p className="title17px">Page {currentPage+1}</p>
-            <div style={{display: "flex", justifyContent: "space-between", margin: "10px 0px"}}>
+            {/* Multi-page functionality commented out - assuming single page for now */}
+            {/* <p className="title17px">Page {currentPage+1}</p> */}
+            {/* <div style={{display: "flex", justifyContent: "space-between", margin: "10px 0px"}}>
                 <button 
                     onClick={() => addNewPage()}
                     className="secondaryButton"
@@ -235,9 +235,9 @@ export function RenderCustomExam({pageDescriptions, setPageDescriptions, questio
                     className="secondaryButton"
                     disabled={isStartDisabled}
                 >Remove Page</button>
-            </div>
+            </div> */}
             
-            <div style={{display: "flex", justifyContent: "space-between", margin: "10px 0px"}}>
+            {/* <div style={{display: "flex", justifyContent: "space-between", margin: "10px 0px"}}>
                 <button 
                     onClick={ () => navigatePage(-1) }
                     className="secondaryButton"
@@ -258,9 +258,10 @@ export function RenderCustomExam({pageDescriptions, setPageDescriptions, questio
                     className="secondaryButton"
                     disabled={isStartDisabled}
                 >Move Page Down</button>
-            </div>
+            </div> */}
 
-            <RenderDescription descriptions={pageDescriptions} setDescriptions={setPageDescriptions} currentPage={currentPage} />
+            {/* Page description functionality commented out - assuming single page for now */}
+            {/* <RenderDescription descriptions={pageDescriptions} setDescriptions={setPageDescriptions} currentPage={currentPage} /> */}
 
             <div style={{width: "100%"}}>
                 <button
@@ -273,10 +274,10 @@ export function RenderCustomExam({pageDescriptions, setPageDescriptions, questio
             <p className="title17px" style={{textAlign: "center"}}>QUESTION</p>
 
             <div>
-                { (questionObjs[currentPage]) && (questionObjs[currentPage].map((questionObj:Question, index:number) => {
+                { questionObjs[currentPage]?.map((questionObj:Question, index:number) => {
                     const questionType = questionObj.type;
                     const questionId = questionObj.id;
-                    if(!questionType || !questionId) return (<p>Question type is null</p>);
+                    if(!questionType || !questionId) return (<p key={questionId}>Question type is null</p>);
                     console.log(questionObjs[currentPage]?.length);
 
                     return (
@@ -318,8 +319,7 @@ export function RenderCustomExam({pageDescriptions, setPageDescriptions, questio
                                         <option value="Short Answer">Short Answer</option>
                                         <option value="Paragraph">Paragraph</option>
                                         <option value="Multiple Choice">Multiple Choice</option>
-                                        <option value="Checkbox">Checkbox</option>
-                                        <option value="File Submission">File Submission</option>
+                                        {/* <option value="File Submission">File Submission</option> */}
                                     </select>
                                 </label>
                                 <p></p>
@@ -339,7 +339,7 @@ export function RenderCustomExam({pageDescriptions, setPageDescriptions, questio
                                     currentPage={currentPage}
                                 />) }
 
-                            { (questionType === "Multiple Choice" || questionType === "Checkbox") && 
+                            { (questionType === "Multiple Choice") && 
                                 (<RenderOptionQuestion 
                                     questionType={questionType}
                                     questionId={questionId}
@@ -359,7 +359,7 @@ export function RenderCustomExam({pageDescriptions, setPageDescriptions, questio
                         </div>
                     );
                 }
-                ))}
+                )}
             </div>
         </>
     )

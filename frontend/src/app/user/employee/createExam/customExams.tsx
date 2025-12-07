@@ -80,8 +80,7 @@ export function RenderOptionQuestion({questionType, questionId, questionObj, set
         });        
     }, [ qo ]);
 
-    const optionType = (qo.type === "Multiple Choice") ? "𖧋" : 
-        (qo.type === "Checkbox") ? "☐" : "";
+    const optionType = (qo.type === "Multiple Choice") ? "𖧋" : "";
 
     const addNewOption = () => {
         setOptions(prev => [
