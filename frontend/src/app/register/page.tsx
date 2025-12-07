@@ -63,7 +63,7 @@ export default function Register() {
             ...result.data,
         } as UserData);
 
-        router.push(userRole === "Employee" ? "/user/professor" : "/user/student");
+        router.push(userRole === "Employee" ? "/user/employee" : "/user/student");
     };
 
     return (

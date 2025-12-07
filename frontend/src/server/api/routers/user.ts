@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { assignedExams, courseSections, courses, employees, enrollments, examQuestions, exams, students, users } from "~/server/db/schema";
+import { assignedExams, courseSections, courses, employees, enrollments, examQuestions, exams, students, users, examScores, examAnswers } from "~/server/db/schema";
 import type { Course, UserExamData } from "~/app/data/data";
 
 const JWT_SECRET = 'maroon-book-jwt-secret';
@@ -669,7 +669,7 @@ export const userRouter = createTRPCRouter({
                     success = true;
                 });
 
-                if (success && createdCourse) {
+                if (success && createdCourse !== null) {
                     // Notify all students that a new course was created
                     try {
                         const allStudents = await ctx.db.query.students.findMany();
@@ -680,7 +680,7 @@ export const userRouter = createTRPCRouter({
                                 message: `A new course "${input.course.courseTitle}" has been created. Course codes: ${input.course.sections.map(s => s.courseCode).join(', ')}`,
                                 courseTitle: input.course.courseTitle,
                                 courseDescription: input.course.courseDescription,
-                                courseID: createdCourse.courseID,
+                                courseID: createdCourse!.courseID,
                                 courseCodes: input.course.sections.map(s => s.courseCode),
                             };
 
@@ -805,6 +805,121 @@ export const userRouter = createTRPCRouter({
                 return wrapSuccess({ sectionID: section.sectionID });
             } catch (error) {
                 console.error('Error enrolling in course:', error);
+                return wrapError('Invalid auth token');
+            }
+        }),
+
+    submitExam: publicProcedure
+        .input(z.object({
+            token: z.string(),
+            examID: z.number().int().positive(),
+            sectionID: z.number().int().positive(),
+            answers: z.array(z.object({
+                questionID: z.number().int().positive(),
+                answerData: z.unknown(),
+            })),
+        }))
+        .mutation(async ({ ctx, input }) => {
+            // Verify JWT token
+            try {
+                const { id, role } = jwt.verify(input.token, JWT_SECRET) as { id: number, role: string };
+                if (role !== 'student') {
+                    return wrapError('User is not a student');
+                }
+
+                // Verify the student is enrolled in a section where this exam is assigned
+                const enrollment = await ctx.db.query.enrollments.findFirst({
+                    where: (enrollments, { and, eq }) => and(
+                        eq(enrollments.studentID, id),
+                        eq(enrollments.sectionID, input.sectionID),
+                    ),
+                });
+
+                if (!enrollment) {
+                    return wrapError('Student is not enrolled in this section');
+                }
+
+                // Verify the exam is assigned to this section
+                const assignedExam = await ctx.db.query.assignedExams.findFirst({
+                    where: (assignedExams, { and, eq }) => and(
+                        eq(assignedExams.examID, input.examID),
+                        eq(assignedExams.sectionID, input.sectionID),
+                    ),
+                });
+
+                if (!assignedExam) {
+                    return wrapError('Exam is not assigned to this section');
+                }
+
+                // Check if student has already submitted
+                const existingScore = await ctx.db.query.examScores.findFirst({
+                    where: (scores, { and, eq }) => and(
+                        eq(scores.examID, input.examID),
+                        eq(scores.studentID, id),
+                    ),
+                });
+
+                if (existingScore) {
+                    return wrapError('You have already submitted this exam');
+                }
+
+                // Get exam questions to validate and calculate score
+                const examQuestions = await ctx.db.query.examQuestions.findMany({
+                    where: (questions, { eq }) => eq(questions.examID, input.examID),
+                });
+
+                // Verify all questions are answered
+                if (input.answers.length !== examQuestions.length) {
+                    return wrapError('Not all questions have been answered');
+                }
+
+                // Verify all answers correspond to valid questions
+                const questionIDs = new Set(examQuestions.map(q => q.questionID));
+                for (const answer of input.answers) {
+                    if (!questionIDs.has(answer.questionID)) {
+                        return wrapError('Invalid question ID in answers');
+                    }
+                }
+
+                let success = false;
+                let examScoreID: number | null = null;
+
+                await ctx.db.transaction(async (tx) => {
+                    // Create exam score record (initially 0, will be graded by instructor for essay questions)
+                    const scoreEntry = await tx.insert(examScores).values({
+                        examID: input.examID,
+                        sectionID: input.sectionID,
+                        studentID: id,
+                        score: 0, // Will be calculated/graded later
+                    }).returning();
+
+                    if (scoreEntry.length === 0) {
+                        tx.rollback();
+                        return;
+                    }
+
+                    examScoreID = scoreEntry[0]!.examScoreID;
+
+                    // Insert all answers
+                    for (const answer of input.answers) {
+                        await tx.insert(examAnswers).values({
+                            examScoreID: examScoreID,
+                            questionID: answer.questionID,
+                            answerData: answer.answerData,
+                            score: 0, // Will be calculated/graded later
+                        });
+                    }
+
+                    success = true;
+                });
+
+                if (success) {
+                    return wrapSuccess({ examScoreID });
+                } else {
+                    return wrapError('Failed to submit exam');
+                }
+            } catch (error) {
+                console.error('Error submitting exam:', error);
                 return wrapError('Invalid auth token');
             }
         }),

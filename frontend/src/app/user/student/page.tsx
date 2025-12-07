@@ -4,6 +4,7 @@ import { type Course, type Section, type UserExamData } from "~/app/data/data";
 import mainStyle from "./page.module.css";
 import styles from "~/app/user/components/shared.module.css";
 import Nav from "~/app/user/components/userNav";
+import { LinkButton } from "~/app/_components/links";
 import { type ReactNode, useContext } from "react";
 import { type StudentUser, UserContext } from "~/app/UserContext";
 
@@ -40,7 +41,7 @@ function RenderExamList({ baseUser, courses, userExams }:{ baseUser: StudentUser
                     <a>Hide Exam</a>
 
                     {tookExam === "No" && pastDueDate && (
-                        <a>Take Exam</a>
+                        <LinkButton href={`/user/student/takeExam?examID=${encodeURIComponent(exam.examID)}`} className="">Take Exam</LinkButton>
                     )}
 
                     {tookExam === "Yes" && (
