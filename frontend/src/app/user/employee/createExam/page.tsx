@@ -215,7 +215,7 @@ export default function CreateExam() {
                                 onChange={e => updateExamType(e.target.value)}
                             >
                                 <option value="">Select option</option>
-                                <option value="File Submission">File Submission</option>
+                                {/* <option value="File Submission">File Submission</option> */}
                                 <option value="Create Exam">Create Custom Exam</option>
                                 <option value="Essay">Essay</option>
                             </select>  

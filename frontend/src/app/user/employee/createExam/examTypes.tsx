@@ -9,7 +9,7 @@ type GeneralExamProps = {
 
 export function RenderFileSubmission({questionObjs, setQuestionObjs}: GeneralExamProps) {
     if(!questionObjs || !questionObjs[0] || !questionObjs[0][0]) return <p>questionObjs is undefined.</p>;
-return (
+    return (
         <>
             <p className="title22px">File Submission</p>
             <RenderFileSubmissionQuestion 
@@ -27,7 +27,7 @@ export function RenderEssay({questionObjs, setQuestionObjs}: GeneralExamProps) {
     if(!questionObjs || !questionObjs[0] || !questionObjs[0][0]) return <p>questionObjs is undefined.</p>;
     return (
         <>
-            <p className="title22px">File Submission</p>
+            <p className="title22px">Essay Question</p>
             <RenderInputQuestion 
                 questionType={"Paragraph"}
                 questionId={questionObjs[0][0].id} 

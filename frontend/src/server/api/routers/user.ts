@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { employees, students, users } from "~/server/db/schema";
+import { assignedExams, employees, examQuestions, exams, students, users } from "~/server/db/schema";
 import type { Course, UserExamData } from "~/app/data/data";
 
 const JWT_SECRET = 'maroon-book-jwt-secret';
@@ -334,6 +334,101 @@ export const userRouter = createTRPCRouter({
                 );
 
                 return wrapSuccess(exams as UserExamData[]);
+            } catch {
+                return wrapError('Invalid auth token');
+            }
+        }),
+    
+    createExam: publicProcedure
+        .input(z.object({
+            token: z.string(),
+            exam: z.object({
+                examTitle: z.string().min(1),
+                timeAllotted: z.string().min(1),
+                dueDate: z.string().min(1),
+                courseID: z.number().int().positive(),
+                assigned: z.array(z.object({
+                    sectionID: z.number().int().positive(),
+                })),
+                questions: z.array(z.object({
+                    points: z.number().int().positive(),
+                    questionData: z.union([
+                        z.object({
+                            type: z.literal('multiple-choice'),
+                            question: z.string().min(1),
+                            options: z.array(z.string().min(1)).length(4),
+                        }),
+                        z.object({
+                            type: z.literal('short-answer'),
+                            question: z.string().min(1),
+                            wordLimit: z.number().int().positive().optional(),
+                        }),
+                        z.object({
+                            type: z.literal('paragraph'),
+                            question: z.string().min(1),
+                            wordLimit: z.number().int().positive().optional(),
+                        }),
+                    ]),
+                })),
+            }),
+        }))
+        .mutation(async ({ ctx, input }) => {
+            // Verify JWT token
+            try {
+                const { id, role } = jwt.verify(input.token, JWT_SECRET) as { id: number, role: string };
+                if (role !== 'employee') {
+                    return wrapError('User is not an employee');
+                }
+
+                const targetCourse = await ctx.db.query.courses.findFirst({
+                    where: (courses, { and, eq }) => and(
+                        eq(courses.courseID, input.exam.courseID),
+                        eq(courses.courseEmployeeID, id),
+                    ),
+                });
+
+                if (!targetCourse) {
+                    return wrapError('Course not found or user is not the instructor for the course');
+                }
+
+                let success = false;
+
+                await ctx.db.transaction(async (tx) => {
+                    const examEntry = await tx.insert(exams).values({
+                        courseID: input.exam.courseID,
+                        examTitle: input.exam.examTitle,
+                        timeAllotted: input.exam.timeAllotted,
+                        dueDate: input.exam.dueDate,
+                    }).returning();
+
+                    if (examEntry.length === 0) {
+                        tx.rollback();
+                        return;
+                    }
+
+                    for (const assigned of input.exam.assigned) {
+                        await tx.insert(assignedExams).values({
+                            examID: examEntry[0]!.examID,
+                            sectionID: assigned.sectionID,
+                        });
+                    }
+
+                    for (const question of input.exam.questions) {
+                        await tx.insert(examQuestions).values({
+                            examID: examEntry[0]!.examID,
+                            points: question.points,
+                            questionData: question.questionData,
+                        });
+                    }
+
+                    success = true;
+                });
+
+                if (success) {
+                    return wrapSuccess({});
+                } else {
+                    return wrapError('Failed to create exam');
+                }
             } catch {
                 return wrapError('Invalid auth token');
             }

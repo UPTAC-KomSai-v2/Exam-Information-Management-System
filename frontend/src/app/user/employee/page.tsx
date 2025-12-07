@@ -7,6 +7,7 @@ import { type ReactNode, useContext } from "react";
 import { type EmployeeUser, UserContext } from "~/app/UserContext";
 import { LinkButton } from "~/app/_components/links";
 import type { Course, UserExamData } from "~/app/data/data";
+import { api } from "~/trpc/client";
 
 export default function EmployeeDashboard() {
     const { baseUser, userExams, courses } = useContext(UserContext);
@@ -23,6 +24,39 @@ export default function EmployeeDashboard() {
                     <LinkButton href="/user/employee/createExam" className="primaryButton">
                         Create New Exam
                     </LinkButton>
+                    <button onClick={async () => {
+                        await api.user.createExam.mutate({
+                            token: baseUser.authToken,
+                            exam: {
+                                examTitle: 'Experimental Exam',
+                                timeAllotted: '30 Minutes',
+                                dueDate: 'January 1, 2026',
+                                courseID: courses[0]!.courseID,
+                                assigned: [
+                                    {
+                                        sectionID: courses[0]!.sections[0]!.sectionID,
+                                    }
+                                ],
+                                questions: [
+                                    {
+                                        points: 10,
+                                        questionData: {
+                                            type: 'multiple-choice',
+                                            question: 'What is 2 + 2?',
+                                            options: [
+                                                '1',
+                                                '2',
+                                                '3',
+                                                '4'
+                                            ],
+                                        }
+                                    }
+                                ]
+                            },
+                        });
+                    }}>
+                        Test exam creation
+                    </button>
                 </div>
                 <RenderExamList baseUser={baseUser} userExams={userExams} courses={courses} />
             </main>
